@@ -1,0 +1,63 @@
+# ai.digitalise.agency: deploy to Netlify when commit subject starts with [deploy].
+#
+# A push to main always checks the marker. It DEPLOYS only when the commit
+# subject line STARTS with [deploy], matching every other agency repository.
+# Mentioning the marker anywhere else in the message does nothing.
+#
+# Required repository secrets:
+#   NETLIFY_AUTH_TOKEN   personal access token from app.netlify.com/user/applications
+#   NETLIFY_SITE_ID      API ID from the Netlify site's general settings
+name: Deploy ai.digitalise.agency
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-deploy:
+    name: Check Deploy Marker
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    steps:
+      - id: check
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          SUBJECT="${COMMIT_MSG%%$'\n'*}"
+          if [[ "$SUBJECT" == "[deploy]"* ]]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Deploy marker found on the subject line."
+          else
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "No deploy marker: skipping deploy."
+          fi
+
+  deploy:
+    name: Deploy to Netlify
+    runs-on: ubuntu-latest
+    needs: check-deploy
+    if: needs.check-deploy.outputs.should_deploy == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          npm install -g netlify-cli
+          netlify deploy --dir=. --prod --message "Deploy from GitHub Actions: $COMMIT_SHA"
+
+      - name: Verify
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://ai.digitalise.agency/ || echo 000)
+            case "$code" in
+              2*|3*) echo "Site answering with $code after ${i} check(s)."; exit 0 ;;
+            esac
+            echo "waiting, got $code ($i/12)"
+            sleep 5
+          done
+          echo "::warning::site did not respond with 2xx/3xx; check Netlify dashboard"
