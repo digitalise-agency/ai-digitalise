@@ -1,12 +1,16 @@
-# ai.digitalise.agency: deploy to Netlify when commit subject starts with [deploy].
+# ai.digitalise.agency: deploy to VPS when commit subject starts with [deploy].
 #
 # A push to main always checks the marker. It DEPLOYS only when the commit
 # subject line STARTS with [deploy], matching every other agency repository.
 # Mentioning the marker anywhere else in the message does nothing.
 #
+# The site is served by Caddy from /root/ai.digitalise.agency on the VPS.
+# Caddy picks up the new files immediately — no restart needed.
+#
 # Required repository secrets:
-#   NETLIFY_AUTH_TOKEN   personal access token from app.netlify.com/user/applications
-#   NETLIFY_SITE_ID      API ID from the Netlify site's general settings
+#   VPS_HOST     46.202.194.85
+#   VPS_USER     deploy
+#   VPS_SSH_KEY  private key for that user
 name: Deploy ai.digitalise.agency
 
 on:
@@ -34,30 +38,66 @@ jobs:
           fi
 
   deploy:
-    name: Deploy to Netlify
+    name: Deploy to VPS
     runs-on: ubuntu-latest
     needs: check-deploy
     if: needs.check-deploy.outputs.should_deploy == 'true'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy
+      - name: Authorize SSH
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          COMMIT_SHA: ${{ github.sha }}
+          KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
         run: |
-          npm install -g netlify-cli
-          netlify deploy --dir=. --prod --message "Deploy from GitHub Actions: $COMMIT_SHA"
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          for i in 1 2 3 4 5; do
+            if ssh-keyscan -T 10 -H "$HOST" >> ~/.ssh/known_hosts 2>/tmp/keyscan.err; then
+              [ -s ~/.ssh/known_hosts ] && break
+            fi
+            echo "ssh-keyscan attempt $i failed: $(cat /tmp/keyscan.err 2>/dev/null)"
+            sleep 5
+          done
+          [ -s ~/.ssh/known_hosts ] || { echo "::error::could not fetch the host key"; exit 1; }
+
+      - name: Sync files
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+        run: |
+          retry() {
+            for attempt in 1 2 3; do
+              "$@" && return 0
+              echo "attempt $attempt failed: $*"
+              [ "$attempt" -lt 3 ] && sleep $(( attempt * 15 ))
+            done
+            return 1
+          }
+          retry rsync -az --no-owner --no-group --omit-dir-times --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=25" \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'assets/ASSETS.md' \
+            ./ "$USER@$HOST:/root/ai.digitalise.agency/"
 
       - name: Verify
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
         run: |
           for i in $(seq 1 12); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://ai.digitalise.agency/ || echo 000)
+            code=$(ssh -i ~/.ssh/deploy_key -o BatchMode=yes "$USER@$HOST" \
+              'curl -sf -o /dev/null -w "%{http_code}" --max-time 10 https://ai.digitalise.agency/' || echo 000)
             case "$code" in
               2*|3*) echo "Site answering with $code after ${i} check(s)."; exit 0 ;;
             esac
             echo "waiting, got $code ($i/12)"
             sleep 5
           done
-          echo "::warning::site did not respond with 2xx/3xx; check Netlify dashboard"
+          echo "::warning::site did not respond 2xx/3xx; check Caddy on the VPS"
+
+      - name: Clean up key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
