@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Digitalise AI — Content That Works While You Sleep</title>
+<meta name="description" content="AI content systems for entrepreneurs. Video production, LinkedIn automation, and scheduled publishing — fully automated." />
+<meta property="og:title" content="Digitalise AI" />
+<meta property="og:description" content="AI content systems built for growth." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#05070d" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════ -->
+<nav class="nav" aria-label="Site navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="Digitalise AI home">
+      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="8" fill="#1967ff"/>
+        <path d="M7 14c0-3.866 3.134-7 7-7s7 3.134 7 7-3.134 7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="14" cy="14" r="2.5" fill="#fff"/>
+      </svg>
+      digitalise <span class="logo-ai">AI</span>
+    </a>
+    <a href="#book" class="btn btn-primary">Book a call</a>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<section class="hero" aria-label="Hero">
+
+  <!-- animated background tiles -->
+  <div class="hero-bg" aria-hidden="true">
+
+    <!-- Tile 1: LinkedIn Video -->
+    <div class="tile tile-blue">
+      <div class="tile-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+        </svg>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">LinkedIn Video</span>
+        <span class="tile-metric">847K views</span>
+      </div>
+    </div>
+
+    <!-- Tile 2: Post tile -->
+    <div class="tile tile-orange">
+      <div class="tile-lines" style="padding:10px 0;">
+        <div class="tile-line"></div>
+        <div class="tile-line"></div>
+        <div class="tile-line"></div>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">LinkedIn Post</span>
+        <span class="tile-metric">234K impr.</span>
+      </div>
+    </div>
+
+    <!-- Tile 3: Stats tile -->
+    <div class="tile" style="background:var(--s1);">
+      <div class="tile-stat-num">1.2M</div>
+      <div class="tile-stat-lbl">Views this month</div>
+      <div class="tile-meta" style="margin-top:12px;">
+        <span class="tile-label">AI Campaign</span>
+        <span class="tile-metric">+340%</span>
+      </div>
+    </div>
+
+    <!-- Tile 4: Video -->
+    <div class="tile tile-teal">
+      <div class="tile-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+        </svg>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">AI Video</span>
+        <span class="tile-metric">512K views</span>
+      </div>
+    </div>
+
+    <!-- Tile 5: Published badge -->
+    <div class="tile" style="background:var(--s1);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" width="20" height="20" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span style="font-family:var(--font-d);font-size:13px;font-weight:700;color:#34d399;">Published</span>
+      </div>
+      <div class="tile-stat-num" style="font-size:22px;">47 posts</div>
+      <div class="tile-stat-lbl">this week, zero manual work</div>
+    </div>
+
+    <!-- Tile 6: Violet video -->
+    <div class="tile tile-violet">
+      <div class="tile-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+        </svg>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">AI Video</span>
+        <span class="tile-metric">1.8M views</span>
+      </div>
+    </div>
+
+    <!-- Tile 7: Schedule -->
+    <div class="tile" style="background:var(--s1);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accentH)" stroke-width="1.8" width="18" height="18" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+        </svg>
+        <span style="font-family:var(--font-d);font-size:12px;font-weight:600;color:var(--accentH);">Scheduled</span>
+      </div>
+      <div class="tile-stat-num" style="font-size:22px;">34 posts</div>
+      <div class="tile-stat-lbl">queued this week</div>
+    </div>
+
+    <!-- Tile 8: Reactions -->
+    <div class="tile tile-blue">
+      <div class="tile-lines" style="padding:10px 0;">
+        <div class="tile-line"></div>
+        <div class="tile-line"></div>
+        <div class="tile-line" style="width:50%;"></div>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">Viral Post</span>
+        <span class="tile-metric">19K ❤</span>
+      </div>
+    </div>
+
+  </div><!-- /hero-bg -->
+
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  <!-- hero content -->
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      AI Content Systems
+    </div>
+
+    <h1 class="hero-h1">
+      Content that works<br>
+      while you <em>sleep.</em>
+    </h1>
+
+    <div class="hero-actions">
+      <a href="#book" class="btn btn-primary">
+        Book a call
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+        </svg>
+      </a>
+      <a href="#portfolio" class="btn btn-ghost">See the work</a>
+    </div>
+
+    <div class="hero-social-proof">
+      <div class="avatars" aria-hidden="true">
+        <div class="avatar av1">K</div>
+        <div class="avatar av2">H</div>
+        <div class="avatar av3">M</div>
+        <div class="avatar av4">A</div>
+      </div>
+      <p class="hero-proof-text"><strong>12+ entrepreneurs</strong> growing with Digitalise AI</p>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     METRICS BAND
+     UPDATE: replace data-target values with real numbers
+══════════════════════════════════════════════ -->
+<section class="metrics" aria-label="Results">
+  <div class="container">
+    <div class="metrics-grid stagger">
+      <div class="metric-item" style="--i:0">
+        <div class="metric-num" data-target="147" data-suffix="+">0</div>
+        <div class="metric-label">Videos Published</div>
+      </div>
+      <div class="metric-item" style="--i:1">
+        <div class="metric-num" data-target="2.3" data-suffix="M">0</div>
+        <div class="metric-label">LinkedIn Impressions</div>
+      </div>
+      <div class="metric-item" style="--i:2">
+        <div class="metric-num" data-target="12" data-suffix="+">0</div>
+        <div class="metric-label">Clients Served</div>
+      </div>
+      <div class="metric-item" style="--i:3">
+        <div class="metric-num" data-target="40" data-suffix="h/mo">0</div>
+        <div class="metric-label">Hours Saved Per Client</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     HOW IT WORKS (PIPELINE)
+══════════════════════════════════════════════ -->
+<section class="pipeline-section" aria-label="How it works">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">How it works</p>
+      <h2 class="section-title">From idea to live<br>in one click.</h2>
+    </div>
+
+    <div class="pipeline" aria-label="Content production pipeline">
+
+      <!-- Node 1 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.355a14.998 14.998 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">Your Idea</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 2 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">AI Script</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 3 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">AI Video</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 4 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">Auto-Post</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 5 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon" style="background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl" style="color:#34d399;">Live</span>
+      </div>
+
+    </div><!-- /pipeline -->
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     PORTFOLIO
+     UPDATE: replace gradient .pt* classes with real video poster images.
+     Add poster="path/to/thumb.jpg" to each <video> or swap divs for <img>.
+══════════════════════════════════════════════ -->
+<section class="portfolio-section" id="portfolio" aria-label="Work portfolio">
+  <div class="container">
+    <div class="reveal" style="margin-bottom:48px;">
+      <p class="section-kicker">The work</p>
+      <h2 class="section-title">Real content.<br>Real results.</h2>
+    </div>
+
+    <div class="portfolio-grid stagger">
+
+      <div class="port-card" style="--i:0">
+        <div class="port-thumb pt1">
+          <div class="port-badge">847K views</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn Video
+          </div>
+          <div class="port-title">AI Founder Story: 6 months to 1M impressions</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:1">
+        <div class="port-thumb pt2">
+          <div class="port-badge">234K impr.</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn Post
+          </div>
+          <div class="port-title">Daily content series: 34 posts, zero manual effort</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:2">
+        <div class="port-thumb pt3">
+          <div class="port-badge">1.2M views</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            AI Video Campaign
+          </div>
+          <div class="port-title">19-video campaign: tech entrepreneur brand build</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:3">
+        <div class="port-thumb pt4">
+          <div class="port-badge">512K views</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn Video
+          </div>
+          <div class="port-title">Automation agency: client testimonial video series</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:4">
+        <div class="port-thumb pt5">
+          <div class="port-badge">19K ❤</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Viral Post
+          </div>
+          <div class="port-title">Industry insight post: 47 inbound leads in 3 days</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:5">
+        <div class="port-thumb pt6">
+          <div class="port-badge">+340% reach</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn Campaign
+          </div>
+          <div class="port-title">90-day DM outreach: 180 qualified conversations</div>
+        </div>
+      </div>
+
+    </div><!-- /portfolio-grid -->
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     CLIENT PROOF
+     UPDATE: replace initials and numbers with real client data
+══════════════════════════════════════════════ -->
+<section class="proof-section" aria-label="Client results">
+  <div class="container">
+    <div class="reveal" style="margin-bottom:48px;">
+      <p class="section-kicker">Client results</p>
+      <h2 class="section-title">Numbers that<br>speak for themselves.</h2>
+    </div>
+
+    <div class="proof-grid stagger">
+
+      <div class="proof-card" style="--i:0">
+        <div class="proof-header">
+          <div class="proof-avatar pa1">K</div>
+          <div>
+            <div class="proof-name">Mr. Kashif</div>
+            <div class="proof-company">Hi-Tec Automations</div>
+          </div>
+        </div>
+        <div class="proof-metric">
+          <span class="proof-num">147</span>
+          <span class="proof-unit">AI videos published</span>
+        </div>
+      </div>
+
+      <div class="proof-card" style="--i:1">
+        <div class="proof-header">
+          <div class="proof-avatar pa2">C</div>
+          <div>
+            <!-- UPDATE: replace with real client name and company -->
+            <div class="proof-name">Client Name</div>
+            <div class="proof-company">Company</div>
+          </div>
+        </div>
+        <div class="proof-metric">
+          <span class="proof-num">2.3M</span>
+          <span class="proof-unit">impressions in 90 days</span>
+        </div>
+      </div>
+
+      <div class="proof-card" style="--i:2">
+        <div class="proof-header">
+          <div class="proof-avatar pa3">A</div>
+          <div>
+            <!-- UPDATE: replace with real client name and company -->
+            <div class="proof-name">Client Name</div>
+            <div class="proof-company">Company</div>
+          </div>
+        </div>
+        <div class="proof-metric">
+          <span class="proof-num">40h</span>
+          <span class="proof-unit">saved every month</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════════ -->
+<section class="services-section" aria-label="Services">
+  <div class="container">
+    <div class="reveal" style="margin-bottom:48px;">
+      <p class="section-kicker">What we do</p>
+      <h2 class="section-title">Everything your content<br>operation needs.</h2>
+    </div>
+
+    <div class="services-grid stagger">
+
+      <div class="service-item" style="--i:0">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Video Production</div>
+        <span class="service-tag">Script to screen</span>
+      </div>
+
+      <div class="service-item" style="--i:1">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+          </svg>
+        </div>
+        <div class="service-name">LinkedIn Automation</div>
+        <span class="service-tag">Connect at scale</span>
+      </div>
+
+      <div class="service-item" style="--i:2">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+          </svg>
+        </div>
+        <div class="service-name">Content Scheduling</div>
+        <span class="service-tag">Set it, forget it</span>
+      </div>
+
+      <div class="service-item" style="--i:3">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+          </svg>
+        </div>
+        <div class="service-name">DM Outreach</div>
+        <span class="service-tag">Qualified inbounds</span>
+      </div>
+
+      <div class="service-item" style="--i:4">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Captions</div>
+        <span class="service-tag">Every video, ready</span>
+      </div>
+
+      <div class="service-item" style="--i:5">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+          </svg>
+        </div>
+        <div class="service-name">Analytics Reports</div>
+        <span class="service-tag">Know what works</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     BOOK A CALL
+     UPDATE: replace YOUR_CAL_LINK with Salman's Cal.com or Calendly URL.
+     For inline Cal.com embed, swap the anchor tag for the Cal embed snippet.
+══════════════════════════════════════════════ -->
+<section class="book-section" id="book" aria-label="Book a call">
+  <div class="container">
+    <div class="book-wrap reveal">
+      <p class="book-eyebrow">Ready to grow?</p>
+      <h2 class="book-title">30 minutes.<br>No slides.</h2>
+      <p class="book-sub">Pick a time. We talk about your content goals.</p>
+      <div class="book-cta-row">
+        <!-- UPDATE: replace href with your Cal.com or Calendly link -->
+        <a href="https://cal.com/digitalise-agency/digitalise-agency" target="_blank" rel="noopener" class="btn btn-primary" style="padding:16px 36px;font-size:17px;">
+          Book a call
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+          </svg>
+        </a>
+      </div>
+      <p class="book-detail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Free · <span>30 minutes · Zoom</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <p>
+      <a href="/">digitalise.agency</a> &nbsp;·&nbsp;
+      <a href="mailto:hello@digitalise.agency">hello@digitalise.agency</a>
+    </p>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
