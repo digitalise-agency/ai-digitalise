@@ -1,4 +1,4 @@
-# Assets checklist — ai.digitalise.agency
+# Assets checklist: ai.digitalise.agency
 
 Drop real assets here, then update the HTML as noted.
 

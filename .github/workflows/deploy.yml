@@ -5,7 +5,7 @@
 # Mentioning the marker anywhere else in the message does nothing.
 #
 # The site is served by Caddy from /root/ai.digitalise.agency on the VPS.
-# Caddy picks up the new files immediately — no restart needed.
+# Caddy picks up the new files immediately, no restart needed.
 #
 # Required repository secrets:
 #   VPS_HOST     46.202.194.85
