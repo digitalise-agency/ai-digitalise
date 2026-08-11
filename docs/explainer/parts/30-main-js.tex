@@ -1,0 +1,518 @@
+% ===========================================================================
+\subsection{\file{new-design-reference/js/main.js}}
+% ===========================================================================
+
+\textbf{JavaScript, 79 lines.} Everything on the page that reacts. It does three
+things and nothing else: it makes the navigation bar grow a frosted background
+once you scroll, it counts the four metric numbers up from zero when they come
+into view, and it fades most blocks upward as they arrive.
+
+\begin{provenance}{new-design-reference/js/main.js}
+Hand-written, and its own header comment says as much on line 3: \code{Zero
+external dependencies.} That claim is true and checkable: the file imports
+nothing, requires nothing, and the repository has no \file{package.json} that
+could supply a library.
+
+It arrived complete in the first commit, \code{0d77d51}, and has never been
+edited. The patterns in it (an immediately invoked function wrapper, an
+\code{IntersectionObserver} factory, a cubic ease-out counter) are the standard
+vocabulary of vanilla JavaScript rather than the fingerprint of any particular
+source, so no upstream is claimed. \textbf{Confidence: certain for hand-written
+and dependency-free; no provenance evidence found for any specific inspiration,
+and none is invented here.}
+\end{provenance}
+
+\subsubsection*{Why it exists}
+
+Without this file the page is complete, readable and static. Two of its three
+jobs are pure decoration and would not be missed. The third is not: the metric
+numbers are written into the HTML as the character \code{0}, with their real
+values hidden in data attributes, so with this file gone the page permanently
+advertises zero projects delivered and zero views.
+
+\begin{keyidea}{The single most important line in this file is in another file}
+\file{index.html} loads this script at line 595, immediately before
+\code{</body>}. Everything below runs the instant it loads, with no wrapper
+telling it to wait for the document. That only works because, by the time the
+browser reaches line 595, every element already exists. Move the
+\code{<script>} tag into the \code{<head>} and this file would run against an
+empty page, find nothing, attach nothing, and report no error at all.
+\end{keyidea}
+
+\subsubsection*{Line by line}
+
+\paragraph{Lines 1 to 6: the header, and the wrapper.}
+
+\begin{lstlisting}[language=Java,firstnumber=1,caption={\file{js/main.js}, lines 1--6}]
+/* ai.digitalise.agency · main.js
+   Scroll-driven animations: nav gloss, counter triggers, section reveals.
+   Zero external dependencies. */
+
+(function () {
+  'use strict';
+\end{lstlisting}
+
+Lines 1 to 3 are a comment, using the same \code{/* */} form as CSS. It is an
+accurate summary of the file, which is worth noting because a comment that
+describes what the code actually does is less common than it should be.
+
+Line 5 opens a wrapper worth understanding, because it looks like noise and is
+not.
+
+\begin{jargon}{Immediately invoked function expression}
+Writing \code{(function () \{ ... \})();} defines a function and runs it once,
+straight away, without ever giving it a name. The point is not the running: it is
+the boundary. Anything declared inside is invisible outside.
+
+Without it, the names \code{nav}, \code{animateCounter} and \code{observe}
+declared below would become global, meaning any other script on the page could
+see them, and any other script that happened to use the same name would collide
+with them. One stray global called \code{observe} is exactly the kind of bug that
+takes an afternoon to find.
+\end{jargon}
+
+Line 6 is \code{'use strict';}, which switches the language into a stricter mode
+for everything inside this wrapper.
+
+\begin{jargon}{Strict mode}
+A setting that makes JavaScript refuse things it would otherwise silently allow.
+The most valuable one: without it, assigning to a name you never declared quietly
+creates a global variable, so a typo such as \code{navv = 3} succeeds and does
+nothing useful. In strict mode it throws an error and you find the typo
+immediately.
+\end{jargon}
+
+\paragraph{Lines 8 to 16: the navigation bar.}
+
+\begin{lstlisting}[language=Java,firstnumber=7,caption={\file{js/main.js}, lines 7--16}]
+
+  /* ── Nav: add .scrolled glass on scroll ── */
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    const onScroll = () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+\end{lstlisting}
+
+Line 9 finds the navigation bar. \code{document.querySelector} takes a CSS
+selector, exactly the same syntax the stylesheet uses, and returns the first
+matching element, or the special value \code{null} if there is none.
+
+\begin{jargon}{const, and why not var}
+\code{const} declares a name whose binding cannot later be pointed at something
+else. It is the default choice in modern JavaScript, with \code{let} used when a
+name genuinely must change. The older \code{var} has confusing scoping rules and
+appears nowhere in this file, which is a small sign of care.
+\end{jargon}
+
+Line 10 is a guard: everything only happens \code{if (nav)}, that is, only if
+something was actually found. This is the pattern that makes the whole file
+tolerant of a changing page. Delete the navigation bar from the HTML and this
+block is skipped rather than crashing.
+
+\begin{jargon}{Truthy and falsy}
+JavaScript treats certain values as false when tested in a condition:
+\code{false}, \code{0}, an empty string, \code{null} and \code{undefined}.
+Everything else is treated as true. So \code{if (nav)} reads as ``if an element
+was found'', because \code{querySelector} returns \code{null} when it finds
+nothing.
+\end{jargon}
+
+Lines 11 to 13 define what to do when the page scrolls, using an arrow function.
+
+\begin{jargon}{Arrow function}
+\code{() => \{ ... \}} is a compact way to write a function. Here the compactness
+is the only benefit; the older \code{function () \{ ... \}} would behave
+identically in this file.
+\end{jargon}
+
+Line 12 is the actual work, and it is one line doing the job of five.
+\code{classList.toggle('scrolled', condition)} adds the class when the condition
+is true and removes it when false. The condition is \code{window.scrollY > 40},
+meaning the page has been scrolled more than 40 pixels from the top. The
+stylesheet at lines 105 to 111 defines what \code{scrolled} looks like, and the
+transition on line 103 makes the change fade rather than snap.
+
+Line 14 registers the function to run on every scroll event. \code{\{ passive:
+true \}} is a performance promise to the browser: this handler will never cancel
+the scroll. That matters because without the promise, the browser must wait for
+the handler to finish before it knows whether the scroll may proceed, which can
+make scrolling feel sticky. It is the correct flag here and it is often forgotten.
+
+Line 15 calls the function once immediately. This handles the case where the page
+is loaded already scrolled, for example when a visitor refreshes halfway down or
+arrives on a link ending in \code{\#book}. Without it the bar would be transparent
+over content until the first scroll.
+
+\paragraph{Lines 18 to 36: the counter.}
+
+\begin{lstlisting}[language=Java,firstnumber=17,caption={\file{js/main.js}, lines 17--36}]
+
+  /* ── Counter animation (cubic ease-out) ── */
+  function animateCounter(el) {
+    const raw    = el.dataset.target || '0';
+    const suffix = el.dataset.suffix || '';
+    const target = parseFloat(raw.replace(/[^0-9.]/g, ''));
+    const isFloat = raw.includes('.');
+    const dec     = isFloat ? (raw.split('.')[1] || '').length : 0;
+    const dur     = 2200;
+    const start   = performance.now();
+
+    const step = (now) => {
+      const p      = Math.min((now - start) / dur, 1);
+      const eased  = 1 - Math.pow(1 - p, 3);
+      const val    = eased * target;
+      el.textContent = (isFloat ? val.toFixed(dec) : Math.round(val).toLocaleString()) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+\end{lstlisting}
+
+This is the most substantial piece of logic in the repository, and it is worth
+taking slowly.
+
+Line 20 reads the target. \code{el.dataset.target} is how JavaScript reads the
+attribute \code{data-target} written in the HTML: strip the \code{data-} prefix
+and what remains is a property of \code{dataset}. The \code{|| '0'} at the end
+supplies a default: if the attribute is missing, \code{dataset.target} is
+\code{undefined}, which is falsy, so the whole expression evaluates to
+\code{'0'}.
+
+Line 21 does the same for the suffix, defaulting to an empty string.
+
+Line 22 turns the text into a number. \code{raw.replace(/[\^{}0-9.]/g, '')}
+deletes every character that is not a digit or a dot, and \code{parseFloat} then
+reads what is left as a number.
+
+\begin{jargon}{Regular expression}
+A pattern for matching text, written between slashes. \code{[0-9.]} means ``a
+digit or a dot''; putting a caret first negates it, so it means ``anything that
+is not a digit or a dot''. The \code{g} after the closing slash means global:
+replace every occurrence, not just the first.
+\end{jargon}
+
+Line 23 asks whether the original text contained a dot, which is how the code
+distinguishes \code{1.6} from \code{17}. Line 24 counts the digits after the dot,
+so that \code{1.6} is displayed to one decimal place throughout the animation
+rather than as \code{1.5999999}. \code{(raw.split('.')[1] || '')} takes everything
+after the dot, falling back to an empty string if there is nothing there, and
+\code{.length} counts it.
+
+\begin{jargon}{Ternary operator}
+\code{condition ? a : b} evaluates to \code{a} when the condition is true and
+\code{b} otherwise. It is an \code{if} statement compressed into an expression,
+and it appears twice in this file, on lines 24 and 32.
+\end{jargon}
+
+Line 25 fixes the duration at 2200 milliseconds, 2.2 seconds. Line 26 records the
+start time using \code{performance.now()}, a clock designed for measuring
+durations precisely.
+
+Lines 28 to 34 define one frame of the animation, and this is the heart of it.
+
+\code{const p = Math.min((now - start) / dur, 1)} computes progress: how far
+through the animation we are, from 0 at the start to 1 at the end. The
+\code{Math.min(..., 1)} caps it, so that if the browser is busy and a frame
+arrives late, progress never exceeds 1 and the number never overshoots its target.
+That cap is the difference between a counter that lands on 17 and one that
+occasionally flashes 19 before settling.
+
+\code{const eased = 1 - Math.pow(1 - p, 3)} is the easing. Linear progress feels
+mechanical; this curve makes the count start fast and slow dramatically as it
+approaches the target, which is what makes it feel like it is settling.
+
+\begin{keyidea}{What the easing formula actually does}
+Take progress \code{p}, subtract it from 1, cube the result, and subtract that
+from 1. At \code{p = 0.5}, halfway through in time, the formula gives
+$1 - 0.5^3 = 0.875$: the counter is already 87.5\% of the way to its target. The
+whole second half of the animation covers the last eighth of the distance. That
+asymmetry is the entire effect.
+\end{keyidea}
+
+Line 32 renders the number. If the target had a decimal point, \code{toFixed(dec)}
+formats it to that many places. Otherwise \code{Math.round} makes it a whole
+number and \code{toLocaleString()} inserts the thousands separators appropriate to
+the visitor's region, so a large number reads as \code{1,200} for a British
+visitor and \code{1.200} for a German one. The suffix is then glued on the end.
+
+Line 33 asks for the next frame if the animation is not finished, and line 35
+starts the first one.
+
+\begin{jargon}{requestAnimationFrame}
+A request to run a function just before the browser's next screen repaint, about
+60 times a second. Calling it repeatedly from inside itself, as here, is the
+standard way to run an animation: it stays in step with the display, and the
+browser pauses it entirely when the tab is in the background, which a timer would
+not.
+\end{jargon}
+
+\begin{honest}{The counter ignores the reduced-motion preference}
+This function animates for 2.2 seconds regardless of whether the visitor has asked
+their operating system to reduce motion. The stylesheet honours that preference
+carefully for everything it controls (lines 762 to 768), so the intent is plainly
+there; it simply was not carried into this file.
+
+The fix is small and this document states it precisely so nobody has to design it:
+
+\begin{lstlisting}[language=Java,caption={A four-line fix. This code is a
+suggestion in this document and is NOT present in the repository.}]
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduce) {
+  el.textContent = (isFloat ? target.toFixed(dec)
+                            : target.toLocaleString()) + suffix;
+  return;
+}
+\end{lstlisting}
+
+Placed after line 26, that shows the final number immediately and skips the
+animation entirely, which is the correct behaviour: the information is preserved
+and only the movement is removed.
+\end{honest}
+
+\begin{honest}{The metric values are hidden from anything that does not run
+JavaScript}
+The real numbers live in \code{data-} attributes, and the visible text is
+\code{0}. Search engines, link previews, and any visitor with JavaScript disabled
+therefore see a page claiming zero of everything. Writing the true value in the
+HTML and having the counter animate towards it from zero would remove that risk
+entirely at no cost to the effect.
+\end{honest}
+
+\paragraph{Lines 38 to 53: the observer factory.}
+
+\begin{lstlisting}[language=Java,firstnumber=37,caption={\file{js/main.js}, lines 37--53}]
+
+  /* ── Intersection observer factory ── */
+  function observe(selector, className, threshold, callback) {
+    const els = document.querySelectorAll(selector);
+    if (!els.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add(className || 'visible');
+        if (callback) callback(e.target);
+        io.unobserve(e.target);
+      });
+    }, { threshold: threshold || 0.18 });
+
+    els.forEach((el) => io.observe(el));
+  }
+\end{lstlisting}
+
+This is the best-designed thing in the repository: a small general-purpose helper
+that the four lines following it use to do four different jobs.
+
+\begin{jargon}{IntersectionObserver}
+A browser facility that watches elements and tells you when they enter or leave
+the visible area. Before it existed, the only way to do this was to listen for
+every scroll event and measure each element's position by hand, which ran hundreds
+of times a second and made pages stutter. The observer does the work outside the
+main thread and reports only when something actually changes.
+\end{jargon}
+
+Line 40 finds every matching element. \code{querySelectorAll} returns a list, which
+may be empty, rather than \code{null}.
+
+Line 41 guards against an empty list and returns early. \code{!els.length} reads as
+``if the count is zero'', because \code{0} is falsy and \code{!} inverts it. This
+is the same defensive habit as line 10.
+
+Lines 43 to 50 create the observer. Its callback receives a list of entries, one
+for each element whose visibility changed, and for each one it:
+
+\begin{enumerate}
+\item skips anything that is leaving rather than entering
+  (\code{if (!e.isIntersecting) return});
+\item adds the class, defaulting to \code{visible} when the caller did not name
+  one;
+\item runs the optional extra callback, which only the counter uses;
+\item stops watching that element with \code{io.unobserve}.
+\end{enumerate}
+
+That fourth step is the one that matters most.
+
+\begin{keyidea}{Why it stops watching}
+Every reveal in this design is meant to happen once. Without \code{unobserve}, an
+element that scrolled out of view and back would fire again, and for the metrics
+that would mean the numbers restarting their count every time the visitor scrolled
+past. Unobserving also releases the browser's bookkeeping for that element, so
+what starts as thirty watched elements steadily becomes zero.
+\end{keyidea}
+
+Line 50 sets the threshold, defaulting to 0.18: the callback fires once 18\% of
+the element is visible, rather than at the first pixel. Waiting for a fraction to
+appear is what makes the reveal feel connected to the scroll instead of triggering
+just off screen.
+
+\begin{honest}{The default threshold is written in a way that cannot express zero}
+\code{threshold || 0.18} substitutes the default whenever the argument is falsy,
+and \code{0} is falsy. So a caller asking for a threshold of \code{0}, meaning
+``fire the moment a single pixel appears'', would silently get \code{0.18}
+instead. The same objection applies to \code{className || 'visible'}, though an
+empty class name is not a sensible request.
+
+No caller in this file passes \code{0}, so nothing is broken today. It is a latent
+trap of a kind worth recognising, and the modern remedy is the \code{??} operator,
+which substitutes only for \code{null} and \code{undefined} and leaves \code{0}
+alone.
+\end{honest}
+
+Line 52 starts watching every element found.
+
+\paragraph{Lines 55 to 67: the four things being watched.}
+
+\begin{lstlisting}[language=Java,firstnumber=54,caption={\file{js/main.js}, lines 54--67}]
+
+  /* reveal (fade + slide) */
+  observe('.reveal', 'visible', 0.15);
+
+  /* staggered children */
+  observe('.stagger', 'visible', 0.15);
+
+  /* pipeline animation */
+  observe('.pipeline', 'visible', 0.2);
+
+  /* counters */
+  observe('.metric-num[data-target]', 'counted', 0.5, (el) => {
+    animateCounter(el);
+  });
+\end{lstlisting}
+
+Four calls, and the whole page's reveal behaviour. The first three add the class
+\code{visible} to anything carrying \code{reveal}, \code{stagger} or
+\code{pipeline}, at slightly different thresholds. The stylesheet does everything
+after that.
+
+The fourth is the different one. Its selector,
+\code{.metric-num[data-target]}, matches elements that carry the class \emph{and}
+have the attribute, which is a small piece of defensiveness: a metric element
+without a target would be skipped rather than animated to \code{NaN}. Its
+threshold is 0.5, so the numbers only start counting when the band is half visible,
+and its callback runs the counter.
+
+\begin{honest}{The class \code{counted} is added and styled nowhere}
+The fourth call passes \code{'counted'} rather than \code{'visible'}, so each
+metric number gains a class that no CSS rule and no other JavaScript ever reads. It
+is harmless, and it serves as a marker a developer could inspect, but it is worth
+knowing that it does nothing. Note also that the metric numbers are children of
+\code{.metrics-grid}, which is a \code{.stagger}, so they are already being faded
+in by the second call: the class here is genuinely spare.
+\end{honest}
+
+\paragraph{Lines 69 to 79: smooth anchor scrolling, and the close.}
+
+\begin{lstlisting}[language=Java,firstnumber=68,caption={\file{js/main.js}, lines 68--79}]
+
+  /* ── Smooth anchor scroll (book-a-call button) ── */
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+})();
+\end{lstlisting}
+
+Line 70 finds every link whose destination starts with a hash.
+\code{a[href\^{}="\#"]} is an attribute selector, and \code{\^{}=} means ``starts
+with''. On this page that matches three links: the navigation's ``Book a call'',
+the hero's ``Book a call'', and the hero's ``See the work''.
+
+Line 72 looks up the destination by using the link's own \code{href} as a
+selector, which works because \code{\#book} is valid CSS meaning ``the element
+with id book''.
+
+Line 73 returns early if the destination does not exist, leaving the browser to
+handle the click normally. Line 74 then cancels the browser's default jump, but
+only after the destination has been confirmed, which is the correct order: cancel
+first and a broken link would do nothing at all instead of at least trying.
+
+Line 75 performs the scroll. \code{block: 'start'} aligns the destination with the
+top of the window.
+
+\begin{honest}{This whole block is redundant, and it carries a latent crash}
+\file{css/site.css} line 28 already sets \code{scroll-behavior: smooth} on the
+document, which makes every anchor link glide without any JavaScript at all. These
+eleven lines reproduce that.
+
+They also introduce a failure the CSS version does not have. A link written as
+\code{href="\#"}, which is a common way to write a placeholder link, would reach
+line 72 as \code{document.querySelector('\#')}. That is not a valid selector, so
+the browser throws a \code{SyntaxError}, and because the error happens inside a
+click handler it would break that click and leave an error in the console.
+
+No such link exists in the page today, so this is latent rather than live. The
+honest summary is that the safest change to this file would be to delete lines 69
+to 77 entirely: it would remove a redundancy and a hazard in one edit, and nothing
+visible would change.
+\end{honest}
+
+Line 79 closes and immediately runs the wrapper opened on line 5.
+
+\subsubsection*{What it connects to}
+
+\textbf{Named by:} \file{new-design-reference/index.html}, line 595, and nothing
+else.
+
+\textbf{Names:} no file at all. It imports nothing and fetches nothing.
+
+\textbf{Its entire interface with the rest of the project is seven strings}, and
+they are worth listing because they are the contract nothing checks:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+String & Used at & Where it must also exist \\
+\midrule
+\code{.nav}        & line 9  & \file{index.html} line 23, \file{site.css} line 95 \\
+\code{scrolled}    & line 12 & \file{site.css} line 105 \\
+\code{.reveal}     & line 56 & \file{index.html} (five places), \file{site.css} line 78 \\
+\code{.stagger}    & line 59 & \file{index.html} (four places), \file{site.css} line 86 \\
+\code{.pipeline}   & line 62 & \file{index.html} line 223, \file{site.css} line 381 \\
+\code{visible}     & lines 56--62 & \file{site.css} lines 83, 92, 400 \\
+\code{.metric-num} & line 65 & \file{index.html} (four places), \file{site.css} line 343 \\
+\bottomrule
+\end{tabular}
+\caption{Every point of contact between this file and the other two. Break any
+one of these strings in one place and the page keeps working, minus one
+behaviour, with no error reported anywhere.}
+\end{table}
+
+\subsubsection*{How it breaks}
+
+\begin{itemize}
+\item \textbf{Load it in the \code{<head>} instead of at the end of the body} and
+  all three behaviours vanish silently, since every lookup runs immediately and
+  finds nothing.
+\item \textbf{Rename a class in the HTML} and the corresponding behaviour stops,
+  again silently, because of the early-return guards.
+\item \textbf{Delete this file} and the page is static, with four zeros in the
+  metrics band. That last part is the only real damage.
+\item \textbf{Add a link with \code{href="\#"}} and clicking it throws a
+  \code{SyntaxError} from line 72.
+\item \textbf{A visitor who has asked for reduced motion} still gets the counting
+  animation, because this file never checks.
+\item \textbf{An ancient browser without \code{IntersectionObserver}} would throw
+  on line 43 and lose all four reveal behaviours, which would leave every
+  \code{.reveal} element permanently invisible were it not for the CSS
+  reduced-motion block. Every browser in current use supports it, so this is a
+  historical note, not a live concern.
+\end{itemize}
+
+\subsubsection*{Honest findings for this file}
+
+The counter ignores \code{prefers-reduced-motion}; the real metric values are
+invisible without JavaScript; the smooth-scroll block duplicates a CSS feature and
+carries a latent \code{SyntaxError}; the \code{counted} class is inert; and the
+\code{||} defaults on line 47 and 50 cannot express a falsy argument. Against
+those: the file is genuinely well written, with consistent guards, a sensible
+shared helper, correct use of \code{unobserve} and \code{passive}, and no
+dependencies at all.

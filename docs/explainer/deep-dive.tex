@@ -1,0 +1,1084 @@
+\documentclass[11pt,a4paper]{article}
+\input{preamble}
+
+% ===========================================================================
+% Three characters in this repository's source files cannot be typeset by the
+% font this document uses, so they are mapped to the closest faithful stand-in.
+% The mapping is stated openly in section 1.4 so no reader is misled by it.
+%   U+2500  horizontal box-drawing rule   ->  hyphen
+%   U+2550  double box-drawing rule       ->  equals sign
+%   U+2764  heavy black heart             ->  heart symbol
+% U+00B7 (middle dot) renders exactly and needs no substitution.
+% ===========================================================================
+\DeclareUnicodeCharacter{2500}{-}
+\DeclareUnicodeCharacter{2550}{=}
+\DeclareUnicodeCharacter{2764}{\ensuremath{\heartsuit}}
+\lstset{extendedchars=true,
+  literate={·}{{\textperiodcentered}}1
+           {─}{{-}}1
+           {═}{{=}}1
+           {❤}{{\ensuremath{\heartsuit}}}1
+}
+
+\title{AI Digitalise\\[2mm]\large Deep Dive: every folder, every file, every line}
+\author{Digitalise Agency}
+\date{2026-08-11}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% ===========================================================================
+\section{What this project is}
+% ===========================================================================
+
+This repository holds a marketing web page for \textbf{ai.digitalise.agency}: a
+single-page site whose job is to persuade a visitor that Digitalise Agency can
+build AI systems for them, and then get that visitor to book a call.
+
+It is six files and 1{,}591 lines. There is no framework, no build step, no
+package manager, no database and no server-side code. A web browser can open
+the page straight off a disk. That makes it one of the simplest projects in the
+workspace, and a good one to read first if you have never read code before.
+
+\begin{keyidea}{The one thing to understand before anything else}
+This repository does \emph{not} contain the web page that is currently being
+served at ai.digitalise.agency. The design here was built, then deliberately
+parked, and the machinery that used to publish it was switched off. Something
+else is serving that address today. Section 1.2 shows the evidence, and the
+whole document is written with that split in mind.
+\end{keyidea}
+
+\subsection{The problem it was built to solve}
+
+An agency that sells AI services needs a page that a prospective client can be
+sent to. The page has to say what is on offer, show that other people have been
+happy, and make booking a conversation a single click. That is the entire
+purpose. Everything in these six files serves one of those three jobs.
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[node distance=10mm and 18mm]
+  \node[box]                        (v)  {A visitor\\\scriptsize arrives from a link or an ad};
+  \node[box, right=of v]            (p)  {The page\\\scriptsize \file{index.html}};
+  \node[extbox, right=of p]         (cal){cal.com\\\scriptsize booking calendar};
+  \node[box, below=of p]            (out){A booked call\\\scriptsize the only outcome that counts};
+  \draw[flow]  (v) -- node[lbl]{opens} (p);
+  \draw[dflow] (p) -- node[lbl]{Book a call} (cal);
+  \draw[flow]  (cal) |- node[lbl, pos=0.25]{picks a time} (out);
+\end{tikzpicture}
+\caption{The whole project in one picture. The dashed box is a third-party
+service the agency does not run. Everything in this repository exists to move a
+visitor from the left box to the bottom box.}
+\end{figure}
+
+\subsection{The split between this repository and the live site}
+
+The last commit made to this repository, \code{da508a7} on 2026-07-29, did two
+things in one move: it pushed every file down into a folder named
+\file{new-design-reference/}, and it renamed the automatic publishing workflow so
+that it could no longer run. The person who made that commit explained why in the
+commit message itself, and it is worth quoting because it is the single most
+important fact about this repository:
+
+\begin{quote}
+\emph{``The live site is the generated agency variant built from the portfolio
+repo, not this one. Parking this design for reference and turning the workflow
+off so it cannot overwrite the real site.''}
+\end{quote}
+
+That claim was checked against the live address on 2026-08-11 while this document
+was being written. The address answers, and it does not serve this page:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+What was checked & What came back \\
+\midrule
+HTTP status of \code{https://ai.digitalise.agency/} & \code{200}, the site is up \\
+Page title served & \emph{Digitalise Agency} followed by \emph{AI \& Full-Stack Engineering} \\
+Page title in this repository & \emph{Digitalise AI: Done-for-you AI systems for entrepreneurs} \\
+Canonical URL declared by the live page & \code{https://salmanadnan.com/} \\
+\bottomrule
+\end{tabular}
+\caption{Verified by fetching the live address on 2026-08-11. The titles do not
+match, so the live page is not the page in this repository, exactly as commit
+\code{da508a7} said.}
+\end{table}
+
+\begin{honest}{The live site tells search engines to index a different domain}
+The page currently served at ai.digitalise.agency declares
+\code{<link rel="canonical" href="https://salmanadnan.com/">}. A canonical link
+is an instruction to a search engine saying ``the real home of this content is
+over there, index that instead of this''. So the live ai.digitalise.agency is
+telling Google to credit salmanadnan.com for its content.
+
+That is almost certainly a copy-and-paste accident in whatever repository
+produces the live page, not a decision. It is out of scope for \emph{this}
+repository, which cannot fix it, but anybody reading this document is likely to
+be the person who can. Verified by fetching the page on 2026-08-11.
+\end{honest}
+
+\begin{jargon}{Repository, often shortened to ``repo''}
+A folder of files whose complete history is recorded, so that every change ever
+made can be listed, inspected, and undone. The recording is done by a program
+called \emph{git}. When this document says ``this repository'', it means the
+folder \file{AI Digitalise} and the history stored alongside it.
+\end{jargon}
+
+\subsection{Reading order, and why it is not alphabetical}
+
+Files are explained in the order that makes each one understandable when you
+reach it, not in the order a file listing would print them:
+
+\begin{enumerate}
+\item \file{new-design-reference/index.html} first, because it is the page
+  itself. Every other file exists to serve it.
+\item \file{new-design-reference/css/site.css} second, because the page names it
+  and is unreadable without it.
+\item \file{new-design-reference/js/main.js} third, because it animates what the
+  first two files have already put on screen.
+\item \file{new-design-reference/netlify.toml} fourth: a hosting setting for a
+  host that was never used.
+\item \file{new-design-reference/assets/ASSETS.md} fifth: a checklist of work
+  that was never finished.
+\item \file{.github/workflows-disabled/deploy.yml.disabled} last, because it is
+  about publishing, which only makes sense once you know what is being
+  published.
+\end{enumerate}
+
+\subsection{A note on three characters}
+
+Three characters used in this repository's source files cannot be printed by the
+typeface this document uses. Rather than silently drop them, they are printed as
+the closest stand-in, listed here so that no quoted line misleads you:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+In the real file & Printed here as & Where it appears \\
+\midrule
+A long horizontal rule (U+2500) & a hyphen & comment banners in the CSS and JavaScript \\
+A double horizontal rule (U+2550) & an equals sign & comment banners in the HTML \\
+A heavy black heart (U+2764) & a heart symbol & one decorative tile in the HTML \\
+\bottomrule
+\end{tabular}
+\caption{Character substitutions used in every quoted listing in this document.}
+\end{table}
+
+The middle dot (U+00B7), which appears in the page footer and in several file
+header comments, prints exactly as it does in the file and is not substituted.
+
+% ===========================================================================
+\section{The ten-minute mental model}
+% ===========================================================================
+
+If you read only one page of this document, read this one.
+
+A web page is made of three kinds of file, and this project has exactly one of
+each. That is not a coincidence: it is the oldest and simplest way to build a
+web page, and the project chose it deliberately.
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[node distance=11mm and 14mm]
+  \node[box]                 (html) {\file{index.html}\\\scriptsize the words and the structure};
+  \node[box, right=of html]  (css)  {\file{css/site.css}\\\scriptsize what it all looks like};
+  \node[box, right=of css]   (js)   {\file{js/main.js}\\\scriptsize what moves when you scroll};
+  \node[extbox, below=of css](br)   {The visitor's web browser\\\scriptsize assembles all three into a page};
+  \draw[flow] (html) -- node[lbl]{names} (css);
+  \draw[flow] (css)  -- node[lbl]{then} (js);
+  \draw[flow] (html) |- (br);
+  \draw[flow] (css)  -- (br);
+  \draw[flow] (js)   |- (br);
+\end{tikzpicture}
+\caption{The three-file model. The browser downloads all three and combines them.
+Nothing runs on a server: everything happens on the visitor's own machine.}
+\end{figure}
+
+\begin{jargon}{HTML}
+Short for HyperText Markup Language. It is the file that holds the actual
+content of a page (the headings, the paragraphs, the links) wrapped in labels
+called \emph{tags} that say what each piece of content \emph{is}. A tag looks
+like \code{<h1>} to open and \code{</h1>} to close. HTML says what things are; it
+says almost nothing about what they look like.
+\end{jargon}
+
+\begin{jargon}{CSS}
+Short for Cascading Style Sheets. It is the file that decides appearance: colour,
+size, spacing, position, and movement. It works by naming a kind of element (``every
+heading'', ``anything labelled \code{btn}'') and listing the appearance rules that
+apply to it. The word ``cascading'' means that when two rules disagree, there is a
+defined pecking order that decides which one wins.
+\end{jargon}
+
+\begin{jargon}{JavaScript}
+A programming language that runs inside the browser, after the page has loaded.
+It is what makes a page \emph{react}: to a scroll, a click, a keypress. Unlike
+HTML and CSS, which describe things, JavaScript gives instructions that happen in
+sequence.
+\end{jargon}
+
+\subsection{The one paragraph that matters}
+
+\file{index.html} lays out seven stacked bands down the page: a navigation bar, a
+full-screen hero with floating tiles behind it, a row of four big numbers, a
+five-step pipeline diagram, a grid of six past projects, three client result
+cards, a grid of six services, a booking panel, and a footer. \file{site.css}
+gives all of that its dark navy look, its rounded corners and its layout, using a
+small set of named colours defined once at the top. \file{main.js} adds three
+behaviours and nothing else: the navigation bar grows a dark glassy background
+once you scroll past 40 pixels, the four big numbers count up from zero when they
+scroll into view, and most blocks fade upward into place as they appear. The
+``Book a call'' buttons are ordinary links: two of them jump down the page to the
+booking panel, and the button inside that panel opens a cal.com calendar in a new
+tab.
+
+\begin{keyidea}{Why ``no build step'' is a real design decision}
+Most modern web projects are written in one form and then \emph{compiled} into
+another before they can be published, by a tool the developer has to install and
+maintain. This project skips that entirely: the files you read are byte for byte
+the files a browser receives. The benefit is that anybody can open, understand
+and change it with nothing but a text editor. The cost is that there is nothing
+to catch a mistake before a visitor sees it, and no way to share code with
+another page except by copying it.
+\end{keyidea}
+
+% ===========================================================================
+\section{Background a beginner needs}
+% ===========================================================================
+
+This section defines everything the project assumes you already know. If you
+know it, skip to section 4.
+
+\subsection{What happens when someone opens the page}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[node distance=26mm]
+  \node[box] (b) {Browser};
+  \node[box, right=of b] (s) {Web server\\\scriptsize (Caddy on the VPS)};
+  \foreach \n in {b,s} \draw[dashed, linegrey] (\n.south) -- ++(0,-4.0);
+  \draw[flow]  ($(b.south)+(0,-0.6)$) -- node[lbl,above]{give me \file{/}} ($(s.south)+(0,-0.6)$);
+  \draw[flow]  ($(s.south)+(0,-1.3)$) -- node[lbl,above]{\file{index.html}} ($(b.south)+(0,-1.3)$);
+  \draw[flow]  ($(b.south)+(0,-2.0)$) -- node[lbl,above]{give me \file{/css/site.css}} ($(s.south)+(0,-2.0)$);
+  \draw[flow]  ($(s.south)+(0,-2.7)$) -- node[lbl,above]{the stylesheet} ($(b.south)+(0,-2.7)$);
+  \draw[flow]  ($(b.south)+(0,-3.4)$) -- node[lbl,above]{give me \file{/js/main.js}} ($(s.south)+(0,-3.4)$);
+\end{tikzpicture}
+\caption{The request sequence. The browser reads \file{index.html} first,
+discovers the other two files named inside it, and asks for those next. This is
+why the \code{<link>} and \code{<script>} tags matter so much: they are the only
+reason the browser knows the other files exist.}
+\end{figure}
+
+\begin{jargon}{Web server}
+A program that sits on a computer that is always on, waits for requests for
+files, and sends those files back. This project is served by a web server called
+\emph{Caddy} running on the agency's rented computer. Caddy does no thinking
+here: it hands over files exactly as they sit on disk.
+\end{jargon}
+
+\begin{jargon}{VPS}
+Virtual Private Server: a computer the agency rents from a hosting company and
+controls remotely, rather than one sitting in an office. The deploy workflow in
+section 12 names its address as \code{46.202.194.85}.
+\end{jargon}
+
+\subsection{Tags, attributes, classes and selectors}
+
+Four words do most of the work in this project.
+
+A \textbf{tag} marks a piece of content: \code{<p>} is a paragraph,
+\code{<section>} is a major band of a page, \code{<a>} is a link. Most tags come
+in pairs that open and close, with content in between.
+
+An \textbf{attribute} is extra information written inside the opening tag, as a
+name and a value: in \code{<a href="\#book">}, the attribute \code{href} has the
+value \code{\#book}, meaning ``this link points at the thing named book on this
+same page''.
+
+A \textbf{class} is a label you invent and attach to any number of elements, with
+the \code{class} attribute. It carries no meaning to the browser; it exists so
+the CSS can find those elements again.
+
+A \textbf{selector} is how CSS names what it wants to style. \code{.btn} means
+``every element labelled \code{btn}''. \code{.btn-primary:hover} means ``every
+element labelled \code{btn-primary}, but only while the mouse is over it''.
+
+\begin{jargon}{Element}
+One thing on the page, created by a tag: a heading, a button, a box. When this
+document says ``element'', it means one of these, not a chemical one.
+\end{jargon}
+
+\subsection{Custom properties: colours defined once}
+
+At the top of the stylesheet is a block that gives names to values:
+\code{--accent: \#1967ff;} means ``from now on, the name \code{--accent} stands
+for this particular blue''. Everywhere else, the stylesheet writes
+\code{var(--accent)} instead of the raw colour. Change the definition once and
+every use changes with it.
+
+\begin{jargon}{Hex colour}
+A colour written as a hash sign and six characters, like \code{\#1967ff}. The six
+characters are three pairs giving the amount of red, green and blue, each from
+\code{00} (none) to \code{ff} (maximum). \code{\#1967ff} is a strong blue:
+little red, a moderate amount of green, almost full blue.
+\end{jargon}
+
+\begin{jargon}{Custom property, also called a CSS variable}
+A name defined in CSS whose value can be reused anywhere. It always starts with
+two hyphens when defined, and is read back with \code{var(...)}. This project
+defines twenty of them and reads most of them dozens of times.
+\end{jargon}
+
+% ===========================================================================
+\section{Repository layout}
+% ===========================================================================
+
+\begin{figure}[H]\centering
+\begin{forest}dirtree
+[AI Digitalise
+  [.github
+    [workflows-disabled
+      [deploy.yml.disabled]
+    ]
+  ]
+  [new-design-reference
+    [assets
+      [ASSETS.md]
+    ]
+    [css
+      [site.css]
+    ]
+    [js
+      [main.js]
+    ]
+    [index.html]
+    [netlify.toml]
+  ]
+]
+\end{forest}
+\caption{The complete repository. Nothing is folded away: these six files are
+everything git tracks. The complete list with line counts is in Appendix A.}
+\end{figure}
+
+Two things about this shape are unusual and both are deliberate.
+
+First, \textbf{every single file lives under \file{new-design-reference/}}. On a
+normal web project, \file{index.html} sits at the top so that a web server
+pointed at the folder finds it immediately. Here it is one level down, which
+means a server pointed at this folder would find no home page at all. That is the
+parking described in section 1.2: the folder name is a message to the next
+person, saying ``this is a reference, not a live site''.
+
+Second, \textbf{the automation folder is misspelled on purpose}. GitHub only runs
+files it finds in a folder called exactly \file{.github/workflows}. This one is
+called \file{.github/workflows-disabled}, and the file inside it ends in
+\file{.disabled} rather than \file{.yml}. Either change alone would be enough to
+stop it running. Both were made, which tells you the intent was not to pause it
+briefly.
+
+\begin{jargon}{Hidden folder}
+A folder whose name begins with a dot, like \file{.github}. On Mac and Linux
+these are hidden from ordinary file listings by default. Nothing else is special
+about them; the dot is just a convention meaning ``tooling lives here, not
+content''.
+\end{jargon}
+
+% ===========================================================================
+\section{Architecture}
+% ===========================================================================
+
+There is no architecture in the usual sense, because there is no running program
+to have one. What exists instead is a set of relationships between six files, and
+those are worth drawing once before walking them.
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[node distance=12mm and 20mm]
+  \node[box]                          (html) {\file{index.html}\\\scriptsize 597 lines};
+  \node[box, above right=of html]     (css)  {\file{css/site.css}\\\scriptsize 768 lines};
+  \node[box, below right=of html]     (js)   {\file{js/main.js}\\\scriptsize 79 lines};
+  \node[extbox, left=of html]         (fonts){Google Fonts\\\scriptsize two typefaces};
+  \node[extbox, below=of html]        (cal)  {cal.com\\\scriptsize \code{davonex/30min}};
+  \node[box, above=of css]            (assets){\file{assets/ASSETS.md}\\\scriptsize a checklist, not code};
+  \draw[flow]  (html) -- node[lbl]{\code{<link>}} (css);
+  \draw[flow]  (html) -- node[lbl]{\code{<script>}} (js);
+  \draw[dflow] (html) -- node[lbl]{\code{<link>}} (fonts);
+  \draw[dflow] (html) -- node[lbl]{\code{href}} (cal);
+  \draw[flow, dashed] (assets) -- node[lbl]{describes} (css);
+\end{tikzpicture}
+\caption{What names what. Solid arrows are files this project owns; dashed boxes
+are services on somebody else's computers. \file{netlify.toml} and the deploy
+workflow are not shown because nothing on the page refers to them: they are
+instructions for machines that publish the page, not part of it.}
+\end{figure}
+
+The important structural point is that \textbf{the arrows only go one way}.
+\file{index.html} knows the names of the other two files. Neither of them knows
+anything about it: \file{site.css} styles class names that it hopes exist, and
+\file{main.js} looks for elements that may or may not be there. Every one of its
+lookups is written to do nothing quietly if the element is missing. That is why
+the page does not break when a section is deleted, and also why a typo in a class
+name fails silently rather than loudly.
+
+\begin{honest}{Silent failure is the price of this simplicity}
+Nothing anywhere checks that the class names in \file{index.html} and the
+selectors in \file{site.css} agree. Rename \code{.hero-badge} in one file and not
+the other and the page still loads, still scores as ``working'', and simply looks
+wrong. Section 14 lists three places where this has already happened.
+\end{honest}
+
+% ===========================================================================
+\section{Data flow, end to end}
+% ===========================================================================
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[node distance=8mm and 12mm]
+  \node[box]                    (a) {Browser downloads\\\file{index.html}};
+  \node[box, right=of a]        (b) {Reads \code{<head>},\\requests fonts and CSS};
+  \node[box, right=of b]        (c) {Draws the page\\top to bottom};
+  \node[box, below=of c]        (d) {Reaches \code{<script>}\\at the very end};
+  \node[box, left=of d]         (e) {\file{main.js} runs,\\attaches watchers};
+  \node[box, left=of e]         (f) {Visitor scrolls,\\watchers fire};
+  \draw[flow] (a) -- (b);
+  \draw[flow] (b) -- (c);
+  \draw[flow] (c) -- (d);
+  \draw[flow] (d) -- (e);
+  \draw[flow] (e) -- (f);
+\end{tikzpicture}
+\caption{The full life of one page view. Note that the JavaScript is the last
+thing to run, because its \code{<script>} tag is the last thing in the document.
+That ordering is deliberate and is explained in section 7.3.}
+\end{figure}
+
+There is no data flow beyond this. No form is submitted, nothing is saved,
+nothing is sent anywhere. The only outbound step a visitor can trigger is
+following the cal.com link, at which point they have left this page entirely.
+
+\begin{honest}{Nothing measures whether the page works}
+There is no analytics of any kind: no counter, no tag manager, no event when
+somebody presses ``Book a call''. So the question this page exists to answer,
+``does it get bookings'', cannot be answered from the page itself. Any evidence
+would have to come from the cal.com side. Whether that is a privacy choice or an
+oversight is not recorded anywhere in the repository, so this document does not
+guess.
+\end{honest}
+
+% ===========================================================================
+\section{The file-by-file walkthrough}
+% ===========================================================================
+
+Every file git tracks gets its own subsection below, quoted from its first line
+to its last. Nothing is summarized away and nothing is skipped.
+
+\input{parts/10-index-html}
+\input{parts/20-site-css}
+\input{parts/30-main-js}
+\input{parts/40-netlify}
+\input{parts/50-assets}
+\input{parts/60-deploy}
+
+% ===========================================================================
+\section{Generated and third-party files}
+% ===========================================================================
+
+\textbf{There are none.} Every one of the six tracked files was written by hand
+by a person. There is no lock file, no minified bundle, no vendored dependency
+tree, no binary asset, and no file carrying a generator's banner. This was
+checked mechanically rather than assumed:
+
+\begin{lstlisting}[language=bash,caption={The check that was run, and its result}]
+$ git grep -lIE '(DO NOT EDIT|auto-?generated|@generated|Generated by)'
+(no output)
+\end{lstlisting}
+
+So the tier 2 count in Appendix A is zero, and every file is walked line by line.
+
+% ===========================================================================
+\section{Configuration and secrets}
+% ===========================================================================
+
+Nothing in this repository is configurable at run time. There is no settings
+file, no environment file, and no \file{.env.example}. The page is entirely
+fixed: to change what it says, you edit the HTML.
+
+Three values are effectively configuration that has been written directly into
+the files, which is worth knowing because it is where you would look to change
+them:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Value & Where it is & What it controls \\
+\midrule
+\code{https://cal.com/davonex/30min} & \file{index.html}, line 565 & the booking calendar that opens \\
+\code{hello@digitalise.agency} & \file{index.html}, line 590 & the contact address in the footer \\
+The colour tokens & \file{css/site.css}, lines 5--25 & the whole colour scheme \\
+\bottomrule
+\end{tabular}
+\caption{Values that behave like settings but are written into the source.}
+\end{table}
+
+\subsection{Secrets}
+
+The repository contains \textbf{no passwords, keys or tokens}, and it should not:
+a page that runs entirely in a visitor's browser can keep no secret, because the
+visitor can read every byte of it.
+
+Three secrets are \emph{referred to} by the deploy workflow, and stored in GitHub
+rather than here: \code{VPS\_HOST}, \code{VPS\_USER} and \code{VPS\_SSH\_KEY}.
+Section 12 covers how they are used.
+
+\begin{honest}{The server's IP address is written in a comment}
+Line 11 of the deploy workflow records \code{VPS\_HOST 46.202.194.85} in a
+comment, next to the note that it is supposed to be a repository secret. Storing
+the address in a comment defeats the point of storing the value in a secret. This
+is a small exposure rather than a large one, because an IP address is not a
+credential and this repository is private, but it is inconsistent with its own
+stated design, and the same address is reachable from anywhere on the internet.
+\end{honest}
+
+% ===========================================================================
+\section{Dependencies}
+% ===========================================================================
+
+The project has \textbf{no build-time dependencies at all}: no
+\file{package.json}, no \file{requirements.txt}, nothing to install. That is
+unusual enough to be worth stating plainly rather than leaving as an absence.
+
+It has exactly two run-time dependencies, both of them services on other
+people's computers, both reached by the visitor's browser rather than by the
+project:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Dependency & Reached from & What it is for \\
+\midrule
+Google Fonts & \file{index.html}, lines 13--15 & downloads the Space Grotesk and Inter typefaces \\
+cal.com & \file{index.html}, line 565 & shows the calendar when ``Book a call'' is pressed \\
+\bottomrule
+\end{tabular}
+\caption{The two external services the page depends on.}
+\end{table}
+
+\begin{honest}{Fonts are loaded from Google, which the agency's main site
+deliberately does not do}
+The agency's main website (the \code{digitalise-website} project in this same
+workspace) self-hosts its fonts, meaning it serves the font files from its own
+server. This page instead fetches them from \code{fonts.googleapis.com} on every
+visit. That has two consequences: every visitor's browser makes a request to
+Google, which is a privacy and consent question in some jurisdictions, and the
+page's appearance depends on a third party staying up.
+
+The page does degrade gracefully if Google is unreachable, because both font
+definitions list fallbacks (\code{ui-sans-serif}, \code{system-ui},
+\code{sans-serif}), so text still appears in whatever the visitor's device
+provides. The layout would shift, but nothing would disappear.
+\end{honest}
+
+% ===========================================================================
+\section{How to run it}
+% ===========================================================================
+
+There is nothing to install and nothing to start. Two ways work:
+
+\begin{lstlisting}[language=bash,caption={The simplest way: open the file directly}]
+# From the repository root
+xdg-open new-design-reference/index.html      # Linux
+open      new-design-reference/index.html     # macOS
+\end{lstlisting}
+
+This works, with one caveat that will confuse a beginner. The page asks for its
+stylesheet at \code{/css/site.css}, with a leading slash. A leading slash means
+``from the very top of this site''. When the file is opened directly off a disk,
+the very top is the root of your hard drive, so the browser looks for
+\code{/css/site.css} there, does not find it, and renders the page with no
+styling at all: black text on white, everything stacked in a column.
+
+To see it as intended, serve the folder over HTTP instead:
+
+\begin{lstlisting}[language=bash,caption={The way that actually looks right}]
+cd new-design-reference
+python3 -m http.server 8000
+# then open http://localhost:8000/ in a browser
+\end{lstlisting}
+
+\begin{keyidea}{Why the leading slash matters so much}
+\code{/css/site.css} means ``start at the top of the site''.
+\code{css/site.css}, without the slash, would mean ``start from wherever the
+current page is''. The second form would have worked both on a server and off a
+disk. The first form was chosen, which is correct for the live site and
+inconvenient for local inspection. This one character is the single most likely
+thing to make a newcomer think the project is broken when it is not.
+\end{keyidea}
+
+\subsection{What you should see}
+
+A full-screen dark navy hero with the headline ``AI systems built to grow while
+you sleep'', eight small cards drifting in and out behind it, and below that, in
+order: four numbers that count up as they scroll into view, a five-step
+horizontal pipeline, six project cards, three client cards, six service tiles, a
+booking panel, and a one-line footer.
+
+% ===========================================================================
+\section{The agent-facing surface}
+% ===========================================================================
+
+Several projects in this workspace are operated through Claude Code and ship
+their own commands, skills and hooks. \textbf{This project ships none.} That was
+checked rather than assumed:
+
+\begin{lstlisting}[language=bash,caption={The check, and its result}]
+$ find . -maxdepth 2 \( -name 'CLAUDE.md' -o -name 'skills.md' \)
+(no output)
+$ find .claude -type f 2>/dev/null
+(no output)
+\end{lstlisting}
+
+There is no \file{.claude/} folder, no \file{CLAUDE.md}, no skill and no hook.
+
+\begin{honest}{No CLAUDE.md and no README means the repository explains nothing
+about itself}
+There is no README either. A person cloning this repository is given six files
+and no statement of what it is, whether it is live, or why everything sits inside
+a folder called \file{new-design-reference}. The only explanation anywhere is the
+message on commit \code{da508a7}, which is invisible unless you know to run
+\code{git log}. For a repository whose central fact is ``this is parked, the live
+site is elsewhere'', that fact belongs in a README where it cannot be missed. This
+is the most consequential gap in the project and it would take five minutes to
+close.
+\end{honest}
+
+The document you are reading, and its companion Brief, are produced by a
+workspace-level command, \code{/explain-projects}, which lives outside this
+repository and writes into \file{docs/explainer/}. That folder is the only part
+of this repository that command owns.
+
+% ===========================================================================
+\section{Deployment}
+% ===========================================================================
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[node distance=9mm and 14mm]
+  \node[box]                   (push) {A commit is pushed\\to \code{main}};
+  \node[dec, right=of push]    (chk)  {subject starts\\with \code{[deploy]}?};
+  \node[box, right=of chk]     (ssh)  {Fetch the host key,\\write the SSH key};
+  \node[box, below=of ssh]     (sync) {\code{rsync} the files\\to the VPS};
+  \node[box, left=of sync]     (ver)  {Ask the VPS to fetch\\the live URL};
+  \node[box, left=of ver]      (stop) {Stop, do nothing};
+  \draw[flow] (push) -- (chk);
+  \draw[flow] (chk)  -- node[lbl]{yes} (ssh);
+  \draw[flow] (chk)  |- node[lbl,pos=0.3]{no} (stop);
+  \draw[flow] (ssh)  -- (sync);
+  \draw[flow] (sync) -- (ver);
+\end{tikzpicture}
+\caption{The publishing pipeline as written in the workflow file. It is drawn in
+the past tense on purpose: this pipeline is switched off and has been since
+2026-07-29.}
+\end{figure}
+
+The mechanism is explained line by line in section 7.6. The short version: a
+push to the \code{main} branch checks whether the commit's first line begins with
+the literal text \code{[deploy]}. If it does, the files are copied to the VPS with
+\code{rsync} and the workflow then asks the VPS to fetch the live address to
+confirm the site still answers. If it does not, nothing happens.
+
+\begin{keyidea}{The \code{[deploy]} marker must start the subject line}
+Every repository in this workspace shares this convention, and it catches people
+out. Writing ``fix the header and \code{[deploy]}'' does nothing at all: the check
+is \code{"\$SUBJECT" == "[deploy]"*}, which tests the \emph{beginning} of the
+string. The marker must be the first thing in the commit message.
+\end{keyidea}
+
+\subsection{Why it is disabled, and what would happen if it were not}
+
+The workflow is disabled twice over, as section 4 explained. If somebody restored
+it by moving the file back and renaming it, it would not work, and it is worth
+knowing why before anybody tries.
+
+The \code{rsync} command copies \code{./}, the repository root, to
+\code{/root/ai.digitalise.agency/} on the server. When the workflow was written,
+\file{index.html} was at that root. Since commit \code{da508a7} it is one level
+down. So a restored workflow would copy a folder called
+\file{new-design-reference} to the server, the server would look for a home page
+at the top and find none, and the live site would break. The same commit that
+moved the files is the one that disabled the workflow, so the two changes are
+consistent with each other; the trap is only there for somebody who re-enables
+one without the other.
+
+\begin{honest}{One exclusion is now stale as well}
+The \code{rsync} command excludes \code{assets/ASSETS.md} so the internal
+checklist is not published. After the move, that file is at
+\code{new-design-reference/assets/ASSETS.md}, which the exclusion pattern no
+longer matches. Re-enable the workflow unchanged and the checklist, including the
+line about replacing placeholder numbers, would be published to the public
+internet.
+\end{honest}
+
+% ===========================================================================
+\section{Honest findings}
+% ===========================================================================
+
+Everything here is also stated at the point in the walkthrough where it arises.
+It is collected once so it can be read as a list.
+
+\subsection{Findings about correctness}
+
+\begin{enumerate}
+\item \textbf{The live site's canonical link points at a different domain.} The
+  page served at ai.digitalise.agency declares salmanadnan.com as its canonical
+  URL, which asks search engines to index the other site instead. Verified live on
+  2026-08-11. Not fixable from this repository, but whoever fixes it should know.
+\item \textbf{A restored deploy workflow would break the live site}, because the
+  files moved and the \code{rsync} source path did not. Section 13.1.
+\item \textbf{The \code{rsync} exclusion for \file{ASSETS.md} no longer matches}
+  its path, so re-enabling the workflow would publish the internal checklist.
+\end{enumerate}
+
+\subsection{Findings about dead or contradictory code}
+
+\begin{enumerate}\setcounter{enumi}{3}
+\item \textbf{Two colour tokens are defined and never used.} \code{--accent2}
+  (an orange) and \code{--shadow} are declared in \file{site.css} and read zero
+  times. Counted mechanically: \code{grep -c 'var(--accent2)'} returns 0.
+\item \textbf{The rule \code{.metric-num .accent} styles nothing.} No element in
+  \file{index.html} carries the class \code{accent}.
+\item \textbf{One responsive rule contradicts itself.} In the 900-pixel
+  breakpoint, tile 3 is shown by one rule (line 748) and hidden by another five
+  lines later (line 751). The hide wins, so the show is dead.
+\item \textbf{\code{.tile-lines \{ padding: 0 \}} is overridden every time it is
+  used}, because both places that use the class set \code{padding:10px 0} inline
+  in the HTML.
+\item \textbf{The class \code{counted} is added by the JavaScript and styled
+  nowhere.} It is harmless, and it does serve as a marker, but nothing reads it.
+\end{enumerate}
+
+\subsection{Findings about unfinished work}
+
+\begin{enumerate}\setcounter{enumi}{8}
+\item \textbf{Five ``UPDATE'' comments remain in \file{index.html}} telling a
+  future editor to replace placeholder content, even though the commit that
+  populated the page claimed to replace all placeholder content with real agency
+  data. Some were acted on and the comments were not removed.
+\item \textbf{\file{ASSETS.md} is stale in two specific ways.} It tells the
+  reader to search \file{index.html} for \code{YOUR\_CAL\_LINK}, which no longer
+  exists there, and to replace the four metric numbers, which appear to have
+  been replaced already.
+\item \textbf{Not one of the twelve assets \file{ASSETS.md} calls
+  ``required before launch'' exists.} The \file{assets/} folder contains only the
+  checklist itself. In particular there is no favicon and no social preview
+  image, and \file{index.html} has neither a \code{<link rel="icon">} nor an
+  \code{og:image} tag.
+\item \textbf{The decorative hero tiles display invented engagement numbers}
+  (847K views, 234K impressions, 1.2M, 512K, 1.8M, 19K reactions). They are marked
+  \code{aria-hidden} and are plainly ornamental, but a visitor reads them as
+  claims. This is worth flagging given that the agency's main site was built
+  specifically to avoid fabricated numbers.
+\item \textbf{\file{netlify.toml} configures a host that is not used.} The
+  deploy path is \code{rsync} to a VPS running Caddy. Netlify appears nowhere
+  else in the repository.
+\end{enumerate}
+
+\subsection{Findings about accessibility}
+
+\begin{enumerate}\setcounter{enumi}{13}
+\item \textbf{The counting numbers ignore the reduced-motion preference.} The
+  stylesheet honours \code{prefers-reduced-motion} for every CSS animation, but
+  the counter is animated in JavaScript over 2.2 seconds and never checks that
+  setting. A visitor who has asked their system to reduce motion still gets
+  moving numbers. This is the one accessibility defect with a clear fix, given in
+  section 7.3.
+\item \textbf{\code{\#1967ff} on the dark background is a marginal contrast
+  choice} for the small uppercase ``kicker'' labels and the 11-pixel service tags.
+  This document does not have a measured contrast figure for those exact pairings,
+  so it is raised as worth checking rather than asserted as a failure.
+\end{enumerate}
+
+% ===========================================================================
+\section{The project's story}
+% ===========================================================================
+
+Parts 1 to 4 and part 8 are fact, taken from the repository and its history. Parts
+5, 6 and 7 are advice and judgement, and are labelled as such where they begin.
+
+\subsection{Deliverables}
+
+What this project actually produced:
+
+\begin{itemize}
+\item A complete, self-contained one-page marketing website: 597 lines of HTML,
+  768 of CSS, 79 of JavaScript, with no dependencies to install.
+\item A hosting configuration for Netlify (\file{netlify.toml}) that sets four
+  security response headers.
+\item A GitHub Actions workflow that publishes the site to the agency VPS over
+  SSH, gated on a \code{[deploy]} marker, with retries on both the host-key fetch
+  and the file copy, and a post-deploy check that the site answers.
+\item An asset checklist (\file{ASSETS.md}) naming the twelve files that would be
+  needed to finish the design.
+\end{itemize}
+
+What it did not produce: a live site. The address ai.digitalise.agency serves
+something else, as established in section 1.2.
+
+\subsection{Timeline and effort}
+
+The entire history is nine commits across two calendar days.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}llp{7.2cm}@{}}
+\toprule
+Date & Commit & Subject \\
+\midrule
+2026-07-28 & \code{0d77d51} & Launch ai.digitalise.agency, a visual-first marketing site \\
+2026-07-28 & \code{4dffc12} & Update booking link to cal.com/davonex/30min \\
+2026-07-28 & \code{d49e034} & Add deploy workflow \\
+2026-07-28 & \code{2c66a7a} & \code{[deploy]} Replace all placeholder content with real agency data and switch deploy to VPS rsync \\
+2026-07-29 & \code{f6d810f} & \code{[deploy]} Trigger deploy after VPS secrets added \\
+2026-07-29 & \code{ed5c154} & \code{[deploy]} Fix VPS deploy key \\
+2026-07-29 & \code{f698421} & \code{[deploy]} Fix /root traverse permission for deploy user \\
+2026-07-29 & \code{0c3cad1} & \code{[deploy]} Remove em-dashes from titles, portfolio copy, and comments \\
+2026-07-29 & \code{da508a7} & Move new design into new-design-reference and disable auto-deploy \\
+\bottomrule
+\end{tabular}
+\caption{The complete commit history. Subjects are reproduced as written except
+that commit \code{0d77d51} uses a long dash where this table uses a comma; that
+character is not printable in this document's typeface.}
+\end{table}
+
+Two days, start to finish, and the second day is entirely deployment: four of the
+five commits on 2026-07-29 are fixing the publishing pipeline, and the fifth
+switches it off. Nothing in the history suggests the design itself was difficult.
+Everything in the history suggests getting it onto a server was.
+
+\textbf{This is calendar time, not effort.} Git records when commits were made and
+nothing about hours spent. No document in this repository records effort, so none
+is claimed here.
+
+\subsection{Challenges}
+
+Each of these is claimed because the repository carries a scar for it, not
+because it seems plausible.
+
+\textbf{1. Getting SSH access to the VPS working (three commits).} The scars are
+\code{f6d810f} (``Trigger deploy after VPS secrets added''), \code{ed5c154}
+(``Fix VPS deploy key'') and \code{f698421} (``Fix /root traverse permission for
+deploy user''). Read in order they tell a complete story: the workflow was written
+before the secrets existed, then the key was wrong, then the key was right but the
+\code{deploy} user could not traverse into \code{/root} to reach the target
+folder. The last of those is a genuinely unobvious Unix permission problem, and
+it is the reason the deploy target is an unusual path.
+
+\textbf{2. Fragile host-key fetching on GitHub's runners.} The workflow wraps
+\code{ssh-keyscan} in a five-attempt retry loop with a five-second wait, and
+wraps \code{rsync} in a three-attempt loop with a growing wait. Nobody writes two
+independent retry loops into a fifty-line script unless both steps have failed on
+them. The sibling repository \code{salmanadnan-com}, built the same week from the
+same skeleton, carries a commit literally titled ``Retry, runner IP lottery'',
+which confirms the diagnosis: GitHub's runners come from a wide pool of addresses
+and some of them were being refused.
+
+\textbf{3. Em-dashes.} Commit \code{0c3cad1} exists solely to remove them from
+titles, portfolio copy and comments. This is the workspace-wide house rule showing
+up as real work; the rule is enforced in this document too.
+
+\textbf{4. The design was overtaken.} The final commit is not a fix, it is a
+retreat: the page was finished and working, and then something else became the
+live site, so this one was parked. That is the largest challenge recorded here and
+it was not technical.
+
+\subsection{Outcomes}
+
+\begin{itemize}
+\item \textbf{Built and complete.} The page is finished to the standard of a
+  design reference: it renders, it is responsive down to a phone, and it honours
+  the reduced-motion preference in CSS.
+\item \textbf{Not live, and deliberately so.} The design is parked under
+  \file{new-design-reference/} and the publishing workflow is disabled twice over.
+\item \textbf{Superseded.} ai.digitalise.agency answers with a different page
+  built elsewhere, as verified in section 1.2.
+\item \textbf{Never finished as a product.} None of the twelve assets in the
+  launch checklist were ever added, so the portfolio thumbnails are still colour
+  gradients and the client logos are still coloured circles with a letter in them.
+\item \textbf{Dormant.} No commit since 2026-07-29.
+\end{itemize}
+
+\subsection{What to do (judgement)}
+
+\emph{From here on this section is advice, not a record of project decisions.}
+
+\begin{itemize}
+\item \textbf{Read \code{git log} before you touch anything}, because the only
+  statement of this repository's status lives in a commit message.
+\item \textbf{Serve the folder over HTTP to look at it}, never open the file
+  directly, or the absolute stylesheet path will make it look broken.
+\item \textbf{Keep the \code{[deploy]} convention} if the workflow is ever
+  restored. It is shared across every repository in this workspace and its
+  consistency is the point.
+\item \textbf{Keep the retry loops.} They were paid for.
+\item \textbf{Treat this as a design source.} Its real remaining value is the
+  stylesheet: a coherent, self-contained dark theme in 768 readable lines with no
+  tooling required.
+\end{itemize}
+
+\subsection{What not to do (judgement)}
+
+\begin{itemize}
+\item \textbf{Do not re-enable the deploy workflow without changing the
+  \code{rsync} source path.} It would copy a folder rather than a page and take
+  the live site down. Section 13.1.
+\item \textbf{Do not copy the hero tiles into anything real without replacing
+  their numbers.} They are invented, and this agency's main site was built to
+  avoid exactly that.
+\item \textbf{Do not trust \file{ASSETS.md}.} Two of its instructions refer to
+  things that are no longer in the code.
+\item \textbf{Do not assume this repository is what visitors see.} It is not, and
+  that is the single easiest mistake to make here.
+\item \textbf{Do not delete the repository because it is not live.} The
+  stylesheet is reusable and the deploy workflow encodes three separate lessons
+  about SSH on GitHub runners.
+\end{itemize}
+
+\subsection{If you were starting over (judgement)}
+
+\emph{This subsection is entirely opinion, argued from what the code shows.}
+
+\textbf{Keep exactly as it is:} the no-build-step decision, the token block at the
+top of the stylesheet, the three-behaviour JavaScript, the reduced-motion block,
+and the \code{[deploy]} marker convention. For a page of this size, every one of
+those choices is right, and a modern framework would have added a hundred times
+the machinery for no benefit a visitor could perceive.
+
+\textbf{Do differently:} write a README on day one saying what the site is and
+where it is served from, because the absence of that is what makes this repository
+confusing. Use a relative stylesheet path so the page can be opened off a disk.
+Self-host the two fonts, matching the agency's own main site and removing the
+dependency on Google. Add the favicon and social preview image before the first
+deploy rather than listing them on a checklist. And delete a placeholder comment
+in the same commit that removes the placeholder.
+
+\textbf{Drop:} \file{netlify.toml}, which configures a host this project does not
+use, and the two unused colour tokens.
+
+\textbf{Built today, it would look almost identical}, which is the strongest thing
+that can be said for it. The only structural change worth making would be to move
+the four security headers out of \file{netlify.toml} and into the Caddy
+configuration on the VPS, so that they actually take effect.
+
+\subsection{Open threads}
+
+\begin{itemize}
+\item \textbf{Twelve assets never delivered}, listed in \file{ASSETS.md}: one
+  hero video, three client logos, six portfolio thumbnails, a favicon and a social
+  preview image.
+\item \textbf{The booking link is a placeholder.} \code{cal.com/davonex/30min} is
+  the Davonex calendar, not a Digitalise AI one. The same placeholder is recorded
+  as a known outstanding item on the agency's main website, so this is a shared
+  loose end rather than a local mistake.
+\item \textbf{Five ``UPDATE'' comments} remain in \file{index.html}, each marking
+  work that may or may not have been done.
+\item \textbf{The relationship to \code{salmanadnan-com} is undocumented.} The two
+  repositories share an identical file list and an identical structure and were
+  built in the same week. Neither says so.
+\item \textbf{The live site's canonical link} points at salmanadnan.com. Somebody
+  needs to fix that in whichever repository produces the live page.
+\end{itemize}
+
+% ===========================================================================
+\section{Glossary}
+% ===========================================================================
+
+\begin{description}[leftmargin=0pt,style=nextline]
+\item[Attribute] Extra information inside an opening tag, written as a name and a
+  value, such as \code{href="\#book"}.
+\item[Breakpoint] A screen width at which the layout changes. This project has
+  two: 900 pixels and 600 pixels.
+\item[Class] A label attached to elements so that CSS and JavaScript can find
+  them again. It has no meaning to the browser by itself.
+\item[Commit] One recorded change to a repository, with a message explaining it.
+\item[CSS] Cascading Style Sheets: the file that controls appearance.
+\item[Custom property] A named value in CSS, defined as \code{--name: value} and
+  read back as \code{var(--name)}.
+\item[Element] One thing on the page, produced by a tag.
+\item[Hex colour] A colour written as six characters after a hash, giving red,
+  green and blue amounts.
+\item[HTML] HyperText Markup Language: the file that holds the content and its
+  structure.
+\item[IntersectionObserver] A browser facility that watches elements and reports
+  when they scroll into view. This project uses it four times.
+\item[JavaScript] The programming language that runs in the browser after the
+  page loads.
+\item[Media query] A block of CSS that only applies when a condition about the
+  screen is true, such as being narrower than 900 pixels.
+\item[Pseudo-class] A selector suffix describing a temporary state, such as
+  \code{:hover} for ``while the mouse is over it''.
+\item[rsync] A command-line program that copies files between computers,
+  transferring only what differs.
+\item[Selector] The part of a CSS rule that says which elements it applies to.
+\item[SSH] Secure Shell: the standard way to connect to and run commands on
+  another computer securely.
+\item[Tag] The marker that creates an element, written between angle brackets.
+\item[Viewport] The visible area of the page in the browser window.
+\item[VPS] Virtual Private Server: a rented computer the agency controls
+  remotely.
+\item[Web server] A program that answers requests for files over the network.
+\item[Workflow] A file describing a job GitHub runs automatically when something
+  happens in the repository.
+\end{description}
+
+% ===========================================================================
+\appendix
+\section{Appendix A: the file ledger}
+% ===========================================================================
+
+Every path git tracks in this repository, with its tier, its line count, and the
+section that explains it. This table is what makes the coverage claim in this
+document checkable rather than merely asserted: run \code{git ls-files} in the
+repository and compare.
+
+\subsection*{\file{.github/}}
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Path & Coverage & Lines & Section \\
+\midrule
+\file{.github/workflows-disabled/deploy.yml.disabled} & explained in full & 103 & 7.6 \\
+\bottomrule
+\end{tabular}
+\caption{Coverage ledger: \file{.github/}. 1 file, 103 lines.}
+\end{table}
+
+\subsection*{\file{new-design-reference/}}
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}llrl@{}}
+\toprule
+Path & Coverage & Lines & Section \\
+\midrule
+\file{new-design-reference/index.html}        & explained in full & 597 & 7.1 \\
+\file{new-design-reference/css/site.css}      & explained in full & 768 & 7.2 \\
+\file{new-design-reference/js/main.js}        & explained in full &  79 & 7.3 \\
+\file{new-design-reference/netlify.toml}      & explained in full &  11 & 7.4 \\
+\file{new-design-reference/assets/ASSETS.md}  & explained in full &  33 & 7.5 \\
+\bottomrule
+\end{tabular}
+\caption{Coverage ledger: \file{new-design-reference/}. 5 files, 1{,}488 lines.}
+\end{table}
+
+\subsection*{Untracked directories (tier 3)}
+
+\textbf{There are none.} Running \code{git status --porcelain --ignored} in this
+repository produces no output at all: there are no ignored files, no build
+output, no dependency folder, and not even a \file{.gitignore}. Every file
+present on disk is tracked and every tracked file is explained above.
+
+\subsection*{The arithmetic}
+
+\code{git ls-files} lists \textbf{6} paths. All \textbf{6} are tier 1, explained
+in full, line by line, in section 7. \textbf{0} files are tier 2 (declared and
+summarized): there is no generated, vendored, minified or binary content in this
+repository, checked with a search for generator banners which returned nothing.
+\textbf{0} directories are tier 3 (excluded), because nothing on disk is
+untracked. Total lines accounted for: \textbf{1{,}591}, which is the sum reported
+by \code{git ls-files -z | xargs -0 wc -l}.
+
+$6 + 0 = 6$, and $103 + 1{,}488 = 1{,}591$. The ledger reconciles.
+
+\end{document}

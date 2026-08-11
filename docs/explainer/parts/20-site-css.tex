@@ -1,0 +1,1638 @@
+% ===========================================================================
+\subsection{\file{new-design-reference/css/site.css}}
+% ===========================================================================
+
+\textbf{CSS, 768 lines.} Every visual decision on the page: the colours, the
+typefaces, the spacing, the layout, the movement, and how all of it rearranges on
+a narrow screen. It is the longest file in the repository and, in the judgement
+of this document, the most valuable thing in it.
+
+\begin{provenance}{new-design-reference/css/site.css}
+Hand-written, and it says where its ideas come from in its own second line:
+\code{Design tokens mirror the Digitalise Agency system (tokens.css in Gantry).}
+That is a direct statement by the author that the colour and spacing names were
+taken from another project in this workspace, \code{gantry-digitalise}, which is
+strong evidence of a deliberate shared design language rather than a coincidence.
+
+The file arrived complete in the first commit, \code{0d77d51}, and has not been
+edited since except by being moved. No generator banner, no vendor prefix block
+of the sort a preprocessor emits, and no minified section: it is written to be
+read. \textbf{Confidence: certain for hand-written, high for the token lineage,
+which rests on the author's own comment rather than on a file comparison.}
+\end{provenance}
+
+\subsubsection*{Why it exists}
+
+Without this file the page still contains every word it needs, and looks like a
+1994 document: black serif text on white, everything in one column, no colour, no
+layout. Nothing would be broken and nothing would be persuasive. All eight hero
+tiles would appear stacked in a list, since it is CSS and not HTML that scatters
+them.
+
+\subsubsection*{Line by line}
+
+\paragraph{Lines 1 to 25: the header, and the token block.}
+
+\begin{lstlisting}[firstnumber=1,caption={\file{css/site.css}, lines 1--25}]
+/* ai.digitalise.agency · site.css
+   Design tokens mirror the Digitalise Agency system (tokens.css in Gantry). */
+
+/* ─── TOKENS ─── */
+:root {
+  --s0:    #05070d;
+  --s1:    #0d1220;
+  --s2:    #151c2e;
+  --ink1:  #f4f7fc;
+  --ink2:  #c3ccdd;
+  --ink3:  #93a0b8;
+  --accent:  #1967ff;
+  --accentH: #3f82ff;
+  --accent2: #ff6719;
+  --green:   #34d399;
+  --border:  #222b40;
+  --borderS: #1a2233;
+  --font-d: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-b: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --r:   16px;
+  --rsm: 10px;
+  --ease: cubic-bezier(.22,1,.36,1);
+  --maxw: 1320px;
+  --shadow: 0 8px 40px rgba(0,0,0,.45);
+}
+\end{lstlisting}
+
+Lines 1 and 2 are a comment. In CSS, anything between \code{/*} and \code{*/} is
+ignored, and unlike HTML there is only this one comment form. These two lines
+carry the file's entire provenance, which is why they matter out of all
+proportion to their length.
+
+Line 4 is the first of eleven section banners drawn with box-drawing characters.
+As with the HTML, they are the author's navigation aid.
+
+Line 5 opens the token block. \code{:root} is a selector that matches the
+document's outermost element, which is \code{<html>}. Custom properties defined
+there are inherited by every element on the page, which is precisely why token
+blocks are written against \code{:root}: it is the one place a definition reaches
+everything.
+
+The twenty tokens fall into six groups, and understanding the naming scheme is
+most of understanding the file:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}llp{6.4cm}@{}}
+\toprule
+Tokens & Line & What the group is for \\
+\midrule
+\code{--s0} to \code{--s2}      & 6--8   & Surfaces, darkest to lightest. \code{s0} is the page, \code{s1} is a card, \code{s2} is a detail inside a card \\
+\code{--ink1} to \code{--ink3}  & 9--11  & Text, brightest to dimmest. \code{ink1} is a heading, \code{ink2} is body text, \code{ink3} is a caption \\
+\code{--accent}, \code{--accentH}, \code{--accent2} & 12--14 & The brand blue, its hover variant, and an orange \\
+\code{--green}                  & 15     & The one success colour \\
+\code{--border}, \code{--borderS} & 16--17 & A visible hairline, and a subtler one \\
+\code{--font-d}, \code{--font-b} & 18--19 & The display typeface and the body typeface \\
+\code{--r}, \code{--rsm}, \code{--ease}, \code{--maxw}, \code{--shadow} & 20--24 & Corner radius, small radius, motion curve, content width, drop shadow \\
+\bottomrule
+\end{tabular}
+\caption{The token vocabulary. The numeric suffix always means the same thing:
+0 is furthest back or brightest, and the number rises as you come forward or
+dim down.}
+\end{table}
+
+\begin{keyidea}{Why a numbered scale beats named colours}
+Calling a colour \code{--dark-navy} ties the name to how it looks. Calling it
+\code{--s1} ties the name to what it is \emph{for}: the surface one step up from
+the page. Redesign the site in a light theme and \code{--s1} still means the same
+thing while \code{--dark-navy} becomes a lie. This is the single most transferable
+idea in this repository, and it is why the author borrowed the scheme from
+another project rather than inventing one.
+\end{keyidea}
+
+Line 18 defines the display typeface as Space Grotesk with three fallbacks after
+it. A browser reads that list left to right and uses the first one it can find.
+\code{ui-sans-serif} means the interface font of the operating system,
+\code{system-ui} is the same idea by an older name, and \code{sans-serif} is the
+last resort every browser guarantees. This is the chain that keeps the page
+readable when the Google Fonts request fails.
+
+Line 22 defines the motion curve. \code{cubic-bezier(.22,1,.36,1)} describes how
+an animation's speed varies across its duration, by giving two control points of a
+curve. This particular one starts fast and settles gently, the shape usually
+described as ``ease out''. Every transition in the file refers to it, so all
+movement on the page shares one personality.
+
+\begin{honest}{Two tokens are defined and never used}
+\code{--accent2} (line 14, an orange) and \code{--shadow} (line 24) are read zero
+times in the entire file. Counted with \code{grep -c 'var(--accent2)'}, which
+returns \code{0}, and likewise for \code{--shadow}.
+
+The orange is not entirely absent from the page: it appears as the literal
+\code{\#ff6719} in the second avatar gradient (line 320) and \code{\#ff9a5c} in
+the second proof avatar (line 580). So the colour is used and the token for it is
+not, which is the worst of both worlds. Either delete the token or use it.
+\end{honest}
+
+\paragraph{Lines 26 to 43: the reset, and the one utility class.}
+
+\begin{lstlisting}[firstnumber=26,caption={\file{css/site.css}, lines 26--43}]
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-b);
+  background: var(--s0);
+  color: var(--ink1);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+img, video, svg { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; font-family: inherit; }
+
+/* ─── UTILITY ─── */
+.container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+\end{lstlisting}
+
+Line 27 is a reset, and it is doing three separate jobs. The selector \code{*}
+means every element; \code{*::before} and \code{*::after} extend that to the two
+invisible pseudo-elements CSS lets you attach to anything.
+
+\code{box-sizing: border-box} is the most consequential declaration in the file.
+By default, if you give an element a width of 200 pixels and then 20 pixels of
+padding, it occupies 240 pixels: the padding is added outside the stated width.
+That default surprises everyone. \code{border-box} changes it so the stated width
+is the final width and padding eats into it. Every layout calculation in this
+file assumes it.
+
+\code{margin: 0; padding: 0} removes the browser's built-in spacing on headings,
+paragraphs and lists, so that all spacing in the design is deliberate rather than
+inherited from a default that varies between browsers.
+
+Line 28 does two things to the document root. \code{color-scheme: dark} tells the
+browser this page is dark, so that scrollbars, text-selection highlights and form
+controls are drawn in their dark variants rather than staying stubbornly white.
+\code{scroll-behavior: smooth} makes every jump-link glide rather than snap.
+
+\begin{honest}{The smooth scroll is implemented twice}
+Line 28 already makes anchor links glide. \file{main.js} lines 70 to 77 then
+intercept every anchor link and call \code{scrollIntoView(\{behavior: 'smooth'\})}
+to do the same thing again. Either alone is sufficient. The JavaScript version is
+the redundant one, and it is also the one that carries a latent bug, described in
+section 7.3.
+\end{honest}
+
+Lines 29 to 37 set the page's defaults: the body typeface, the darkest surface as
+the background, the brightest ink as the text, and a line height of 1.5, meaning
+each line of text occupies one and a half times the font's size. That last number
+is the most important typographic decision in the file and the one most often set
+badly.
+
+\code{-webkit-font-smoothing: antialiased} on line 33 thins text rendering on Mac
+displays. It is a Safari and Chrome specific property with no standard equivalent,
+and it is the conventional companion to light text on a dark background, which
+otherwise looks heavier than intended.
+
+\code{overflow-x: hidden} on line 35 forbids horizontal scrolling. Here it is
+load-bearing rather than cosmetic: the hero tiles are positioned by percentage and
+some of them extend past the right edge of the window, which would otherwise let
+the visitor scroll sideways into empty space.
+
+\begin{honest}{Hiding horizontal overflow treats a symptom}
+\code{overflow-x: hidden} on the body is a common fix and a blunt one: it hides
+the consequence of something overflowing rather than stopping the overflow. The
+cost is that if a genuine layout bug ever pushes content off screen, it will be
+invisible instead of obvious. Here the cause is known and intentional (the drifting
+tiles), so the trade is defensible, but it is worth recognising it as a patch.
+\end{honest}
+
+Line 38 makes images, videos and SVGs never exceed their container's width, and
+makes them block-level. That second part fixes a genuinely confusing default:
+images are inline by default, which reserves space beneath them for the descenders
+of text that is not there, producing a mysterious few pixels of gap under every
+image.
+
+Line 39 strips links of their blue colour and underline, making them inherit
+whatever colour surrounds them. That is a deliberate design choice and an
+accessibility trade: colour alone now distinguishes a link from text, which fails
+the usual guidance. In this file every link is either a button or a footer item, so
+the practical harm is small.
+
+Line 40 styles buttons, and is dead in the strict sense that this page contains no
+\code{<button>} element at all. It costs nothing and would come alive the moment
+one was added.
+
+Line 43 is the only utility class in the file: a centred column no wider than 1320
+pixels with 24 pixels of breathing room on each side. \code{margin: 0 auto} is the
+standard centring idiom, meaning no vertical margin and equal automatic margins
+left and right. Every section on the page wraps its content in this.
+
+\paragraph{Lines 45 to 75: the button system.}
+
+\begin{lstlisting}[firstnumber=44,caption={\file{css/site.css}, lines 44--75}]
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 100px;
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease),
+              background 0.18s var(--ease);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accentH);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(25,103,255,.4);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  background: var(--s1);
+  color: var(--ink1);
+}
+\end{lstlisting}
+
+This is the two-class pattern the HTML uses everywhere: \code{.btn} holds
+everything both buttons share, and \code{.btn-primary} or \code{.btn-ghost} adds
+only what differs. Add a third button style and you write four lines, not thirty.
+
+\code{display: inline-flex} on line 46 makes the button a flex container that sits
+in the flow of text rather than on its own line. That matters because the primary
+buttons contain both a word and an icon, and flex is what lines those up.
+
+\begin{jargon}{Flexbox}
+A layout system that arranges an element's children in a row or a column and
+controls how they align and how leftover space is shared. Set
+\code{display: flex} on a parent and its children become flex items.
+\code{align-items: center} lines them up on their centres, which is how the icon
+in a button sits level with the text rather than on the baseline.
+\end{jargon}
+
+\code{gap: 8px} on line 48 puts eight pixels between the word and the icon
+without either of them needing a margin. Before \code{gap} existed this required
+fiddly rules targeting all-but-the-first child, and its arrival is one of the
+genuine improvements in modern CSS.
+
+\code{border-radius: 100px} on line 50 makes a pill. Any radius larger than half
+the element's height produces a perfect semicircular end, so 100 is simply a
+number comfortably larger than needed.
+
+Lines 55 and 56 declare the transition: three named properties, each over 0.18
+seconds, each using the shared curve. Listing properties explicitly rather than
+writing \code{transition: all} is the better practice, because \code{all} makes
+the browser watch every property for changes and can animate things you never
+intended.
+
+Lines 62 to 66 are the hover state. \code{transform: translateY(-2px)} lifts the
+button two pixels, and the shadow beneath it grows: together they read as the
+button rising towards the cursor. The shadow colour \code{rgba(25,103,255,.4)} is
+the brand blue at 40\% opacity, written as red, green and blue numbers plus an
+alpha.
+
+\begin{jargon}{rgba and opacity}
+\code{rgba(25,103,255,.4)} names a colour by its red, green and blue amounts from
+0 to 255, plus an opacity from 0 (invisible) to 1 (solid). It is the same blue as
+\code{\#1967ff}, expressed in the form that allows transparency.
+\end{jargon}
+
+\begin{honest}{Buttons have hover states and no focus states}
+Neither button defines \code{:focus} or \code{:focus-visible}. A visitor
+navigating with a keyboard rather than a mouse therefore gets whatever outline the
+browser draws by default, which on a dark background is often nearly invisible.
+Since these are the page's only interactive elements, this is the most consequential
+accessibility gap in the stylesheet, and it is three lines to fix.
+\end{honest}
+
+\paragraph{Lines 77 to 92: the two reveal mechanisms.}
+
+\begin{lstlisting}[firstnumber=76,caption={\file{css/site.css}, lines 76--92}]
+
+/* ─── REVEAL (scroll-driven, driven by JS adding .visible) ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* stagger via CSS custom property set inline */
+.stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.stagger.visible > * { opacity: 1; transform: none; }
+\end{lstlisting}
+
+These sixteen lines are the entire animation contract between the stylesheet and
+the JavaScript, and the comment on line 77 states it: the CSS defines both states
+and the transition between them, and the JavaScript's only job is to add the class
+\code{visible} at the right moment.
+
+\code{.reveal} starts invisible and 28 pixels low. \code{.reveal.visible}, which
+matches an element carrying \emph{both} classes, returns it to fully visible and
+its natural position. Because a transition is declared, the browser animates
+between the two over 0.7 seconds rather than snapping.
+
+The stagger is the same idea with one addition. \code{.stagger > *} means every
+direct child of a staggered container, and line 90 delays each child's transition
+by \code{calc(var(--i, 0) * 90ms)}: the number the HTML wrote inline, multiplied by
+90 milliseconds. Child 0 starts immediately, child 3 starts 270 milliseconds later.
+
+\begin{jargon}{calc, and a custom property's fallback}
+\code{calc()} performs arithmetic in CSS, and can mix units.
+\code{var(--i, 0)} reads the custom property \code{--i} and falls back to
+\code{0} if it was never set, which is what keeps this rule safe on any element
+whose inline \code{--i} was forgotten: it simply gets no delay instead of breaking.
+\end{jargon}
+
+\begin{keyidea}{Why the animation lives in CSS and the trigger lives in JavaScript}
+This split is the reason the page degrades well. If JavaScript never runs, the
+class \code{visible} is never added, and every revealed element stays at opacity
+zero, invisible forever. That would be catastrophic, and it is exactly why line
+767 exists: the reduced-motion block at the end of the file forces
+\code{.reveal} and \code{.stagger > *} back to full opacity. That block is doing
+double duty as an accessibility feature and as a safety net.
+\end{keyidea}
+
+\paragraph{Lines 94 to 133: the navigation bar.}
+
+\begin{lstlisting}[firstnumber=93,caption={\file{css/site.css}, lines 93--133}]
+
+/* ─── NAV ─── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.nav.scrolled {
+  background: rgba(5,7,13,0.88);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.nav-inner {
+  max-width: var(--maxw);
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-d);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink1);
+}
+.nav-logo .logo-ai {
+  color: var(--accent);
+}
+.nav-logo svg { width: 28px; height: 28px; }
+\end{lstlisting}
+
+\code{position: fixed} on line 96 pins the bar to the window rather than to the
+document, so it stays put while the page scrolls beneath it. Lines 97 pins it to
+the top and stretches it across.
+
+\code{z-index: 100} on line 98 controls stacking order: when elements overlap, the
+higher number is drawn in front. 100 is arbitrary and generous, chosen so nothing
+else on the page can accidentally cover the bar.
+
+Lines 105 to 111 are the scrolled state, the class the JavaScript adds once the
+page has moved more than 40 pixels. It gives the bar a background at 88\% opacity,
+a bottom hairline, and a shadow.
+
+\code{backdrop-filter: blur(16px)} on line 109 is the interesting one: it blurs
+whatever is \emph{behind} the element, producing the frosted-glass effect that only
+works because the background is slightly transparent. Line 110 repeats it with a
+\code{-webkit-} prefix for Safari, which needed the prefixed form for years.
+
+\begin{honest}{A doubled flex layout}
+\code{.nav} sets \code{display: flex} with \code{justify-content: space-between}
+(lines 100 to 102), and \code{.nav-inner} sets exactly the same three properties
+again (lines 116 to 118). The outer one has only one child, so its
+\code{space-between} has nothing to space. It is harmless and it is redundant, and
+it makes the layout harder to reason about than it needs to be.
+\end{honest}
+
+Line 130 is a descendant selector: \code{.nav-logo .logo-ai}, with a space between
+the two names, means ``an element with class \code{logo-ai} anywhere inside an
+element with class \code{nav-logo}''. That space is meaningful syntax, and reading
+it as one thing rather than two is a common beginner error.
+
+\paragraph{Lines 135 to 177: the hero shell and the floating animation.}
+
+\begin{lstlisting}[firstnumber=134,caption={\file{css/site.css}, lines 134--177}]
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: 80px;
+}
+
+/* animated tile backdrop */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tile {
+  position: absolute;
+  width: 176px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  opacity: 0;
+  animation: tileFloat 12s var(--ease) infinite;
+}
+.tile:nth-child(1) { top: 12%; left: 3%;   animation-delay:  0.0s; }
+.tile:nth-child(2) { top: 18%; right: 4%;  animation-delay:  1.5s; }
+.tile:nth-child(3) { top: 55%; left: 5%;   animation-delay:  3.0s; }
+.tile:nth-child(4) { bottom: 18%; right: 3%; animation-delay: 4.5s; }
+.tile:nth-child(5) { top: 42%; right: 26%; animation-delay:  6.0s; }
+.tile:nth-child(6) { top:  8%; left: 32%;  animation-delay:  7.5s; }
+.tile:nth-child(7) { bottom: 28%; left: 22%; animation-delay: 9.0s; }
+.tile:nth-child(8) { top: 30%; left: 64%;  animation-delay: 10.5s; }
+
+@keyframes tileFloat {
+  0%   { opacity: 0; transform: translateY(18px) scale(0.94); }
+  12%  { opacity: 0.8; transform: translateY(0) scale(1); }
+  72%  { opacity: 0.8; transform: translateY(-10px) scale(1); }
+  85%  { opacity: 0; transform: translateY(-18px) scale(0.94); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.94); }
+}
+\end{lstlisting}
+
+\code{position: relative} on line 137 looks like it does nothing, and it is
+essential. It establishes this element as the reference point for any absolutely
+positioned descendant. Without it, the tiles would position themselves against the
+whole window instead of against the hero.
+
+\begin{jargon}{Positioning: relative and absolute}
+\code{position: absolute} takes an element out of the normal flow and places it at
+coordinates you give. Those coordinates are measured from the nearest ancestor
+that is itself positioned, which in practice means the nearest one with
+\code{position: relative}. This pairing, a relative parent and absolute children,
+is the standard way to place things inside a box.
+\end{jargon}
+
+\code{min-height: 100vh} on line 138 makes the hero at least as tall as the
+window. \code{vh} means one percent of the viewport height, so \code{100vh} is the
+full height.
+
+\code{pointer-events: none} on line 149 makes the tile container transparent to the
+mouse: clicks pass straight through to whatever is beneath. Without it, the tiles
+would sit over the hero buttons and swallow clicks aimed at ``Book a call''. It is
+a one-line fix for a bug that would otherwise be maddening to diagnose, since the
+button would look perfectly normal and simply not respond.
+
+Lines 152 to 161 define a tile: absolutely positioned, 176 pixels wide, using the
+card surface, the standard border and the standard 16-pixel radius, and starting
+at \code{opacity: 0}. It is invisible until the animation makes it visible.
+
+Line 160 runs the animation: the named sequence \code{tileFloat}, over 12 seconds,
+using the shared curve, repeating forever.
+
+Lines 162 to 169 place the eight tiles individually. \code{:nth-child(1)} matches
+the first child of its parent, and so on.
+
+\begin{keyidea}{This is where the HTML order becomes load-bearing}
+Nothing here mentions \code{tile-blue} or \code{tile-orange}. The tiles are
+positioned purely by their \emph{number}, so tile 5 is wherever the fifth child
+happens to be. Reorder the blocks in \file{index.html} and the layout of the hero
+changes, with no change to this file. That coupling is invisible from either file
+alone, and it is the kind of thing this document exists to make visible.
+\end{keyidea}
+
+Note also that the eight delays are 1.5 seconds apart, from 0.0 up to 10.5, across
+a 12-second loop. That is a deliberate arrangement: eight evenly spaced entrances
+inside one cycle, so at any moment several tiles are visible at different stages
+and the backdrop never appears empty or synchronised.
+
+Lines 171 to 177 define the animation itself.
+
+\begin{jargon}{Keyframes}
+An animation defined by describing what the element looks like at particular
+points through its run, given as percentages of the total duration. The browser
+fills in every moment in between. \code{0\%} is the start and \code{100\%} is the
+end.
+\end{jargon}
+
+Read as a story: at the start the tile is invisible, 18 pixels low and slightly
+small. By 12\% of the way through (about 1.4 seconds) it has risen into place at
+full size and 80\% opacity. It holds there until 72\%, drifting up 10 pixels. By
+85\% it has faded out completely while continuing to rise and shrink. The final
+15\% is spent invisible, which is the gap before it begins again.
+
+\paragraph{Lines 179 to 218: what is inside a tile.}
+
+\begin{lstlisting}[firstnumber=178,caption={\file{css/site.css}, lines 178--218}]
+
+.tile-thumb {
+  border-radius: 10px;
+  height: 90px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.tile-thumb svg { width: 28px; height: 28px; color: rgba(255,255,255,.6); position: relative; z-index: 1; }
+.tile-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.tile-label { font-size: 11px; color: var(--ink3); font-weight: 500; }
+.tile-metric {
+  font-family: var(--font-d);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(52,211,153,.1);
+  border-radius: 20px;
+  padding: 2px 7px;
+}
+
+/* tile gradient variants */
+.tile-blue .tile-thumb  { background: linear-gradient(135deg,#0a1e50,#0d2c6e); }
+.tile-orange .tile-thumb { background: linear-gradient(135deg,#3a1800,#5a2800); }
+.tile-teal .tile-thumb  { background: linear-gradient(135deg,#003838,#005252); }
+.tile-violet .tile-thumb { background: linear-gradient(135deg,#1a0a40,#2a1060); }
+
+/* fake text bars inside "post" tiles */
+.tile-lines { padding: 0; }
+.tile-line {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--s2);
+  margin-bottom: 6px;
+}
+.tile-line:nth-child(1) { width: 100%; }
+.tile-line:nth-child(2) { width: 85%; }
+.tile-line:nth-child(3) { width: 60%; }
+\end{lstlisting}
+
+Lines 179 to 188 shape the thumbnail area: a fixed 90-pixel-tall rounded box that
+centres its contents both ways using flex.
+
+Line 189 styles the icon inside it. Note \code{color:} rather than \code{fill:} or
+\code{stroke:}: this works because the SVG in the HTML was written with
+\code{stroke="currentColor"}, so setting a text colour here reaches into the
+drawing. That is the pay-off for the attribute noted in section 7.1.
+
+Line 190 lays out the caption row with \code{space-between}, which pushes the label
+to the left edge and the metric to the right, the flex idiom for a two-ended row.
+
+Lines 192 to 200 style the metric as a small green pill: green text on a green
+background at 10\% opacity, which is the standard recipe for a tinted badge that
+suits any surface beneath it.
+
+Lines 203 to 206 are the four colour variants. Each is a descendant selector: the
+gradient applies to a \code{.tile-thumb} \emph{inside} a \code{.tile-blue}, not to
+the tile itself. \code{linear-gradient(135deg, A, B)} blends from colour A to
+colour B along a line at 135 degrees, which runs from top-left to bottom-right.
+
+Line 209 is the dead rule identified in section 7.1: both places that use
+\code{.tile-lines} override its padding inline, so this never applies.
+
+Lines 210 to 218 draw the fake text bars: 7 pixels tall, rounded, in the \code{s2}
+surface, with the three widths that make them read as a paragraph. Note that tile
+8 overrides the third width inline to 50\%, so these are defaults rather than
+rules.
+
+\paragraph{Lines 220 to 243: the statistic tiles and the readability overlay.}
+
+\begin{lstlisting}[firstnumber=219,caption={\file{css/site.css}, lines 219--243}]
+
+/* stats tile */
+.tile-stat-num {
+  font-family: var(--font-d);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink1);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.tile-stat-lbl { font-size: 11px; color: var(--ink3); }
+
+/* overlay - keeps center readable */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 65% at 50% 50%,
+      rgba(5,7,13,.9) 0%,
+      rgba(5,7,13,.55) 70%,
+      transparent 100%),
+    linear-gradient(to bottom,
+      rgba(5,7,13,.2) 0%,
+      rgba(5,7,13,.85) 100%);
+}
+\end{lstlisting}
+
+\code{line-height: 1} on line 226 is deliberate. The page-wide default of 1.5 is
+right for paragraphs and wrong for a large number, where it leaves a visible gap
+above and below. Setting it to 1 makes the line exactly as tall as the digits.
+
+Lines 231 to 243 are the overlay, and they are the most sophisticated piece of
+styling in the file. Two gradients are stacked in one declaration, separated by a
+comma, and in CSS the \emph{first} one listed is drawn on top.
+
+The first is a radial gradient: an ellipse 55\% wide and 65\% tall, centred, going
+from 90\% opaque near-black at its centre, through 55\% at seven-tenths of the way
+out, to fully transparent at the edge. That is a dark cloud over the middle of the
+hero, exactly where the headline sits.
+
+The second is a linear gradient running down the whole area, from 20\% opaque at
+the top to 85\% at the bottom, which darkens the lower half so the hero blends into
+the section beneath it.
+
+Together they solve the real problem with a busy animated backdrop: text over
+moving content is hard to read, and the contrast changes as the content moves.
+Rather than dimming the tiles themselves, the design puts a shaped veil between
+them and the text.
+
+\begin{jargon}{inset}
+\code{inset: 0} is shorthand for \code{top: 0; right: 0; bottom: 0; left: 0},
+which on an absolutely positioned element means ``stretch to fill the parent
+completely''.
+\end{jargon}
+
+\paragraph{Lines 245 to 324: the hero's content.}
+
+\begin{lstlisting}[firstnumber=244,caption={\file{css/site.css}, lines 244--275}]
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 700px;
+  padding: 0 24px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(25,103,255,.12);
+  border: 1px solid rgba(25,103,255,.3);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accentH);
+  letter-spacing: 0.01em;
+  margin-bottom: 28px;
+}
+.hero-badge-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+\end{lstlisting}
+
+\code{z-index: 2} on line 247 lifts the content above the tiles and the overlay,
+which is what makes the headline readable rather than buried. Note that
+\code{z-index} only works on positioned elements, which is why line 246 sets
+\code{position: relative} even though nothing is being moved.
+
+The badge (lines 252 to 265) uses the tinted-pill recipe again: brand blue at 12\%
+for the fill and 30\% for the border, with the brighter hover blue for the text so
+it stays legible against its own tint.
+
+Lines 266 to 275 define the pulsing dot: a 7-pixel square made circular with a 50\%
+radius, running a two-second pulse forever. The keyframes group \code{0\%, 100\%}
+on one line, which is the idiom for an animation that returns to where it started:
+full size at both ends, shrunk to 70\% and half-faded in the middle.
+
+\begin{lstlisting}[firstnumber=276,caption={\file{css/site.css}, lines 276--324}]
+.hero-h1 {
+  font-family: var(--font-d);
+  font-size: clamp(42px, 6.5vw, 80px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  color: var(--ink1);
+  margin-bottom: 36px;
+}
+.hero-h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+.hero-social-proof {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+}
+.avatars { display: flex; }
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--s0);
+  margin-left: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-d);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.avatars .avatar:first-child { margin-left: 0; }
+.av1 { background: linear-gradient(135deg,#1967ff,#3f82ff); }
+.av2 { background: linear-gradient(135deg,#ff6719,#ff8c4a); }
+.av3 { background: linear-gradient(135deg,#34d399,#10b981); }
+.av4 { background: linear-gradient(135deg,#a78bfa,#7c3aed); }
+.hero-proof-text { font-size: 13px; color: var(--ink3); }
+.hero-proof-text strong { color: var(--ink2); }
+\end{lstlisting}
+
+Line 278 is the most useful single line in the file to learn from.
+
+\begin{jargon}{clamp}
+\code{clamp(minimum, preferred, maximum)} picks the preferred value, but never lets
+it fall below the minimum or rise above the maximum. Here the preferred value is
+\code{6.5vw}, meaning 6.5\% of the window width, so the headline scales
+continuously with the window between a floor of 42 pixels and a ceiling of 80. One
+line replaces what used to need several media queries.
+\end{jargon}
+
+Line 280 sets \code{letter-spacing: -0.03em}, pulling the letters slightly closer
+together. Large display type looks loose at its default spacing, and negative
+tracking at large sizes is standard practice. The unit \code{em} means ``relative
+to this element's font size'', so the tightening scales with the text.
+
+Lines 285 to 288 are the rule flagged in section 7.1: it takes the \code{<em>} tag,
+removes the italics it normally implies, and colours it blue instead.
+
+Line 294 sets \code{flex-wrap: wrap} on the button row, so on a narrow screen the
+second button drops onto its own line instead of overflowing. That single property
+is why the hero needs no special mobile rule for its buttons.
+
+Lines 303 to 318 build the overlapping avatar row, and the technique is worth
+naming: each circle has a negative left margin of 10 pixels, pulling it over its
+neighbour, and a 2-pixel border in the page background colour, which reads as a gap
+punched out of the circle behind it. Line 318 then cancels the negative margin on
+the first one so the row does not start shifted left.
+
+\code{flex-shrink: 0} on line 316 stops the circles being squashed when space is
+tight. Flex items shrink by default, and circles that shrink become ovals.
+
+\begin{honest}{Four literal colours where tokens exist}
+Lines 319 to 322 write \code{\#1967ff}, \code{\#3f82ff}, \code{\#ff6719} and
+\code{\#34d399} directly. Three of those four have tokens (\code{--accent},
+\code{--accentH}, \code{--green}) and the fourth has one that is otherwise unused
+(\code{--accent2}). Gradients accept custom properties perfectly well, so there is
+no technical reason for the literals. This is the same inconsistency as the inline
+styles in the HTML, and together they mean the token system governs most of the
+page rather than all of it.
+\end{honest}
+
+\paragraph{Lines 326 to 359: the metrics band.}
+
+\begin{lstlisting}[firstnumber=325,caption={\file{css/site.css}, lines 325--359}]
+
+/* ─── METRICS BAND ─── */
+.metrics {
+  padding: 80px 0;
+  border-top: 1px solid var(--borderS);
+  border-bottom: 1px solid var(--borderS);
+}
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.metric-item {
+  padding: 36px 24px;
+  text-align: center;
+  border-right: 1px solid var(--borderS);
+}
+.metric-item:last-child { border-right: none; }
+.metric-num {
+  font-family: var(--font-d);
+  font-size: clamp(36px, 4.5vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink1);
+  margin-bottom: 8px;
+}
+.metric-num .accent { color: var(--accent); }
+.metric-label {
+  font-size: 13px;
+  color: var(--ink3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+\end{lstlisting}
+
+Line 333 introduces the second layout system in the file.
+
+\begin{jargon}{CSS Grid}
+A layout system for two dimensions, as opposed to flexbox's one.
+\code{grid-template-columns: repeat(4, 1fr)} means four columns, each taking one
+equal share of the space. \code{1fr} is a fraction of what is left over after any
+fixed sizes are accounted for.
+\end{jargon}
+
+The separators here are drawn as a right border on every item (line 340), with the
+last one removed (line 342). That is a different technique from the one used later
+by the services grid, which draws its lines using gaps. Both work; using both in
+one file is an inconsistency, and the border approach is the one that needed a
+special case.
+
+Line 352, \code{.metric-num .accent}, styles an element with class \code{accent}
+inside a metric number. \textbf{No such element exists} anywhere in
+\file{index.html}. This rule is dead.
+
+Lines 353 to 359 style the label beneath each number: small, dim, uppercase, with
+positive letter-spacing. Note the tracking is positive here and negative on the
+big numbers above. That is not an inconsistency but a rule of typography: large
+text needs tightening, small uppercase text needs opening up or it becomes a
+smudge.
+
+\paragraph{Lines 361 to 379: shared section headings.}
+
+\begin{lstlisting}[firstnumber=360,caption={\file{css/site.css}, lines 360--379}]
+
+/* ─── PIPELINE ─── */
+.pipeline-section { padding: 120px 0; }
+.section-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: var(--font-d);
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--ink1);
+  margin-bottom: 72px;
+}
+\end{lstlisting}
+
+Although these sit under the pipeline banner, \code{.section-kicker} and
+\code{.section-title} are used by all four remaining sections. Their placement here
+is a small organisational untidiness: a reader looking for the heading styles would
+reasonably expect them near the top with the other shared pieces, not inside the
+pipeline block.
+
+The kicker is the small blue uppercase line (``How it works'', ``The work'') and the
+title is the large heading beneath it. Both follow the same tracking rule as the
+metrics band.
+
+\begin{honest}{The kicker's contrast is worth measuring}
+\code{--accent} is \code{\#1967ff}, a saturated blue, and the kicker sets it at 12
+pixels in uppercase on the near-black page background. Small text needs more
+contrast than large text, not less. This document does not have a measured
+contrast ratio for that exact pairing and so does not assert a failure, but it is
+the first thing to check in an accessibility audit, along with the 11-pixel service
+tags which use the dimmest ink on the same background.
+\end{honest}
+
+\paragraph{Lines 381 to 450: the pipeline.}
+
+\begin{lstlisting}[firstnumber=380,caption={\file{css/site.css}, lines 380--426}]
+
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+}
+.pipeline-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+.pipeline.visible .pipeline-node:nth-child(1) { opacity: 1; transform: none; transition-delay: 0.0s; }
+.pipeline.visible .pipeline-node:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.2s; }
+.pipeline.visible .pipeline-node:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.4s; }
+.pipeline.visible .pipeline-node:nth-child(7) { opacity: 1; transform: none; transition-delay: 0.6s; }
+.pipeline.visible .pipeline-node:nth-child(9) { opacity: 1; transform: none; transition-delay: 0.8s; }
+
+.pipeline-connector {
+  flex: 0 0 auto;
+  width: 60px;
+  height: 2px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.pipeline-connector::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(to right, var(--accent), var(--accentH));
+  transition: width 0.6s var(--ease);
+}
+.pipeline.visible .pipeline-connector:nth-child(2)::after { width: 100%; transition-delay: 0.15s; }
+.pipeline.visible .pipeline-connector:nth-child(4)::after { width: 100%; transition-delay: 0.35s; }
+.pipeline.visible .pipeline-connector:nth-child(6)::after { width: 100%; transition-delay: 0.55s; }
+.pipeline.visible .pipeline-connector:nth-child(8)::after { width: 100%; transition-delay: 0.75s; }
+\end{lstlisting}
+
+This is the most intricate animation in the file and it is worth reading closely,
+because it is doing something the stagger mechanism could not.
+
+The pipeline is a flex row of nine children alternating node, connector, node,
+connector and so on: five nodes at odd positions and four connectors at even ones.
+That alternation is why the selectors count 1, 3, 5, 7, 9 for nodes and 2, 4, 6, 8
+for connectors.
+
+\code{flex: 1} on the nodes (line 389) tells each to take an equal share of the
+leftover space. \code{flex: 0 0 auto} on the connectors (line 407) tells them the
+opposite: do not grow, do not shrink, stay exactly 60 pixels. So the nodes spread
+and the connectors stay fixed.
+
+Each node begins invisible and at 85\% size, and the \code{.visible} rules bring it
+to full size with an increasing delay, 0.2 seconds apart. The connectors do
+something different: each has an \code{::after} pseudo-element, an invisible extra
+box CSS creates on demand, absolutely positioned, starting at zero width and
+filled with a blue gradient. When the section becomes visible its width transitions
+to 100\%, so the blue appears to flow along the line.
+
+\begin{jargon}{Pseudo-element}
+An extra box that CSS creates inside an element without any corresponding tag in
+the HTML, written as \code{::before} or \code{::after}. It requires the
+\code{content} property to exist at all, which is why line 415 sets
+\code{content: ''}: an empty string is enough to bring it into being. It is the
+standard way to draw a decorative shape without polluting the markup.
+\end{jargon}
+
+The delays interleave deliberately: node 1 at 0.0, connector at 0.15, node 3 at
+0.2, connector at 0.35, and so on. The line starts drawing before the next node
+lands, which is what makes the sequence read as flowing rather than as a series of
+separate appearances.
+
+\begin{honest}{This animation cannot survive an edit to the HTML}
+Every selector here depends on the exact child positions in \file{index.html}. Add
+a sixth step, or wrap the nodes in a container, and every one of these nine rules
+silently stops matching: the pipeline would simply never appear, staying at opacity
+zero forever, with no error anywhere. Selecting by class
+(\code{.pipeline-node:nth-of-type(n)}) would have been sturdier for the same
+effect.
+\end{honest}
+
+\begin{lstlisting}[firstnumber=427,caption={\file{css/site.css}, lines 427--450}]
+
+.pipeline-icon {
+  width: 72px; height: 72px;
+  border-radius: 20px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.pipeline-icon svg { width: 30px; height: 30px; color: var(--accent); }
+.pipeline-node:hover .pipeline-icon {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px rgba(25,103,255,.25);
+}
+.pipeline-lbl {
+  font-family: var(--font-d);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+  text-align: center;
+  white-space: nowrap;
+}
+\end{lstlisting}
+
+Lines 439 to 442 give each icon box a blue border and a soft blue glow when the
+mouse is over its node. A shadow with no offset and a large blur, as here, reads as
+a glow rather than a shadow.
+
+\code{white-space: nowrap} on line 449 stops labels such as ``Auto-Post'' wrapping
+onto two lines and disturbing the row's alignment. It is overridden at line 739 for
+narrow screens, where the pipeline stacks vertically and there is no alignment left
+to protect.
+
+\paragraph{Lines 452 to 539: the portfolio cards.}
+
+\begin{lstlisting}[firstnumber=451,caption={\file{css/site.css}, lines 451--509}]
+
+/* ─── PORTFOLIO ─── */
+.portfolio-section { padding: 0 0 120px; }
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.port-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: transform 0.22s var(--ease), border-color 0.22s, box-shadow 0.22s;
+  cursor: pointer;
+}
+.port-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(25,103,255,.4);
+  box-shadow: 0 16px 48px rgba(0,0,0,.4);
+}
+.port-thumb {
+  aspect-ratio: 16/9;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.port-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5,7,13,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+.port-card:hover .port-thumb-overlay { opacity: 1; }
+.port-play {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255,255,255,.3);
+}
+.port-play svg { width: 22px; height: 22px; color: #fff; margin-left: 2px; }
+
+/* gradient thumbnails - replace with real video posters */
+.pt1 { background: linear-gradient(135deg,#0a1840 0%,#0d2c6e 50%,#0a1840 100%); }
+.pt2 { background: linear-gradient(135deg,#2a0e00 0%,#5a2800 50%,#2a0e00 100%); }
+.pt3 { background: linear-gradient(135deg,#001a28 0%,#003855 50%,#001a28 100%); }
+.pt4 { background: linear-gradient(135deg,#150050 0%,#2d0080 50%,#150050 100%); }
+.pt5 { background: linear-gradient(135deg,#0a2800 0%,#1a4800 50%,#0a2800 100%); }
+.pt6 { background: linear-gradient(135deg,#280014 0%,#500028 50%,#280014 100%); }
+\end{lstlisting}
+
+\code{overflow: hidden} on line 463 is what makes the rounded corners work: without
+it, the gradient thumbnail inside would square off the top two corners it is
+supposed to follow.
+
+\code{cursor: pointer} on line 465 changes the mouse to a pointing hand, which
+conventionally means clickable. As section 7.1 noted, the card is not clickable,
+so this is a promise the page does not keep.
+
+\code{aspect-ratio: 16/9} on line 473 reserves a widescreen-shaped area regardless
+of width. This is worth appreciating: it means the layout does not shift when a
+real image eventually loads, because the space is already the right shape. It is
+the modern replacement for a well-known hack involving percentage padding.
+
+The overlay (lines 480 to 489) sits over the whole thumbnail at zero opacity and
+fades to one on hover, revealing the play button beneath a 25\% black wash. The play
+button itself (lines 491 to 500) is a frosted circle: white at 15\% opacity with an
+8-pixel backdrop blur and a brighter rim.
+
+Line 501 gives the play triangle \code{margin-left: 2px}. That is not an accident.
+A triangle's visual centre of mass sits left of its geometric centre, so a
+perfectly centred play icon looks slightly left. Nudging it two pixels right is a
+standard correction, and noticing it is a good sign that whoever built this cared
+about detail.
+
+Lines 504 to 509 are the six placeholder gradients, each a three-stop blend that
+returns to its starting colour, so it reads as a soft sheen rather than a slope.
+The comment on line 503 says outright that they are standing in for real video
+posters that never arrived.
+
+\begin{lstlisting}[firstnumber=510,caption={\file{css/site.css}, lines 510--539}]
+
+.port-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(5,7,13,.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+}
+.port-info { padding: 16px; }
+.port-platform {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink3);
+  margin-bottom: 6px;
+}
+.port-platform svg { width: 13px; height: 13px; }
+.port-title {
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink1);
+  letter-spacing: -0.01em;
+}
+\end{lstlisting}
+
+The badge is pinned to the thumbnail's top-right corner, which works because
+\code{.port-thumb} set \code{position: relative} on line 474.
+
+The card title on lines 533 to 539 is the only place in the file where the display
+typeface is used at a small size (15 pixels). Everywhere else Space Grotesk
+appears it is either large (a heading, a metric) or tiny and uppercase (a label),
+so this is the one instance of it doing ordinary work.
+
+\paragraph{Lines 541 to 604: the client proof cards.}
+
+\begin{lstlisting}[firstnumber=540,caption={\file{css/site.css}, lines 540--604}]
+
+/* ─── CLIENT PROOF ─── */
+.proof-section { padding: 0 0 120px; }
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.proof-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: border-color 0.22s, transform 0.22s var(--ease);
+}
+.proof-card:hover {
+  border-color: rgba(25,103,255,.3);
+  transform: translateY(-3px);
+}
+.proof-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.proof-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-d);
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.pa1 { background: linear-gradient(135deg,#1967ff,#3f82ff); }
+.pa2 { background: linear-gradient(135deg,#ff6719,#ff9a5c); }
+.pa3 { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
+
+.proof-name {
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink1);
+  letter-spacing: -0.01em;
+}
+.proof-company { font-size: 13px; color: var(--ink3); margin-top: 2px; }
+.proof-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.proof-num {
+  font-family: var(--font-d);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.proof-unit { font-size: 14px; color: var(--ink3); }
+\end{lstlisting}
+
+The proof card is a vertical flex column with a 20-pixel gap, so its two halves
+(the header and the metric) space themselves without margins.
+
+\code{align-items: baseline} on line 594 is the detail worth learning. The metric
+row holds a 36-pixel number beside 14-pixel text. Centring them would look wrong,
+because the eye reads the two as sitting on a shared line of writing.
+\code{baseline} aligns them on that invisible line the letters sit on, which is
+what a typesetter would do.
+
+The three avatar gradients (lines 579 to 581) repeat the same literal-colour issue
+as the hero avatars, and \code{pa3} introduces two purples that exist nowhere in
+the token block at all.
+
+\paragraph{Lines 606 to 654: the services grid.}
+
+\begin{lstlisting}[firstnumber=605,caption={\file{css/site.css}, lines 605--654}]
+
+/* ─── SERVICES ─── */
+.services-section { padding: 0 0 120px; }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.service-item {
+  background: var(--s0);
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: background 0.22s;
+}
+.service-item:hover { background: var(--s1); }
+.service-icon {
+  width: 52px; height: 52px;
+  border-radius: var(--rsm);
+  background: rgba(25,103,255,.1);
+  border: 1px solid rgba(25,103,255,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.22s, border-color 0.22s;
+}
+.service-icon svg { width: 22px; height: 22px; color: var(--accentH); }
+.service-item:hover .service-icon {
+  background: rgba(25,103,255,.18);
+  border-color: rgba(25,103,255,.45);
+}
+.service-name {
+  font-family: var(--font-d);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink1);
+  letter-spacing: -0.01em;
+}
+.service-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+\end{lstlisting}
+
+Lines 608 to 615 use the technique mentioned in section 7.1 and it deserves its own
+explanation, because it is genuinely clever and genuinely fragile.
+
+\begin{keyidea}{Hairlines made of gaps}
+The grid is given a 2-pixel gap and a background of the border colour. Each cell is
+then given the page background. Because the cells cover the grid's background
+everywhere except in the gaps, the gaps show through as 2-pixel lines. The result
+is a perfect internal grid of hairlines with no border rules and no special case
+for the last item in a row, which is exactly what the metrics band above needed
+(\code{:last-child \{ border-right: none \}}).
+
+The fragility is that it depends on the cell background matching the page. Put this
+grid on a different surface without changing \code{.service-item}, and the cells
+become visible rectangles of the wrong colour.
+\end{keyidea}
+
+\code{border-radius} plus \code{overflow: hidden} on lines 613 and 614 round the
+whole grid and clip the corner cells to match.
+
+Line 647 sets \code{display: inline-block} on the tag. Since the tag is inside a
+flex column, it would already behave as a block, so this has no visible effect: it
+is a harmless leftover.
+
+\paragraph{Lines 656 to 725: the booking panel and the footer.}
+
+\begin{lstlisting}[firstnumber=655,caption={\file{css/site.css}, lines 655--725}]
+
+/* ─── BOOK A CALL ─── */
+.book-section { padding: 0 0 140px; }
+.book-wrap {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 72px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.book-wrap::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, rgba(25,103,255,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.book-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.book-title {
+  font-family: var(--font-d);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ink1);
+  margin-bottom: 12px;
+}
+.book-sub {
+  font-size: 16px;
+  color: var(--ink3);
+  margin-bottom: 36px;
+}
+.book-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.book-detail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink3);
+  margin-top: 20px;
+}
+.book-detail svg { width: 15px; height: 15px; }
+.book-detail span { color: var(--ink2); }
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--borderS);
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink3);
+}
+footer a { color: var(--ink3); transition: color 0.15s; }
+footer a:hover { color: var(--ink1); }
+\end{lstlisting}
+
+Lines 667 to 675 add a blue glow above the booking panel using an \code{::before}
+pseudo-element: a 600 by 300 ellipse of brand blue at 12\% opacity, positioned 100
+pixels above the panel's top edge and centred with the standard
+\code{left: 50\%} plus \code{translateX(-50\%)} idiom. Because the panel has
+\code{overflow: hidden}, only the bottom part of the glow is visible, which is what
+makes it read as light spilling in from above rather than as a floating oval.
+
+\code{pointer-events: none} on line 674 appears for the second time in the file, for
+the same reason as before: this decorative layer sits over the panel and must not
+intercept the click aimed at the booking button.
+
+The footer is deliberately unremarkable: one hairline, centred dim text, and links
+that brighten on hover over 0.15 seconds.
+
+\paragraph{Lines 727 to 768: the responsive rules.}
+
+\begin{lstlisting}[firstnumber=726,caption={\file{css/site.css}, lines 726--768}]
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .metric-item { border-right: none; border-bottom: 1px solid var(--borderS); }
+  .metric-item:nth-child(odd) { border-right: 1px solid var(--borderS); }
+  .metric-item:nth-child(3),
+  .metric-item:nth-child(4) { border-bottom: none; }
+
+  .pipeline { flex-direction: column; }
+  .pipeline-connector { width: 2px; height: 40px; }
+  .pipeline-connector::after { width: 100% !important; height: 0; }
+  .pipeline.visible .pipeline-connector::after { height: 100%; width: 100% !important; }
+  .pipeline-lbl { white-space: normal; }
+
+  .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+  .proof-grid     { grid-template-columns: 1fr; }
+  .services-grid  { grid-template-columns: repeat(2, 1fr); }
+
+  .tile { display: none; }
+  .tile:nth-child(1),
+  .tile:nth-child(2),
+  .tile:nth-child(3) { display: block; }
+  .tile:nth-child(1) { top: 10%; left: 2%; width: 140px; }
+  .tile:nth-child(2) { top: 15%; right: 2%; width: 140px; }
+  .tile:nth-child(3) { display: none; }
+}
+
+@media (max-width: 600px) {
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .services-grid  { grid-template-columns: 1fr; }
+  .book-wrap { padding: 48px 24px; }
+  .hero-h1 { font-size: 38px; }
+  .tile { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+  .reveal, .stagger > * { opacity: 1; transform: none; }
+}
+\end{lstlisting}
+
+\begin{jargon}{Media query}
+A block of CSS that only applies when a condition about the display is true.
+\code{@media (max-width: 900px)} means ``apply everything in here only when the
+window is 900 pixels wide or narrower''. Because it comes later in the file, its
+rules override the equivalents above.
+\end{jargon}
+
+The 900-pixel block does five things. The metrics band folds from four columns to
+two, and its dividing lines are rebuilt for the new shape: the right border is
+removed from everything, a bottom border added to everything, the right border put
+back on odd-numbered items so there is still a line down the middle, and the bottom
+border removed from items 3 and 4 so the block does not end in a stray line. That
+is four rules to reposition two lines, and it is the price of the border technique
+that the services grid avoided.
+
+The pipeline turns vertical (line 735) and its connectors become 2 pixels wide and
+40 tall (line 736). Lines 737 and 738 then rebuild the fill animation to run
+downwards instead of across, growing height rather than width, and use
+\code{!important} to force the width value past the more specific rules further up
+the file.
+
+\begin{jargon}{!important}
+A marker that forces a declaration to win against the normal precedence rules. It
+is generally considered a last resort, because it breaks the predictability that
+makes CSS manageable. It appears exactly twice in this file, both on line 737 and
+738, both to override the horizontal fill animation.
+\end{jargon}
+
+The three content grids each drop a column, and the hero tiles are reduced from
+eight to two.
+
+\begin{honest}{Three lines of dead responsive code}
+Line 745 hides every tile. Lines 746 to 748 then show tiles 1, 2 and 3. Line 751
+hides tile 3 again. Because line 751 comes later and has identical specificity, it
+wins, so tile 3 is hidden and the \code{display: block} it was given three lines
+earlier does nothing at all.
+
+The author evidently decided three tiles were too many for a tablet and removed the
+third by adding a rule instead of editing the existing one. It is harmless, and it
+is exactly the sort of thing that makes a reader doubt their understanding of the
+cascade. It should be a two-line rule listing tiles 1 and 2.
+\end{honest}
+
+The 600-pixel block hides the tiles entirely, collapses the last two grids to one
+column, tightens the booking panel's padding, and fixes the headline at 38 pixels,
+overriding the \code{clamp} whose floor was 42.
+
+The final block, lines 762 to 768, is the accessibility one, and it is the best
+thing in the file.
+
+\begin{keyidea}{What \code{prefers-reduced-motion} is and why this block matters}
+Operating systems let people ask for reduced motion, usually because animation
+causes them nausea, dizziness or migraine. The browser passes that preference to
+the page, and this block responds to it.
+
+It does two things. It crushes every animation and transition on the page to a
+thousandth of a millisecond, which is effectively instant rather than disabled, a
+deliberate choice because setting them to zero can stop some browsers firing the
+events that mark an animation as finished. Then, crucially, line 767 forces every
+revealed and staggered element to full opacity, because those elements start
+invisible and would otherwise never appear once their transitions were neutered.
+
+That second line is what turns a well-meaning block into a correct one, and it is
+the detail most implementations of this pattern get wrong.
+\end{keyidea}
+
+\begin{honest}{The reduced-motion block cannot reach the counting numbers}
+This block governs CSS only. The four metric numbers are animated by JavaScript,
+counting up over 2.2 seconds, and \file{main.js} never checks this preference. A
+visitor who has asked their system for reduced motion still gets four numbers
+whirring upward.
+
+The fix is four lines in \file{main.js}, given in section 7.3. This is the single
+clearest defect in the project: not because it is severe, but because the intent to
+handle it correctly is demonstrably there in the CSS and simply was not carried
+across to the other file.
+\end{honest}
+
+\subsubsection*{What it connects to}
+
+\textbf{Named by:} \file{new-design-reference/index.html}, line 16, and nothing
+else.
+
+\textbf{Names:} no other file. It refers to no images, no fonts by file (it names
+font \emph{families}, which the HTML is responsible for downloading), and imports
+nothing.
+
+\textbf{Coupled to \file{index.html}} in three ways that no tool checks: by class
+name throughout, by child position for the hero tiles (lines 162 to 169) and the
+pipeline (lines 400 to 426), and by the shared contract that JavaScript adds the
+class \code{visible}.
+
+\textbf{Coupled to \file{js/main.js}} through exactly two class names,
+\code{scrolled} and \code{visible}, both of which the JavaScript adds and this file
+defines.
+
+\subsubsection*{Concepts introduced}
+
+This file is where most of the page's technical vocabulary first appears: custom
+properties, the cascade, flexbox, grid, pseudo-elements, pseudo-classes, keyframe
+animations, transitions, media queries, \code{clamp}, \code{calc},
+\code{aspect-ratio}, \code{backdrop-filter}, stacking with \code{z-index}, and
+\code{prefers-reduced-motion}. Each is defined at its first use above and collected
+in the glossary.
+
+\subsubsection*{How it breaks}
+
+\begin{itemize}
+\item \textbf{Delete this file and the page still works}, in the sense that every
+  word remains readable. It simply looks like an unstyled document, and the hero
+  tiles appear as a plain stacked list.
+\item \textbf{Rename a class here without renaming it in the HTML} and that
+  element silently loses its styling. Nothing reports it.
+\item \textbf{Add or remove a hero tile or a pipeline step} and the position rules
+  stop lining up, silently.
+\item \textbf{Remove \code{pointer-events: none} on line 149} and the hero tiles
+  begin swallowing clicks meant for the buttons beneath them.
+\item \textbf{Remove \code{position: relative} on line 137} and all eight tiles
+  jump to positions measured against the whole window instead of the hero.
+\item \textbf{A missing semicolon} makes the browser discard the rest of that
+  declaration block. Unlike a program, CSS never reports an error: it drops what it
+  cannot parse and carries on, which is why a stylesheet bug shows up as something
+  looking wrong rather than as a message.
+\end{itemize}
+
+\subsubsection*{Honest findings for this file}
+
+Two unused tokens (lines 14 and 24); one dead rule with no matching element (line
+352); one rule permanently overridden by inline styles (line 209); three lines of
+dead responsive code (lines 746 to 748 versus 751); a doubled flex layout in the
+navigation (lines 100 to 102 and 116 to 118); smooth scrolling implemented twice,
+here and in JavaScript; literal colours used where tokens exist (lines 319 to 322,
+579 to 581); two different techniques for drawing dividing lines in one file; no
+focus states on either button; and a reduced-motion block that is exemplary within
+CSS and cannot reach the one animation that lives outside it.

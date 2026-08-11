@@ -1,0 +1,151 @@
+% ===========================================================================
+\subsection{\file{new-design-reference/assets/ASSETS.md}}
+% ===========================================================================
+
+\textbf{Markdown, 33 lines.} A checklist of the twelve files somebody would need
+to produce before this design could be considered finished, and three notes about
+placeholder content to replace.
+
+\begin{provenance}{new-design-reference/assets/ASSETS.md}
+Hand-written, added in the first commit \code{0d77d51} alongside the design it
+describes, and never edited since. Written by the same person in the same sitting
+as the HTML, which is evident from the fact that it references the exact class
+names (\code{pt1} through \code{pt6}, \code{pa1}, \code{pa2}) used in that file.
+\textbf{Confidence: high, from the commit history and the internal references.}
+\end{provenance}
+
+\subsubsection*{Why it exists}
+
+It is a handover note. The design was built with placeholder visuals, and this
+file records precisely what would replace each one and what HTML change each
+replacement needs. As an artefact it is genuinely good practice: it converts
+``this is not finished'' from a feeling into a list.
+
+\begin{jargon}{Markdown}
+A way of writing formatted text in a plain file, using punctuation instead of
+menus: \code{\#} starts a heading, backticks mark code, and pipe characters draw a
+table. It is designed to be readable as plain text and is the standard format for
+notes kept alongside code.
+\end{jargon}
+
+\subsubsection*{Line by line}
+
+\begin{lstlisting}[firstnumber=1,caption={\file{ASSETS.md}, lines 1--21}]
+# Assets checklist: ai.digitalise.agency
+
+Drop real assets here, then update the HTML as noted.
+
+## Required before launch
+
+| File | Size | Where used | HTML change needed |
+|---|---|---|---|
+| `videos/hero-1.mp4` | under 8MB | Hero background tiles | Swap .tile-blue .tile-thumb div for `<video autoplay muted loop playsinline>` |
+| `logos/client-1.svg` | any | Proof section | Replace `pa1`/`pa2` avatar initials with `<img>` |
+| `logos/client-2.svg` | any | Proof section | Same |
+| `logos/client-3.svg` | any | Proof section | Same |
+| `thumbs/port-1.jpg` | 800x450px | Portfolio card 1 | Add `style="background-image:url('/assets/thumbs/port-1.jpg')"` to `.pt1` |
+| `thumbs/port-2.jpg` | 800x450px | Portfolio card 2 | Same pattern for `.pt2` through `.pt6` |
+| `thumbs/port-3.jpg` | 800x450px | Portfolio card 3 | |
+| `thumbs/port-4.jpg` | 800x450px | Portfolio card 4 | |
+| `thumbs/port-5.jpg` | 800x450px | Portfolio card 5 | |
+| `thumbs/port-6.jpg` | 800x450px | Portfolio card 6 | |
+| `favicon.svg` | 32x32 | Browser tab | Add `<link rel="icon" href="/assets/favicon.svg">` to `<head>` |
+| `og-image.png` | 1200x630px | Social share preview | Update `og:image` meta tag |
+\end{lstlisting}
+
+Line 1 is the title, and line 3 the instruction: put the real files in this folder,
+then change the HTML as the table says.
+
+Lines 7 and 8 open a table, with line 8 being the separator row that Markdown
+requires between a table's headings and its body.
+
+The twelve rows are the substance. Reading them tells you exactly what the design
+is pretending to have:
+
+\begin{itemize}
+\item \textbf{One video}, under 8 megabytes, to play inside the hero tiles instead
+  of the static icons. The suggested tag carries \code{autoplay muted loop
+  playsinline}, and the \code{muted} is not optional: browsers refuse to autoplay
+  video with sound, so an unmuted autoplaying video simply does not start.
+  \code{playsinline} stops iPhones taking the video full screen.
+\item \textbf{Three client logos}, to replace the coloured circles with initials in
+  the proof section. Note the row says \code{pa1}/\code{pa2} and there are three
+  logos and three avatars (\code{pa1} to \code{pa3}), so the instruction is one
+  short.
+\item \textbf{Six portfolio thumbnails} at 800 by 450, which is exactly the 16 by 9
+  shape the stylesheet reserves with \code{aspect-ratio} on line 473.
+\item \textbf{A favicon}, with the exact tag needed to install it.
+\item \textbf{A social preview image} at 1200 by 630, the standard Open Graph size,
+  to fix the missing \code{og:image} noted in section 7.1.
+\end{itemize}
+
+\begin{honest}{None of the twelve exist}
+The \file{assets/} folder contains exactly one file: this checklist. Every asset it
+calls ``required before launch'' is absent, which means the design was never
+finished to the standard its own author set for it. The portfolio thumbnails are
+still gradients, the client logos are still lettered circles, and the page has
+neither a favicon nor a social preview image.
+\end{honest}
+
+\begin{lstlisting}[firstnumber=21,caption={\file{ASSETS.md}, lines 21--33}]
+
+## Numbers to update (index.html metrics band)
+
+Search for `data-target` in `index.html` and replace all four values with real numbers verified from Gantry / n8n data.
+
+## Booking link
+
+Search for `YOUR_CAL_LINK` in `index.html` and replace with the actual Cal.com or Calendly URL.
+For a full inline calendar embed, replace the `<a>` tag with the Cal.com embed snippet from cal.com/docs/embeds.
+
+## Client proof section
+
+Three `<!-- UPDATE -->` comments in the proof section mark where real client names and companies go.
+\end{lstlisting}
+
+Line 24 is the most interesting line in the file, because of one phrase: the four
+metric numbers are to be replaced with ``real numbers verified from Gantry / n8n
+data''. Gantry is another project in this workspace, the agency's content
+publishing system, and n8n is the automation tool behind several of these projects.
+So the author's intention was that the numbers on this marketing page would be
+traceable to the agency's own operational systems rather than estimated. That is a
+higher standard than most marketing pages hold themselves to, and it makes the
+invented hero tile numbers in \file{index.html} more surprising rather than less.
+
+Line 28 tells the reader to search for \code{YOUR\_CAL\_LINK}.
+
+\begin{honest}{Two of this file's three instructions are stale}
+Searching \file{index.html} for \code{YOUR\_CAL\_LINK} finds nothing. The literal
+placeholder was replaced on 2026-07-28 by commit \code{4dffc12}, which set the link
+to \code{cal.com/davonex/30min}. So somebody following this instruction searches,
+finds nothing, and has no way to tell whether the job is done or the instruction is
+wrong. The answer is that the job is half done: the placeholder text is gone and the
+link still points at another project's calendar.
+
+The metrics instruction on line 24 is stale in the same way: commit \code{2c66a7a}
+claims to have replaced all placeholder content with real agency data, and the four
+values do look like considered numbers rather than round placeholders. Yet the
+\code{UPDATE} comment sits in \file{index.html} at line 187 and this instruction sits
+here, both saying the work is outstanding.
+
+Only the third instruction, on line 33 about the client proof section, is verifiably
+still true: the avatar initial on line 430 of \file{index.html} is a leftover.
+\end{honest}
+
+\subsubsection*{What it connects to}
+
+It describes \file{new-design-reference/index.html} and
+\file{new-design-reference/css/site.css} by name and by class, and it is the only
+file in the repository that documents the project's intent. Nothing reads it: it is
+for people.
+
+The deploy workflow explicitly excludes it from publication (line 82 of the
+workflow), which is the right instinct, and that exclusion no longer matches its
+path. See section 7.6.
+
+\subsubsection*{How it breaks}
+
+As a document it cannot break. As a source of truth it already has: two of its
+three instructions describe a state of the code that no longer exists, which is the
+characteristic failure of documentation kept beside code and not updated with it.
+

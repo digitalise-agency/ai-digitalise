@@ -1,0 +1,1346 @@
+% ===========================================================================
+\subsection{\file{new-design-reference/index.html}}
+% ===========================================================================
+
+\textbf{HTML, 597 lines.} The page itself: every word a visitor reads, and the
+structure that holds those words. If you delete every other file in this
+repository, this one still opens in a browser and still says everything the
+project wants to say. It would simply look plain.
+
+\begin{provenance}{new-design-reference/index.html}
+Hand-written. It arrived complete in the very first commit, \code{0d77d51} on
+2026-07-28 (``Launch ai.digitalise.agency''), at the path \file{index.html}, and
+was moved to its present path in \code{da508a7} on 2026-07-29 with no change to
+its contents. There is no generator banner, no framework scaffold, and no
+\file{package.json} that could have produced it.
+
+Its icons are a different matter and are worth naming precisely. Every icon in
+the file is an inline SVG drawing whose path data matches the Heroicons outline
+set, a widely used free icon library: the shapes, the \code{24 24} view box, the
+\code{stroke-linecap} and \code{stroke-linejoin} attributes and the
+\code{1.5}-based coordinates are that library's house conventions. \textbf{The
+file carries no attribution comment saying so}, so this is stated as an inference
+from the path data, not as a documented fact. \textbf{Confidence: high for
+hand-written, inferred for the icon origin.}
+\end{provenance}
+
+\subsubsection*{Why it exists}
+
+Without this file there is no page. The stylesheet styles class names that would
+belong to nothing, and the JavaScript would search for elements that do not
+exist and quietly do nothing, which is exactly how it is written to behave.
+
+\subsubsection*{Line by line}
+
+\paragraph{Lines 1 to 17: the head, which the visitor never sees.}
+
+\begin{lstlisting}[language=HTML,firstnumber=1,caption={\file{index.html}, lines 1--17}]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Digitalise AI: Done-for-you AI systems for entrepreneurs</title>
+<meta name="description" content="Done-for-you AI systems that answer, follow up, and publish, so your business keeps growing without adding headcount." />
+<meta property="og:title" content="Digitalise AI" />
+<meta property="og:description" content="Done-for-you AI systems that answer, follow up, and publish." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#05070d" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/site.css" />
+</head>
+\end{lstlisting}
+
+Line 1 is not a tag at all. \code{<!DOCTYPE html>} is a declaration that tells the
+browser ``interpret this as modern HTML''. It is a historical artefact: without
+it browsers fall back to a compatibility mode that imitates the bugs of software
+from the 1990s. It must be the first thing in the file, and it takes no closing
+partner.
+
+Line 2 opens the document and declares its language as English with
+\code{lang="en"}. That attribute is small and does real work: screen readers use
+it to choose a pronunciation, and search engines use it to decide who to show the
+page to.
+
+Line 3 opens the \code{<head>}. Everything between here and line 17 is
+information \emph{about} the page rather than content \emph{of} it. Nothing in
+this block appears on screen.
+
+Line 4 declares the character encoding as UTF-8, which is the scheme that lets a
+file contain any character in any language. This matters concretely here: the
+page contains a middle dot and a heart symbol, and without this line those would
+render as mojibake. It should appear as early as possible, because the browser
+has to guess the encoding until it is told.
+
+\begin{jargon}{Meta tag}
+A tag inside \code{<head>} carrying a fact about the page rather than content for
+the page. It has no closing partner and displays nothing. Different meta tags are
+read by completely different audiences: browsers, search engines, and social
+networks each look for their own.
+\end{jargon}
+
+Line 5 is the viewport declaration and it is the single line that makes the page
+work on a phone. \code{width=device-width} tells the browser to treat the page
+width as the real width of the device, and \code{initial-scale=1.0} says do not
+zoom out to start with. Without it, a phone pretends to be about 980 pixels wide
+and shrinks everything, which is why old sites look like tiny unreadable
+newspapers on a phone. Every media query in the stylesheet depends on this line
+being present.
+
+Line 6 is the \code{<title>}: the text in the browser tab and the blue headline
+in a search result. Note it for later, because it is how section 1.2 proved this
+page is not the live one.
+
+Line 7 is the description, which search engines often show as the grey text under
+the title. It is 118 characters, comfortably inside the roughly 155 that get
+displayed.
+
+Lines 8 to 10 are Open Graph tags, a convention invented by Facebook and now read
+by nearly every chat app and social network to build the preview card when
+somebody pastes a link. Note that \code{og:title} here says only ``Digitalise
+AI'', shorter than the real title on line 6, which is a sensible choice: preview
+cards truncate.
+
+\begin{honest}{The Open Graph set is incomplete in the way that matters most}
+The three tags present are \code{og:title}, \code{og:description} and
+\code{og:type}. The two missing ones are \code{og:image} and \code{og:url}.
+Without \code{og:image}, a pasted link produces a preview card with no picture,
+which is the difference between a link that gets clicked and one that does not.
+\file{ASSETS.md} lists \code{og-image.png} as required before launch, and it was
+never created. See section 7.5.
+\end{honest}
+
+Line 11 sets \code{theme-color} to \code{\#05070d}, the same near-black used as
+the page background. Mobile browsers paint their address bar this colour, so the
+browser chrome blends into the page instead of framing it in white.
+
+Line 12 is blank. Blank lines have no effect on how HTML renders; they are purely
+for the human reading the file, and here the author uses them to separate the
+page's identity from its external resources.
+
+Lines 13 and 14 are \code{preconnect} hints. They tell the browser: you will
+shortly need to talk to these two Google servers, so start the handshake now
+rather than waiting. Establishing a secure connection takes several network round
+trips, and doing that early rather than at the moment of need typically saves a
+few hundred milliseconds. The \code{crossorigin} attribute on line 14 is required
+on the second one, because font files are fetched under stricter rules than
+stylesheets, and a preconnect made without it would open a connection the font
+request cannot reuse. That subtlety catches out experienced developers
+constantly.
+
+Line 15 actually fetches the fonts: two typefaces, Space Grotesk in three weights
+and Inter in four. \code{display=swap} at the end is the important part. It tells
+the browser to render text immediately in a fallback typeface and swap in the
+real one when it arrives, rather than hiding the text for up to three seconds
+while it waits. The visible cost is that text reflows slightly; the benefit is
+that a visitor on a slow connection can read the page at all.
+
+\begin{jargon}{Font weight}
+How heavy a typeface looks, on a numeric scale where 400 is normal and 700 is
+bold. Requesting \code{wght@500;600;700} downloads three separate files. Each
+weight requested is another download, which is why the list is short.
+\end{jargon}
+
+Line 16 links the stylesheet. This is the path discussed in section 11: the
+leading slash in \code{/css/site.css} means ``from the top of the site'', which
+is correct when served by a web server and wrong when the file is opened directly
+off a disk.
+
+Line 17 closes the head.
+
+\paragraph{Lines 18 to 35: the navigation bar.}
+
+\begin{lstlisting}[language=HTML,firstnumber=18,caption={\file{index.html}, lines 18--35}]
+<body>
+
+<!-- ══════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════ -->
+<nav class="nav" aria-label="Site navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="Digitalise AI home">
+      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="8" fill="#1967ff"/>
+        <path d="M7 14c0-3.866 3.134-7 7-7s7 3.134 7 7-3.134 7-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="14" cy="14" r="2.5" fill="#fff"/>
+      </svg>
+      digitalise <span class="logo-ai">AI</span>
+    </a>
+    <a href="#book" class="btn btn-primary">Book a call</a>
+  </div>
+</nav>
+\end{lstlisting}
+
+Line 18 opens \code{<body>}: everything from here to line 596 is what a visitor
+actually sees.
+
+Line 19 is blank, and lines 20 to 22 are a comment banner. Anything between
+\code{<!--} and \code{-->} is ignored entirely by the browser. This file uses
+seven of these banners as signposts, one per major band of the page, each drawn
+with a rule of repeated double-line characters. They are the author's table of
+contents, and they are the reason a 597-line file stays navigable.
+
+Line 23 opens the navigation bar. Two things are happening. \code{<nav>} is a
+\emph{semantic} tag: it does not look different from a plain \code{<div>}, but it
+announces to screen readers and search engines that this is the site's
+navigation. \code{aria-label="Site navigation"} gives that region a spoken name,
+so a screen-reader user hearing a list of page regions hears something meaningful.
+
+\begin{jargon}{ARIA}
+Accessible Rich Internet Applications: a set of attributes, all starting with
+\code{aria-}, that describe a page to assistive software such as screen readers.
+They change nothing visually. \code{aria-label} supplies a name;
+\code{aria-hidden="true"} tells assistive software to skip something entirely
+because it is purely decorative.
+\end{jargon}
+
+Line 24 opens a \code{<div>} labelled \code{nav-inner}. A \code{<div>} is a
+generic container with no meaning at all; it exists purely to be styled. The
+reason for a second container inside \code{<nav>} is a common layout pattern: the
+outer element spans the full window width so its background can stretch edge to
+edge, while the inner one is capped at a maximum width and centred, so the logo
+and button line up with the content further down the page.
+
+Line 25 opens a link to \code{/}, the site's home page. Since this \emph{is} the
+home page it reloads the page, which is the conventional behaviour of a logo.
+Its \code{aria-label} matters here: the link's visible content is a drawing plus
+the words ``digitalise AI'', and without the label a screen reader would announce
+the drawing awkwardly.
+
+Lines 26 to 30 are the logo, drawn in SVG.
+
+\begin{jargon}{SVG}
+Scalable Vector Graphics: a picture described as shapes and coordinates rather
+than as a grid of coloured dots. Because it is instructions rather than pixels,
+it stays perfectly sharp at any size, and because it is text it can sit directly
+inside the HTML file with no extra download.
+\end{jargon}
+
+\code{viewBox="0 0 28 28"} sets up a private coordinate system 28 units square;
+every coordinate inside is relative to that, so the whole drawing can be scaled to
+any size by CSS without touching the numbers. \code{fill="none"} sets the default
+to no fill, which each shape then overrides. \code{aria-hidden="true"} hides it
+from screen readers, correctly: the link already has a text label, and announcing
+the drawing too would be duplication.
+
+Line 27 draws a 28 by 28 rounded square (\code{rx="8"} is the corner radius) in
+the brand blue. Line 28 draws the swoosh: \code{d} is a path description in a
+compact language where \code{M7 14} means ``move to the point (7,14)'' and the
+\code{c} and \code{s} commands that follow are curve instructions. It is written
+to be generated, not read, and nobody edits it by hand. Line 29 puts a white dot
+in the middle. Line 30 closes the drawing.
+
+Line 31 is the wordmark. ``digitalise'' is plain text and ``AI'' is wrapped in a
+\code{<span>} labelled \code{logo-ai} so the stylesheet can colour those two
+letters blue. A \code{<span>} is the inline equivalent of a \code{<div>}: no
+meaning, no visual effect, purely a hook for styling.
+
+Line 32 closes the logo link. Line 33 is the navigation's only button, a link to
+\code{\#book}. Note it is a link and not a \code{<button>}, which is correct: it
+navigates somewhere rather than performing an action. It carries two classes,
+\code{btn} for the shared button shape and \code{btn-primary} for the filled blue
+variant. That two-class pattern repeats throughout the file and is explained in
+section 7.2.
+
+Lines 34 and 35 close the containers.
+
+\paragraph{Lines 36 to 57: the hero opens, and the first floating tile.}
+
+\begin{lstlisting}[language=HTML,firstnumber=36,caption={\file{index.html}, lines 36--57}]
+
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<section class="hero" aria-label="Hero">
+
+  <!-- animated background tiles -->
+  <div class="hero-bg" aria-hidden="true">
+
+    <!-- Tile 1: LinkedIn Video -->
+    <div class="tile tile-blue">
+      <div class="tile-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+        </svg>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">LinkedIn Video</span>
+        <span class="tile-metric">847K views</span>
+      </div>
+    </div>
+\end{lstlisting}
+
+Lines 36 to 39 are a blank line and the second comment banner.
+
+Line 40 opens the hero, the full-screen band at the top of the page.
+\code{<section>} is another semantic tag, meaning ``a distinct part of the
+document''.
+
+Line 42 is a comment, and line 43 opens the container for the eight drifting
+cards. \code{aria-hidden="true"} on this container is the single most important
+accessibility decision in the file: it hides all eight tiles, and every number
+inside them, from screen readers. That is correct, because they are decoration.
+It is also the reason the invented numbers inside them are a presentation problem
+rather than an accessibility one.
+
+Lines 46 to 57 are the first tile. \code{class="tile tile-blue"} again uses the
+two-class pattern: \code{tile} carries the shared card shape and the floating
+animation, \code{tile-blue} adds only the blue gradient behind the icon.
+
+Inside, line 47 opens the thumbnail area, and lines 48 to 51 draw a video-camera
+icon. \code{stroke="currentColor"} on line 48 is worth understanding: it means
+``draw the outline in whatever text colour applies here'', so the icon inherits
+its colour from CSS instead of hard-coding one. That single attribute is why one
+icon definition can appear in white on one background and blue on another.
+
+Lines 53 to 56 are the tile's caption row: a label on the left and a metric on
+the right.
+
+\begin{honest}{The tile metrics are invented}
+\code{847K views} is not a measurement. Neither are the other five numbers in
+these tiles: 234K impressions, 1.2M views, 512K views, 1.8M views and 19K
+reactions. Nothing in this repository or its history connects them to a real
+account or a real campaign, and they appeared fully formed in the first commit
+alongside the rest of the design.
+
+They are decorative and hidden from assistive software, and a designer would call
+them realistic placeholder content, which is a normal thing to put in a mockup.
+But a sighted visitor cannot tell decoration from a claim, and reads them as
+results this agency has produced. That is worth raising specifically because the
+agency's main website was built to a stated standard of using no fabricated
+numbers.
+\end{honest}
+
+\paragraph{Lines 58 to 70: the second tile, built from bars instead of an icon.}
+
+\begin{lstlisting}[language=HTML,firstnumber=58,caption={\file{index.html}, lines 58--70}]
+
+    <!-- Tile 2: Post tile -->
+    <div class="tile tile-orange">
+      <div class="tile-lines" style="padding:10px 0;">
+        <div class="tile-line"></div>
+        <div class="tile-line"></div>
+        <div class="tile-line"></div>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">LinkedIn Post</span>
+        <span class="tile-metric">234K impr.</span>
+      </div>
+    </div>
+\end{lstlisting}
+
+This tile represents a text post rather than a video, so instead of an icon it
+shows three grey bars standing in for lines of text. Each \code{<div
+class="tile-line">} is completely empty: it has no content at all, and exists
+only so that CSS can give it a height, a width and a rounded grey background.
+This is a standard technique for drawing an abstract shape without an image, and
+the widths (100\%, 85\%, 60\%) are set in the stylesheet at lines 216 to 218 to
+suggest a paragraph ending mid-line.
+
+\begin{honest}{An inline style that fights the stylesheet}
+\code{style="padding:10px 0;"} on line 61 sets the spacing directly on the
+element. The stylesheet also has a rule for this class, \code{.tile-lines
+\{ padding: 0; \}} at line 209, and an inline style always wins over a stylesheet
+rule. So that rule never has any effect, in either of the two places the class is
+used. One of the two should go; the stylesheet rule is the dead one.
+\end{honest}
+
+\begin{jargon}{Inline style}
+Appearance written directly on an element with a \code{style} attribute, rather
+than in the stylesheet. It overrides almost anything the stylesheet says, which
+makes it useful for one-offs and dangerous as a habit: rules written in one file
+stop being able to control what appears in the other.
+\end{jargon}
+
+\paragraph{Lines 71 to 80: the third tile, a statistic.}
+
+\begin{lstlisting}[language=HTML,firstnumber=71,caption={\file{index.html}, lines 71--80}]
+
+    <!-- Tile 3: Stats tile -->
+    <div class="tile" style="background:var(--s1);">
+      <div class="tile-stat-num">1.2M</div>
+      <div class="tile-stat-lbl">Views this month</div>
+      <div class="tile-meta" style="margin-top:12px;">
+        <span class="tile-label">AI Campaign</span>
+        <span class="tile-metric">+340%</span>
+      </div>
+    </div>
+\end{lstlisting}
+
+This tile has no icon and no bars, just a large number, a caption and the usual
+meta row. Note \code{style="background:var(--s1);"} on line 73: an inline style
+that reads a custom property defined in the stylesheet. It works, and it is
+redundant, because the \code{.tile} rule at line 155 already sets exactly that
+background. Two more tiles (lines 96 and 121) repeat the same redundant inline
+background.
+
+\paragraph{Lines 81 to 93: the fourth tile.}
+
+\begin{lstlisting}[language=HTML,firstnumber=81,caption={\file{index.html}, lines 81--93}]
+
+    <!-- Tile 4: Video -->
+    <div class="tile tile-teal">
+      <div class="tile-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
+        </svg>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">AI Video</span>
+        <span class="tile-metric">512K views</span>
+      </div>
+    </div>
+\end{lstlisting}
+
+Structurally identical to tile 1, with two differences: the colour class is
+\code{tile-teal}, and the icon is a play triangle rather than a video camera.
+That same play-triangle path appears six more times in this file, once on each
+portfolio card. Nothing shares it: the same 180 characters of path data are
+repeated seven times in total, which is the cost of having no templating system.
+It is a real duplication, and it is also the correct trade for a project that
+deliberately has no build step.
+
+\paragraph{Lines 94 to 105: the fifth tile, a status badge.}
+
+\begin{lstlisting}[language=HTML,firstnumber=94,caption={\file{index.html}, lines 94--105}]
+
+    <!-- Tile 5: Published badge -->
+    <div class="tile" style="background:var(--s1);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" width="20" height="20" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span style="font-family:var(--font-d);font-size:13px;font-weight:700;color:#34d399;">Published</span>
+      </div>
+      <div class="tile-stat-num" style="font-size:22px;">47 posts</div>
+      <div class="tile-stat-lbl">this week, zero manual work</div>
+    </div>
+\end{lstlisting}
+
+This is the most heavily inline-styled element in the file: line 97 lays out a
+row, line 101 styles the word ``Published'', and line 103 overrides a font size.
+None of it has a class, so none of it can be restyled from the stylesheet.
+
+Note the green on lines 98 and 101 is written as the literal \code{\#34d399},
+even though the stylesheet defines exactly that colour as \code{--green} at line
+15. Change the token and this tile would not follow. The same literal appears
+again at line 276 in the pipeline. This is the clearest illustration in the file
+of what inline styles cost: a colour system that only mostly applies.
+
+\paragraph{Lines 106 to 118: the sixth tile.}
+
+\begin{lstlisting}[language=HTML,firstnumber=106,caption={\file{index.html}, lines 106--118}]
+
+    <!-- Tile 6: Violet video -->
+    <div class="tile tile-violet">
+      <div class="tile-thumb">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+        </svg>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">AI Video</span>
+        <span class="tile-metric">1.8M views</span>
+      </div>
+    </div>
+\end{lstlisting}
+
+Identical in structure to tile 1, and using the identical video-camera icon path,
+with a violet gradient and a different number. This is the third of four tiles
+built from the same template.
+
+\paragraph{Lines 119 to 130: the seventh tile, a schedule.}
+
+\begin{lstlisting}[language=HTML,firstnumber=119,caption={\file{index.html}, lines 119--130}]
+
+    <!-- Tile 7: Schedule -->
+    <div class="tile" style="background:var(--s1);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accentH)" stroke-width="1.8" width="18" height="18" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+        </svg>
+        <span style="font-family:var(--font-d);font-size:12px;font-weight:600;color:var(--accentH);">Scheduled</span>
+      </div>
+      <div class="tile-stat-num" style="font-size:22px;">34 posts</div>
+      <div class="tile-stat-lbl">queued this week</div>
+    </div>
+\end{lstlisting}
+
+The mirror image of tile 5: same layout, calendar icon instead of a tick, and
+``queued'' instead of ``published''. Together the pair tells a small story in the
+background of the hero, that work is both finished and lined up. Note that here
+the colour \emph{is} read from a token, \code{var(--accentH)} on lines 123 and
+126, unlike tile 5 which used a literal. The two tiles were written minutes apart
+and are inconsistent with each other.
+
+\paragraph{Lines 131 to 145: the eighth tile, and the end of the backdrop.}
+
+\begin{lstlisting}[language=HTML,firstnumber=131,caption={\file{index.html}, lines 131--145}]
+
+    <!-- Tile 8: Reactions -->
+    <div class="tile tile-blue">
+      <div class="tile-lines" style="padding:10px 0;">
+        <div class="tile-line"></div>
+        <div class="tile-line"></div>
+        <div class="tile-line" style="width:50%;"></div>
+      </div>
+      <div class="tile-meta">
+        <span class="tile-label">Viral Post</span>
+        <span class="tile-metric">19K ❤</span>
+      </div>
+    </div>
+
+  </div><!-- /hero-bg -->
+\end{lstlisting}
+
+The last tile repeats the bar pattern from tile 2, overriding the third bar's
+width to 50\% inline so the two text tiles do not look identical. Line 141 is
+where the heart character appears; as section 1.4 explained, this document prints
+it as a heart symbol.
+
+Line 145 closes the tile container, with a trailing comment naming what was
+closed. That habit is worth copying: in a file with this much nesting, a bare
+\code{</div>} tells the reader nothing.
+
+\begin{keyidea}{Why the tile order in the file is not the order on screen}
+The eight tiles are written top to bottom in the file, but they appear scattered
+around the hero. Nothing here places them. Each one is positioned by the
+stylesheet, using rules that count children: \code{.tile:nth-child(1)},
+\code{(2)} and so on, at lines 162 to 169, each setting a corner and a delay
+before that tile starts drifting. \textbf{This means the order of these blocks in
+the HTML is load-bearing.} Move tile 5 above tile 3 in this file, without touching
+the CSS, and both tiles jump to new positions on screen and start animating at
+different times.
+\end{keyidea}
+
+\paragraph{Lines 146 to 182: the overlay and the hero's actual content.}
+
+\begin{lstlisting}[language=HTML,firstnumber=146,caption={\file{index.html}, lines 146--182}]
+
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  <!-- hero content -->
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Digitalise Agency
+    </div>
+
+    <h1 class="hero-h1">
+      AI systems built<br>
+      to grow while you <em>sleep.</em>
+    </h1>
+
+    <div class="hero-actions">
+      <a href="#book" class="btn btn-primary">
+        Book a call
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+        </svg>
+      </a>
+      <a href="#portfolio" class="btn btn-ghost">See the work</a>
+    </div>
+
+    <div class="hero-social-proof">
+      <div class="avatars" aria-hidden="true">
+        <div class="avatar av1">K</div>
+        <div class="avatar av2">H</div>
+        <div class="avatar av3">M</div>
+        <div class="avatar av4">A</div>
+      </div>
+      <p class="hero-proof-text"><strong>17+ businesses</strong> growing with Digitalise AI</p>
+    </div>
+  </div>
+
+</section>
+\end{lstlisting}
+
+Line 147 is an empty \code{<div>} that exists purely to darken the middle of the
+hero so the headline stays readable over the drifting tiles. The stylesheet fills
+it with two stacked gradients (lines 232 to 243). An empty element used as a
+visual layer is a common and legitimate technique.
+
+Lines 150 to 153 are the small pill above the headline. \code{hero-badge-dot} is
+another empty element, styled into a small circle that pulses.
+
+Lines 156 to 159 are the headline, in an \code{<h1>}. A page should have exactly
+one \code{<h1>}, and this page does: it is the document's title as far as a screen
+reader or a search engine is concerned. \code{<br>} on line 157 forces a line
+break so the headline splits where the designer wants rather than where the window
+happens to be narrow.
+
+\begin{honest}{\code{<em>} is used for colour, not for emphasis}
+Line 158 wraps ``sleep.'' in \code{<em>}, and the stylesheet then removes the
+italics that tag normally implies and colours the word blue instead (lines 285 to
+288). \code{<em>} means emphasis, and a screen reader may change its intonation
+for it. Using it as a colour hook works, and it slightly misrepresents the
+content to assistive software; a \code{<span>} with a class would have been the
+honest choice. This is a small point and the intent is plainly visual.
+\end{honest}
+
+Lines 161 to 169 hold the two hero buttons. The first is the primary blue one,
+containing both text and an arrow icon; it points at \code{\#book}. The second is
+the ghost variant, pointing at \code{\#portfolio}. Both are ordinary links, and
+both are intercepted by the JavaScript at line 70 to scroll smoothly rather than
+jump.
+
+Lines 171 to 179 are the social proof row: four overlapping circles bearing the
+letters K, H, M and A, and a line of text. The circles are \code{aria-hidden}
+because they carry no information.
+
+\begin{honest}{The four avatar initials do not correspond to anything}
+K, H, M and A do not match the three clients named further down the page (Hi-Tec
+Bearings, DigiMarvixx, Synergy Event, whose own avatars use K, D and S). They are
+placeholder initials that were never replaced. The ``17+ businesses'' claim beside
+them matches the \code{data-target="17"} in the metrics band, so that number at
+least is internally consistent; whether it is externally true cannot be
+established from this repository.
+\end{honest}
+
+Line 182 closes the hero section.
+
+\paragraph{Lines 183 to 210: the metrics band.}
+
+\begin{lstlisting}[language=HTML,firstnumber=183,caption={\file{index.html}, lines 183--210}]
+
+
+<!-- ══════════════════════════════════════════════
+     METRICS BAND
+     UPDATE: replace data-target values with real numbers
+══════════════════════════════════════════════ -->
+<section class="metrics" aria-label="Results">
+  <div class="container">
+    <div class="metrics-grid stagger">
+      <div class="metric-item" style="--i:0">
+        <div class="metric-num" data-target="17" data-suffix="+">0</div>
+        <div class="metric-label">Projects Delivered</div>
+      </div>
+      <div class="metric-item" style="--i:1">
+        <div class="metric-num" data-target="1.6" data-suffix="M+">0</div>
+        <div class="metric-label">Organic Views for Clients</div>
+      </div>
+      <div class="metric-item" style="--i:2">
+        <div class="metric-num" data-target="10" data-suffix="K+">0</div>
+        <div class="metric-label">Users Served</div>
+      </div>
+      <div class="metric-item" style="--i:3">
+        <div class="metric-num" data-target="300" data-suffix="%">0</div>
+        <div class="metric-label">Avg. Traffic Growth</div>
+      </div>
+    </div>
+  </div>
+</section>
+\end{lstlisting}
+
+This is the first band that the JavaScript genuinely drives, and it introduces
+the two mechanisms the rest of the page reuses.
+
+The first is the \textbf{data attribute}. Look at line 193: the element's visible
+content is the single character \code{0}, and the real number lives in
+\code{data-target="17"}, with \code{data-suffix="+"} beside it.
+
+\begin{jargon}{Data attribute}
+Any attribute whose name starts with \code{data-}. HTML ignores it completely and
+displays nothing; it exists so that JavaScript can attach its own information to
+an element. \file{main.js} reads these two at lines 20 and 21 to know what number
+to count towards and what to print after it.
+\end{jargon}
+
+Why is the visible content \code{0} rather than \code{17}? Because that is what a
+visitor sees before the counter runs. It is also what a visitor sees
+\emph{forever} if JavaScript is switched off or fails to load, which is the
+weakness of this pattern: the page would show four zeros and claim nothing. The
+robust alternative is to write the real number in the HTML and have the script
+count towards it from zero, which fails gracefully. This file chose the fragile
+form.
+
+The second mechanism is the \textbf{stagger}. Line 191 gives the grid the class
+\code{stagger}, and each child carries \code{style="--i:0"}, \code{--i:1} and so
+on. That custom property is multiplied by 90 milliseconds in the stylesheet (line
+90) to delay each child's fade-in, so the four items appear in sequence rather
+than together. Setting a custom property inline is the cleanest way to pass a
+per-element number to CSS, and it is used four times in this file.
+
+Note that this band still carries an \code{UPDATE} comment on line 187 telling the
+reader to replace the values with real numbers, even though commit \code{2c66a7a}
+claimed to have done exactly that. See section 14.
+
+\paragraph{Lines 211 to 235: the pipeline section and its first node.}
+
+\begin{lstlisting}[language=HTML,firstnumber=211,caption={\file{index.html}, lines 211--235}]
+
+
+<!-- ══════════════════════════════════════════════
+     HOW IT WORKS (PIPELINE)
+══════════════════════════════════════════════ -->
+<section class="pipeline-section" aria-label="How it works">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">How it works</p>
+      <h2 class="section-title">From idea to live<br>in one click.</h2>
+    </div>
+
+    <div class="pipeline" aria-label="Content production pipeline">
+
+      <!-- Node 1 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.355a14.998 14.998 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">Your Idea</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+\end{lstlisting}
+
+Lines 218 to 221 establish a pattern used by all four remaining sections: a
+wrapper with the class \code{reveal}, containing a small uppercase ``kicker'' line
+and a large heading. The \code{reveal} class is what the JavaScript watches for at
+line 56, fading the pair upward into place when they scroll into view.
+
+Line 220 is an \code{<h2>}. Heading levels form the document's outline: the single
+\code{<h1>} in the hero, then an \code{<h2>} per major section. Getting that order
+right is how a screen-reader user navigates a long page, and this file gets it
+right throughout.
+
+Line 223 opens the pipeline, and line 235 is the first connector: an entirely
+empty element that the stylesheet turns into a short line between two nodes, and
+then fills with a blue gradient when the section becomes visible. The nodes and
+connectors alternate, which is why the stylesheet targets odd children for nodes
+and even children for connectors (lines 400 to 426).
+
+\paragraph{Lines 236 to 285: the remaining four pipeline nodes.}
+
+\begin{lstlisting}[language=HTML,firstnumber=236,caption={\file{index.html}, lines 236--285}]
+
+      <!-- Node 2 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">AI Script</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 3 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">AI Video</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 4 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl">Auto-Post</span>
+      </div>
+
+      <div class="pipeline-connector" aria-hidden="true"></div>
+
+      <!-- Node 5 -->
+      <div class="pipeline-node">
+        <div class="pipeline-icon" style="background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span class="pipeline-lbl" style="color:#34d399;">Live</span>
+      </div>
+
+    </div><!-- /pipeline -->
+  </div>
+</section>
+\end{lstlisting}
+
+Four more nodes, each built to the identical shape: a container, an icon box, an
+SVG, and a label. The icons in order are a lightbulb (an idea), a pencil on a
+document (a script), a video camera (a video, reusing the same path as tile 1 and
+tile 6), and a paper plane (posting).
+
+Node 5 is the only one that differs, and it differs three times over: it overrides
+its background and border colour inline on line 275, hard-codes the same green in
+the SVG stroke on line 276, and colours its label inline on line 280. Everything
+is written to make the final step green rather than blue, and none of it uses the
+\code{--green} token that exists for exactly this purpose. The same criticism as
+tile 5 applies, and this is the fourth and last place the literal \code{\#34d399}
+appears.
+
+The five steps read as a claim about the product: an idea becomes a script,
+becomes a video, gets posted automatically, and is live. That is the same pipeline
+the Gantry project in this workspace actually implements, so the page is
+advertising a real capability rather than an invented one, though nothing in this
+repository connects the two.
+
+\paragraph{Lines 286 to 318: the portfolio section and its first card.}
+
+\begin{lstlisting}[language=HTML,firstnumber=286,caption={\file{index.html}, lines 286--318}]
+
+
+<!-- ══════════════════════════════════════════════
+     PORTFOLIO
+     UPDATE: replace gradient .pt* classes with real video poster images.
+     Add poster="path/to/thumb.jpg" to each <video> or swap divs for <img>.
+══════════════════════════════════════════════ -->
+<section class="portfolio-section" id="portfolio" aria-label="Work portfolio">
+  <div class="container">
+    <div class="reveal" style="margin-bottom:48px;">
+      <p class="section-kicker">The work</p>
+      <h2 class="section-title">Real content.<br>Real results.</h2>
+    </div>
+
+    <div class="portfolio-grid stagger">
+
+      <div class="port-card" style="--i:0">
+        <div class="port-thumb pt1">
+          <div class="port-badge">847K views</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            E-commerce
+          </div>
+          <div class="port-title">Hi-Tec Bearings: 5,000+ SKUs, 300% organic traffic growth</div>
+        </div>
+      </div>
+\end{lstlisting}
+
+Line 293 carries \code{id="portfolio"}, which is what makes the hero's ``See the
+work'' button work. An \code{id} is a unique name for one element, and a link to
+\code{\#portfolio} scrolls to whatever carries that name.
+
+\begin{jargon}{id, and how it differs from class}
+An \code{id} names exactly one element on the page and must be unique. A
+\code{class} labels any number of them. Use an \code{id} when something needs to
+be linked to or found individually; use a \code{class} when you want to style a
+group. This page has exactly two ids, \code{portfolio} and \code{book}, and both
+exist to be jumped to.
+\end{jargon}
+
+Each card is built from two halves. The top half, \code{port-thumb}, is where a
+real video thumbnail would go; today it is a gradient supplied by the class
+\code{pt1}, defined at line 504 of the stylesheet. Over it sit a badge in the
+corner and an overlay containing a play button, which the stylesheet keeps
+invisible until the mouse is over the card. The bottom half, \code{port-info},
+holds a small platform label with an arrow icon and the project title.
+
+The six projects named across these cards are Hi-Tec Bearings, DigiMarvixx,
+Synergy Event, IBA GPT, Prestige Sleep and IBA CED. Unlike the hero tiles, these
+are specific, named and checkable, which is a meaningfully different kind of
+claim.
+
+\begin{honest}{The play buttons promise videos that do not exist}
+Every card has a play button that appears on hover, and none of them plays
+anything: the card is not a link and has no click handler. The stylesheet even
+sets \code{cursor: pointer} on it (line 465), so the pointer changes to a hand,
+promising an action that never happens. \file{ASSETS.md} confirms the intent was
+real video, and the video was never supplied. As it stands the hover behaviour is
+a small deception, and the cheapest honest fix is to remove the play overlay
+until the videos exist.
+\end{honest}
+
+\paragraph{Lines 319 to 354: portfolio cards two and three.}
+
+\begin{lstlisting}[language=HTML,firstnumber=319,caption={\file{index.html}, lines 319--354}]
+
+      <div class="port-card" style="--i:1">
+        <div class="port-thumb pt2">
+          <div class="port-badge">3x leads</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            Web + WhatsApp
+          </div>
+          <div class="port-title">DigiMarvixx: 3x monthly WhatsApp leads, 60% mobile traffic</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:2">
+        <div class="port-thumb pt3">
+          <div class="port-badge">1.2s load</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            Events
+          </div>
+          <div class="port-title">Synergy Event: 800 participants, 98/100 Lighthouse score</div>
+        </div>
+      </div>
+\end{lstlisting}
+
+Structurally identical to card one, differing only in the stagger index
+(\code{--i:1} and \code{--i:2}), the gradient class (\code{pt2}, \code{pt3}), the
+badge text, the platform label and the title. Note that the same arrow icon is
+used as the ``platform'' icon on every card regardless of what the platform
+actually is, so it is decorative rather than informative.
+
+``98/100 Lighthouse score'' on line 352 is a specific, verifiable claim.
+Lighthouse is Google's page-quality auditing tool, and 98 out of 100 is a strong
+result.
+
+\paragraph{Lines 355 to 412: portfolio cards four, five and six.}
+
+\begin{lstlisting}[language=HTML,firstnumber=355,caption={\file{index.html}, lines 355--412}]
+
+      <div class="port-card" style="--i:3">
+        <div class="port-thumb pt4">
+          <div class="port-badge">AI chat</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            AI Assistant
+          </div>
+          <div class="port-title">IBA GPT: AI assistant answering questions about IBA university</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:4">
+        <div class="port-thumb pt5">
+          <div class="port-badge">24/7 sales</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            Health + E-commerce
+          </div>
+          <div class="port-title">Prestige Sleep: clinic booking and product shop in one site</div>
+        </div>
+      </div>
+
+      <div class="port-card" style="--i:5">
+        <div class="port-thumb pt6">
+          <div class="port-badge">4 dashboards</div>
+          <div class="port-thumb-overlay">
+            <div class="port-play">
+              <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="port-info">
+          <div class="port-platform">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            Analytics
+          </div>
+          <div class="port-title">IBA CED: analytics platform tracking entrepreneurship outcomes</div>
+        </div>
+      </div>
+
+    </div><!-- /portfolio-grid -->
+  </div>
+</section>
+\end{lstlisting}
+
+The final three cards complete the set of six, following the same template with
+indices 3, 4 and 5 and gradients \code{pt4} through \code{pt6}. Two of the six
+projects are for the same institution (IBA GPT and the analytics platform), which
+is the only repetition among them.
+
+Line 410 closes the grid with a naming comment, and lines 411 and 412 close the
+container and the section.
+
+\paragraph{Lines 413 to 472: the client proof band.}
+
+\begin{lstlisting}[language=HTML,firstnumber=413,caption={\file{index.html}, lines 413--472}]
+
+
+<!-- ══════════════════════════════════════════════
+     CLIENT PROOF
+     UPDATE: replace initials and numbers with real client data
+══════════════════════════════════════════════ -->
+<section class="proof-section" aria-label="Client results">
+  <div class="container">
+    <div class="reveal" style="margin-bottom:48px;">
+      <p class="section-kicker">Client results</p>
+      <h2 class="section-title">Numbers that<br>speak for themselves.</h2>
+    </div>
+
+    <div class="proof-grid stagger">
+
+      <div class="proof-card" style="--i:0">
+        <div class="proof-header">
+          <div class="proof-avatar pa1">K</div>
+          <div>
+            <div class="proof-name">Hi-Tec Bearings</div>
+            <div class="proof-company">Industrial E-commerce</div>
+          </div>
+        </div>
+        <div class="proof-metric">
+          <span class="proof-num">300%</span>
+          <span class="proof-unit">organic traffic growth</span>
+        </div>
+      </div>
+
+      <div class="proof-card" style="--i:1">
+        <div class="proof-header">
+          <div class="proof-avatar pa2">D</div>
+          <div>
+            <div class="proof-name">DigiMarvixx</div>
+            <div class="proof-company">Digital Marketing</div>
+          </div>
+        </div>
+        <div class="proof-metric">
+          <span class="proof-num">3x</span>
+          <span class="proof-unit">monthly WhatsApp leads</span>
+        </div>
+      </div>
+
+      <div class="proof-card" style="--i:2">
+        <div class="proof-header">
+          <div class="proof-avatar pa3">S</div>
+          <div>
+            <div class="proof-name">Synergy Event</div>
+            <div class="proof-company">Events & Conferences</div>
+          </div>
+        </div>
+        <div class="proof-metric">
+          <span class="proof-num">800</span>
+          <span class="proof-unit">participants, 98/100 Lighthouse</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+\end{lstlisting}
+
+Three cards, each with a coloured circle bearing an initial, a client name, an
+industry, and one headline number. The numbers repeat what the portfolio cards
+already said about the same three clients, which is deliberate: repetition is how
+a landing page makes a claim stick.
+
+Note line 430: the avatar for Hi-Tec Bearings shows the letter \textbf{K}, not H.
+That is almost certainly a leftover from the placeholder set in the hero (K, H, M,
+A), and it is the clearest surviving trace of the \code{UPDATE} comment on line
+417 having been only partly acted on.
+
+Line 461 contains \code{Events \& Conferences}. The ampersand is written as a bare
+character rather than as the escape \code{\&amp;}. Browsers forgive this, and it
+is technically invalid: \code{\&} begins a character reference in HTML. It works
+here only because what follows is a space, so no valid reference can be formed.
+It is worth knowing as a habit to avoid rather than a bug to fix.
+
+\begin{jargon}{Character reference, or entity}
+A way of writing characters that would otherwise be interpreted as markup:
+\code{\&amp;} for an ampersand, \code{\&lt;} for a less-than sign. They exist
+because those characters have structural meaning in HTML.
+\end{jargon}
+
+\paragraph{Lines 473 to 549: the services grid.}
+
+\begin{lstlisting}[language=HTML,firstnumber=473,caption={\file{index.html}, lines 473--495}]
+
+
+<!-- ══════════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════════ -->
+<section class="services-section" aria-label="Services">
+  <div class="container">
+    <div class="reveal" style="margin-bottom:48px;">
+      <p class="section-kicker">What we do</p>
+      <h2 class="section-title">Everything your content<br>operation needs.</h2>
+    </div>
+
+    <div class="services-grid stagger">
+
+      <div class="service-item" style="--i:0">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Personal Brand</div>
+        <span class="service-tag">Your voice, published</span>
+      </div>
+\end{lstlisting}
+
+The services grid follows the established shape: a revealed heading pair, then a
+staggered grid. Each of the six items is an icon box, a name, and a small
+uppercase tag line. The first item's icon is, once again, the same video-camera
+path from tile 1.
+
+The remaining five items are structurally identical and are quoted in full below,
+since the coverage rule admits no ``and so on''.
+
+\begin{lstlisting}[language=HTML,firstnumber=496,caption={\file{index.html}, lines 496--549: services two to six}]
+
+      <div class="service-item" style="--i:1">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+          </svg>
+        </div>
+        <div class="service-name">AI SEO & Content</div>
+        <span class="service-tag">Rank for what they ask</span>
+      </div>
+
+      <div class="service-item" style="--i:2">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Chat Agent</div>
+        <span class="service-tag">Reply in seconds</span>
+      </div>
+
+      <div class="service-item" style="--i:3">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Voice Agent</div>
+        <span class="service-tag">Answer calls 24/7</span>
+      </div>
+
+      <div class="service-item" style="--i:4">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Email Outreach</div>
+        <span class="service-tag">Follow up until they respond</span>
+      </div>
+
+      <div class="service-item" style="--i:5">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/>
+          </svg>
+        </div>
+        <div class="service-name">AI Ad Creatives</div>
+        <span class="service-tag">On-brand at volume</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+\end{lstlisting}
+
+The six services are AI Personal Brand, AI SEO and Content, AI Chat Agent, AI
+Voice Agent, AI Email Outreach and AI Ad Creatives. Their icons in order are a
+video camera, a magnifying glass, a speech bubble, a telephone handset, an
+envelope and a paintbrush, each one an obvious visual match for its service, which
+is why they need no labels of their own.
+
+Line 503 contains another unescaped ampersand in ``AI SEO \& Content'', the same
+point as line 461.
+
+Note the grid gets its dividing lines by a trick rather than by borders: the
+stylesheet gives the grid a 2-pixel gap with the border colour as the grid's own
+background, then gives each cell the page background (lines 608 to 618). The gaps
+show the layer beneath, producing hairlines with no border rules at all. It is
+elegant, and it is the kind of thing that looks broken if you change one of the
+two backgrounds without the other.
+
+\paragraph{Lines 550 to 580: the booking panel.}
+
+\begin{lstlisting}[language=HTML,firstnumber=550,caption={\file{index.html}, lines 550--580}]
+
+
+<!-- ══════════════════════════════════════════════
+     BOOK A CALL
+     UPDATE: replace YOUR_CAL_LINK with Salman's Cal.com or Calendly URL.
+     For inline Cal.com embed, swap the anchor tag for the Cal embed snippet.
+══════════════════════════════════════════════ -->
+<section class="book-section" id="book" aria-label="Book a call">
+  <div class="container">
+    <div class="book-wrap reveal">
+      <p class="book-eyebrow">Ready to grow?</p>
+      <h2 class="book-title">30 minutes.<br>No slides.</h2>
+      <p class="book-sub">Pick a time. We talk about your content goals.</p>
+      <div class="book-cta-row">
+        <!-- UPDATE: replace href with your Cal.com or Calendly link -->
+        <a href="https://cal.com/davonex/30min" target="_blank" rel="noopener" class="btn btn-primary" style="padding:16px 36px;font-size:17px;">
+          Book a call
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+          </svg>
+        </a>
+      </div>
+      <p class="book-detail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Free · <span>30 minutes · Zoom</span>
+      </p>
+    </div>
+  </div>
+</section>
+\end{lstlisting}
+
+This is the destination of every ``Book a call'' button on the page, via
+\code{id="book"} on line 557. It is the point of the whole document.
+
+Line 559 combines two classes on one element, \code{book-wrap} for the panel's
+appearance and \code{reveal} so the JavaScript fades it in. That is the only place
+in the file where a layout class and a behaviour class share an element.
+
+Line 565 is the actual booking link, and three of its attributes matter.
+\code{target="\_blank"} opens it in a new tab, so the visitor does not lose the
+page. \code{rel="noopener"} is a security measure that must accompany it: without
+it, the newly opened page is handed a reference back to this one and can navigate
+it somewhere else, a trick known as tab-nabbing. Its presence here is correct and
+is the kind of detail that is usually forgotten.
+
+\begin{honest}{The booking link is a placeholder that was never replaced}
+\code{cal.com/davonex/30min} is the calendar of Davonex, a different agency
+project, not a Digitalise AI calendar. Commit \code{4dffc12} on 2026-07-28 set
+this deliberately, and the same placeholder calendar is recorded as an outstanding
+item on the agency's main website too, so it is a known shared loose end rather
+than a slip here.
+
+Two things around it are worse than the link itself. The comment on line 554 still
+tells the reader to search for \code{YOUR\_CAL\_LINK}, which no longer exists
+anywhere in the file, and \file{ASSETS.md} repeats that same stale instruction.
+Somebody following the written instructions would search, find nothing, and
+conclude the work was done.
+\end{honest}
+
+Lines 572 to 577 are the reassurance line under the button: a clock icon, then
+``Free'', then the duration and the platform. The middle dots here are the
+U+00B7 character discussed in section 1.4, and they render exactly.
+
+\paragraph{Lines 581 to 597: the footer, and the script tag.}
+
+\begin{lstlisting}[language=HTML,firstnumber=581,caption={\file{index.html}, lines 581--597}]
+
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <p>
+      <a href="/">digitalise.agency</a> &nbsp;·&nbsp;
+      <a href="mailto:hello@digitalise.agency">hello@digitalise.agency</a>
+    </p>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>
+\end{lstlisting}
+
+The footer is one line of text: a link home and an email address, separated by a
+middle dot padded with \code{\&nbsp;} on each side.
+
+\begin{jargon}{Non-breaking space}
+\code{\&nbsp;} is a space that a browser will not use as a place to wrap a line,
+and which is not collapsed when several spaces sit together. Here it does the
+second job: ordinary spaces around the dot would collapse to one, and these keep
+the separator visually padded.
+\end{jargon}
+
+Line 589 links to \code{/}, meaning the site's own home page. The visible text
+says \code{digitalise.agency}, which is a different site from
+\code{ai.digitalise.agency}. So the footer link appears to promise the main agency
+site and in fact reloads this one. On the live site that would be a small
+misdirection; here it is another loose end.
+
+Line 590 is a \code{mailto:} link, which opens the visitor's email program with
+the address filled in.
+
+Line 595 loads the JavaScript, and \textbf{where it sits is the whole point}. It
+is the last thing before \code{</body>}, so by the time the browser reaches it,
+every element on the page already exists. \file{main.js} begins by searching for
+elements immediately, with no wrapper telling it to wait, and that only works
+because of this placement. Move this one line up into the \code{<head>} and the
+script would run against an empty document, find nothing, and the page would
+quietly lose all three of its behaviours with no error message.
+
+Lines 596 and 597 close the body and the document.
+
+\subsubsection*{What it connects to}
+
+\textbf{This file names:} \file{new-design-reference/css/site.css} (line 16),
+\file{new-design-reference/js/main.js} (line 595), Google Fonts (lines 13 to 15),
+and cal.com (line 565).
+
+\textbf{This file is named by:} nothing inside the repository. The deploy workflow
+copies the whole folder rather than referring to files individually, and
+\file{netlify.toml} publishes the folder as a whole. \file{ASSETS.md} discusses it
+at length but cannot affect it.
+
+\textbf{Internal links:} the hero and navigation both point at \code{\#book}
+(lines 33 and 162), and the hero also points at \code{\#portfolio} (line 168).
+Those two ids, on lines 557 and 293, are the only link targets in the file.
+
+\subsubsection*{How it breaks}
+
+\begin{itemize}
+\item \textbf{Rename a class here without renaming it in the stylesheet} and that
+  element loses its appearance silently. Nothing warns you.
+\item \textbf{Move the \code{<script>} tag into the \code{<head>}} and all three
+  behaviours stop working, with no error in the console. The metrics band would
+  then permanently display four zeros.
+\item \textbf{Reorder the eight hero tiles} and they jump to different positions,
+  because the stylesheet positions them by their number, not by their class.
+\item \textbf{Open the file directly off a disk} and it renders unstyled, because
+  of the leading slash on line 16. This looks like catastrophic breakage and is
+  not. See section 11.
+\item \textbf{Disable JavaScript} and the page is fully readable but static: the
+  metrics show zeros, nothing fades in, and the anchor links jump instead of
+  gliding. Only the metrics are a real loss.
+\item \textbf{Delete the id on line 557} and every ``Book a call'' button on the
+  page silently does nothing, because \file{main.js} returns early when it cannot
+  find a link's target.
+\end{itemize}
+
+\subsubsection*{Honest findings for this file}
+
+Collected here, each already argued above: the invented tile metrics (lines 55,
+68, 74, 91, 116, 141); the missing \code{og:image} and favicon; the mismatched
+avatar initial on line 429; five stale \code{UPDATE} comments (lines 187, 290,
+417, 554, 564); the placeholder booking link on line 565; two unescaped ampersands
+(lines 461 and 503); \code{<em>} used as a colour hook on line 158; play buttons
+that play nothing; a footer link whose text and destination disagree; the
+literal \code{\#34d399} used four times where a token exists; and one inline
+padding that permanently overrides a stylesheet rule.

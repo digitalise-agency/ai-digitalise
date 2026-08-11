@@ -1,0 +1,407 @@
+% ===========================================================================
+\subsection{\file{.github/workflows-disabled/deploy.yml.disabled}}
+% ===========================================================================
+
+\textbf{YAML, 103 lines.} The automation that used to publish this site: it
+watched for pushes, checked for a marker in the commit message, copied the files
+to the agency's server over an encrypted connection, and then checked that the
+site still answered. It is currently switched off.
+
+\begin{provenance}{.github/workflows-disabled/deploy.yml.disabled}
+Hand-written, added in commit \code{d49e034} on 2026-07-28 at the path
+\file{.github/workflows/deploy.yml}, rewritten in \code{2c66a7a} the same day when
+the deploy target changed from Netlify to the VPS, fixed three times on 2026-07-29,
+and finally renamed to its present path in \code{da508a7}.
+
+Its shape is shared with the sibling project \code{salmanadnan-com}, whose
+workflow was written in the same week and carries the same retry loops and the
+same \code{[deploy]} marker check. Neither file says which came first, and this
+document does not guess. The \code{[deploy]} convention itself is
+workspace-wide and predates both. \textbf{Confidence: certain for hand-written and
+for the rename history, which is recorded in git; the relationship to the sibling
+repository is stated as a resemblance and not as a lineage.}
+\end{provenance}
+
+\subsubsection*{Why it exists}
+
+To remove a manual step. Without it, publishing means somebody connecting to the
+server and copying files by hand, which is slow and easy to get wrong. With it,
+publishing is a consequence of writing a commit message in a particular way.
+
+\begin{jargon}{YAML}
+A file format for configuration, where structure is expressed by indentation
+rather than by brackets. Two spaces of indent mean ``this belongs to the line
+above''. It is unforgiving about indentation, which is its main drawback: a single
+misplaced space changes the meaning.
+\end{jargon}
+
+\begin{jargon}{GitHub Actions, and a workflow}
+A service that runs jobs on GitHub's computers when something happens in a
+repository. The jobs are described in a workflow file in
+\file{.github/workflows/}. Each job runs on a fresh, empty machine, which is why
+the file below has to install its own SSH key every time.
+\end{jargon}
+
+\subsubsection*{Line by line}
+
+\paragraph{Lines 1 to 19: the header comment and the trigger.}
+
+\begin{lstlisting}[firstnumber=1,caption={\file{deploy.yml.disabled}, lines 1--19}]
+# ai.digitalise.agency: deploy to VPS when commit subject starts with [deploy].
+#
+# A push to main always checks the marker. It DEPLOYS only when the commit
+# subject line STARTS with [deploy], matching every other agency repository.
+# Mentioning the marker anywhere else in the message does nothing.
+#
+# The site is served by Caddy from /root/ai.digitalise.agency on the VPS.
+# Caddy picks up the new files immediately, no restart needed.
+#
+# Required repository secrets:
+#   VPS_HOST     46.202.194.85
+#   VPS_USER     deploy
+#   VPS_SSH_KEY  private key for that user
+name: Deploy ai.digitalise.agency
+
+on:
+  push:
+    branches: [main]
+\end{lstlisting}
+
+Lines 1 to 13 are a comment block, and it is the best documentation in the
+repository. In YAML a \code{\#} starts a comment. It states the marker rule twice
+and in capitals, which tells you it had caught somebody out; it names the serving
+path and the fact that Caddy needs no restart; and it lists the three secrets the
+workflow needs.
+
+\begin{honest}{The server's address is written in the comment that explains it is
+a secret}
+Line 11 records \code{VPS\_HOST 46.202.194.85} in plain text, immediately under the
+heading ``Required repository secrets''. Whatever the value of keeping the address
+in GitHub's secret store, writing it here defeats it.
+
+Proportion matters: an IP address is not a credential, this repository is private,
+and the server is reachable on the public internet anyway. The genuine cost is that
+it is now in the git history permanently, so if the server is ever replaced this
+line becomes stale and misleading rather than merely redundant. The private key,
+which is the thing that actually matters, is correctly absent.
+\end{honest}
+
+Line 14 names the workflow, which is the label shown in GitHub's interface.
+
+Lines 16 to 18 set the trigger: run on every push to the branch \code{main}, and
+nothing else. Not on pull requests, not on a schedule, not manually. That last
+absence is worth noting: there is no \code{workflow\_dispatch}, so there is no way
+to publish without making a commit.
+
+\paragraph{Lines 20 to 38: the marker check.}
+
+\begin{lstlisting}[firstnumber=19,caption={\file{deploy.yml.disabled}, lines 19--38}]
+
+jobs:
+  check-deploy:
+    name: Check Deploy Marker
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    steps:
+      - id: check
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          SUBJECT="${COMMIT_MSG%%$'\n'*}"
+          if [[ "$SUBJECT" == "[deploy]"* ]]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Deploy marker found on the subject line."
+          else
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "No deploy marker: skipping deploy."
+          fi
+\end{lstlisting}
+
+The first job exists only to answer a yes-or-no question, and it runs on a fresh
+Ubuntu machine to do it. Lines 24 and 25 declare that this job produces an output
+called \code{should\_deploy}, which the second job will read.
+
+Line 28 passes the commit message into the script as an environment variable rather
+than pasting it directly into the script text. That distinction is a genuine
+security measure.
+
+\begin{keyidea}{Why the commit message goes through an environment variable}
+If line 31 had been written as \code{SUBJECT="\$\{\{ github.event.head\_commit.message
+\}\}"}, GitHub would paste the commit message directly into the script before the
+shell ever sees it. Anyone who could write a commit message could then write shell
+commands into it and have them run on the machine holding the deploy key.
+
+Passing it as an environment variable and reading it as \code{\$COMMIT\_MSG} means
+the message is data, never code. This is a well-known class of vulnerability in
+GitHub Actions, and this file gets it right.
+\end{keyidea}
+
+Line 31 extracts the subject line: \code{\$\{COMMIT\_MSG\%\%\$'\textbackslash n'*\}}
+is shell syntax meaning ``delete the longest match of a newline followed by anything,
+from the end'', which leaves everything before the first newline.
+
+Line 32 is the test itself. \code{"\$SUBJECT" == "[deploy]"*} compares with a
+trailing wildcard, which is why the marker must \emph{begin} the subject.
+
+Lines 33 and 36 write the answer to \code{\$GITHUB\_OUTPUT}, a file GitHub reads to
+collect a step's outputs. Lines 34 and 37 print a human-readable explanation into
+the log, which is a small kindness to whoever is wondering why nothing deployed.
+
+\paragraph{Lines 40 to 63: starting the deploy, and the SSH setup.}
+
+\begin{lstlisting}[firstnumber=39,caption={\file{deploy.yml.disabled}, lines 39--63}]
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: check-deploy
+    if: needs.check-deploy.outputs.should_deploy == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authorize SSH
+        env:
+          KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          for i in 1 2 3 4 5; do
+            if ssh-keyscan -T 10 -H "$HOST" >> ~/.ssh/known_hosts 2>/tmp/keyscan.err; then
+              [ -s ~/.ssh/known_hosts ] && break
+            fi
+            echo "ssh-keyscan attempt $i failed: $(cat /tmp/keyscan.err 2>/dev/null)"
+            sleep 5
+          done
+          [ -s ~/.ssh/known_hosts ] || { echo "::error::could not fetch the host key"; exit 1; }
+\end{lstlisting}
+
+Line 43 makes this job wait for the first, and line 44 runs it only if the answer
+was yes. Everything below is therefore skipped entirely on an ordinary commit.
+
+Line 46 checks out the repository onto the machine, using GitHub's own action.
+Without this the machine would be empty.
+
+Lines 53 to 55 install the private key: create the \file{.ssh} folder,
+write the key into it, and set permissions so only the owner can read it.
+\code{chmod 600} is not optional; SSH refuses to use a key file that other users
+can read, and its error message when it does is famously unhelpful.
+
+\begin{jargon}{SSH key pair, and the host key}
+Connecting securely involves two separate keys and confusing them is common. The
+\emph{deploy key} here is the private half of a pair proving \emph{we} are allowed
+in; its public half sits on the server. The \emph{host key} is the server's own
+identity, which the client checks to be sure it is talking to the right machine and
+not an impostor. Lines 53 to 55 install the first. Lines 56 to 63 fetch the second.
+\end{jargon}
+
+Lines 56 to 62 are the retry loop, and they exist because this step failed
+repeatedly. \code{ssh-keyscan} asks the server for its host key, with a 10-second
+timeout, appending the result to \file{known\_hosts} and any complaint to a
+temporary file. \code{[ -s ~/.ssh/known\_hosts ]} then tests that the file is
+non-empty, because \code{ssh-keyscan} can succeed as a command while producing
+nothing at all. That distinction is the subtle part: checking the exit code alone
+would not have been enough.
+
+Line 63 fails the whole job with a message if five attempts produced nothing.
+\code{::error::} is GitHub's syntax for marking a line in the log as an error so it
+surfaces in the interface.
+
+\begin{keyidea}{Why fetching the host key each time is a real trade-off}
+Fetching a server's identity at the moment you connect, and trusting whatever comes
+back, means you are not actually verifying anything: an attacker positioned between
+the runner and the server could supply their own. The secure alternative is to store
+the expected host key as a secret and compare.
+
+That is a real weakness and it is a widespread convention, and the sibling project
+\code{passbolt-digitalise} in this workspace does it the stricter way, keeping a
+\file{.github/known\_hosts} file in the repository. Two projects in one workspace
+solving the same problem two ways is worth knowing about.
+\end{keyidea}
+
+\paragraph{Lines 65 to 83: copying the files.}
+
+\begin{lstlisting}[firstnumber=64,caption={\file{deploy.yml.disabled}, lines 64--83}]
+
+      - name: Sync files
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+        run: |
+          retry() {
+            for attempt in 1 2 3; do
+              "$@" && return 0
+              echo "attempt $attempt failed: $*"
+              [ "$attempt" -lt 3 ] && sleep $(( attempt * 15 ))
+            done
+            return 1
+          }
+          retry rsync -az --no-owner --no-group --omit-dir-times --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=25" \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'assets/ASSETS.md' \
+            ./ "$USER@$HOST:/root/ai.digitalise.agency/"
+\end{lstlisting}
+
+Lines 70 to 77 define a small shell function that runs whatever it is given, up to
+three times, waiting longer between each attempt: 15 seconds, then 30. \code{"\$@"}
+means ``all the arguments, run as a command''. This is the second retry loop in the
+file, and like the first it is evidence of a step that failed in practice.
+
+Line 78 is the actual copy. Each flag earns its place:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Flag & What it does \\
+\midrule
+\code{-a} & archive mode: recurse, and preserve timestamps, permissions and links \\
+\code{-z} & compress during transfer \\
+\code{--no-owner} & do not try to set file ownership on the far end \\
+\code{--no-group} & do not try to set group ownership either \\
+\code{--omit-dir-times} & do not try to set directory timestamps \\
+\code{--delete} & remove files on the server that no longer exist here \\
+\bottomrule
+\end{tabular}
+\caption{The \code{rsync} flags, and why each is present.}
+\end{table}
+
+The three \code{--no}/\code{--omit} flags are all working around the same thing: the
+\code{deploy} user is not the owner of the target directory and lacks the privilege
+to change ownership or directory timestamps. Without them \code{rsync} reports
+errors and fails. These flags are the surviving trace of the problem that commit
+\code{f698421} was fixing.
+
+\code{--delete} deserves respect: it makes the server an exact mirror, so removing a
+file here removes it there. That is usually what you want and it is also the flag
+that turns a mistaken source path into a wiped site.
+
+Line 79 tells \code{rsync} how to connect: use this key, never prompt for a password
+(\code{BatchMode=yes}, essential because there is no human to answer), and give up
+after 25 seconds.
+
+Lines 80 to 82 exclude three things from the copy: the git history, the workflow
+folder, and the internal checklist.
+
+Line 83 is the source and destination. \code{./} means the current directory's
+\emph{contents}, and the trailing slash is significant: without it, \code{rsync}
+would copy the directory itself into the target, producing a nested folder.
+
+\begin{honest}{This line would now break the live site}
+\code{./} was the right source when \file{index.html} sat at the repository root.
+Since commit \code{da508a7} moved everything down one level, \code{./} now contains
+a single folder called \file{new-design-reference}. Restoring this workflow
+unchanged would therefore copy that folder to the server and, because
+\code{--delete} is set, remove the real site's files in the same operation.
+
+The correct source after the move would be \code{new-design-reference/}. The same
+commit that moved the files disabled this workflow, so the two are consistent; the
+trap only exists for somebody who re-enables one without reading the other.
+\end{honest}
+
+\begin{honest}{The exclusion for the checklist no longer matches}
+\code{--exclude 'assets/ASSETS.md'} was written when that path was correct. The file
+now lives at \file{new-design-reference/assets/ASSETS.md}, which this pattern does
+not match, so a restored workflow would publish the internal checklist, including its
+line about replacing placeholder numbers, to the public internet.
+\end{honest}
+
+\paragraph{Lines 85 to 103: verifying, and cleaning up.}
+
+\begin{lstlisting}[firstnumber=84,caption={\file{deploy.yml.disabled}, lines 84--103}]
+
+      - name: Verify
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+        run: |
+          for i in $(seq 1 12); do
+            code=$(ssh -i ~/.ssh/deploy_key -o BatchMode=yes "$USER@$HOST" \
+              'curl -sf -o /dev/null -w "%{http_code}" --max-time 10 https://ai.digitalise.agency/' || echo 000)
+            case "$code" in
+              2*|3*) echo "Site answering with $code after ${i} check(s)."; exit 0 ;;
+            esac
+            echo "waiting, got $code ($i/12)"
+            sleep 5
+          done
+          echo "::warning::site did not respond 2xx/3xx; check Caddy on the VPS"
+
+      - name: Clean up key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+\end{lstlisting}
+
+The verification step asks, up to twelve times over about a minute, whether the site
+is answering. It does this by connecting to the server and running \code{curl}
+\emph{there} rather than from the runner, which tests the server's own view of
+itself.
+
+The \code{curl} flags: \code{-s} quiet, \code{-f} treat an error status as a failure,
+\code{-o /dev/null} throw the page away, \code{-w "\%\{http\_code\}"} print just the
+status number, and a 10-second limit. The \code{|| echo 000} supplies a fallback so
+that a failed connection yields the harmless string \code{000} instead of an empty
+one.
+
+Line 93 accepts any status beginning with 2 or 3, meaning success or redirect, and
+exits successfully.
+
+\begin{honest}{A failed verification is only a warning}
+Line 99 uses \code{::warning::} rather than \code{::error::}, and the step does not
+exit with a failure code. So if the site never came back, the workflow would still
+finish green with a warning buried in the log. Given that the preceding step ran
+\code{rsync --delete} against the live site, a failure here is the one moment you
+would want a loud red failure and an email. This is the clearest correctness
+weakness in the workflow, and it is one word to fix.
+\end{honest}
+
+Lines 101 to 103 delete the private key from the runner. \code{if: always()} makes
+this run even when an earlier step failed, which is the point: a key must not be left
+behind on a machine because something else went wrong. In practice GitHub destroys
+the machine anyway, so this is belt and braces, and it is the right instinct.
+
+\subsubsection*{What it connects to}
+
+\textbf{Reads:} three GitHub secrets (\code{VPS\_SSH\_KEY}, \code{VPS\_HOST},
+\code{VPS\_USER}) and the commit message of the push that triggered it.
+
+\textbf{Writes:} the contents of \file{/root/ai.digitalise.agency/} on the VPS at
+\code{46.202.194.85}, which Caddy serves at \code{https://ai.digitalise.agency/}.
+
+\textbf{Excludes:} \file{.git}, \file{.github} and \file{assets/ASSETS.md}.
+
+\textbf{Runs when:} never, currently. It sits in
+\file{.github/workflows-disabled/} with the extension \file{.disabled}, and GitHub
+only reads \file{.github/workflows/*.yml}.
+
+\subsubsection*{How it breaks}
+
+\begin{itemize}
+\item \textbf{Restored unchanged}, it would copy the wrong directory and, with
+  \code{--delete}, take down whatever is currently served.
+\item \textbf{A missing or wrong \code{VPS\_SSH\_KEY}} fails at the \code{rsync}
+  step after three attempts. This is what commit \code{ed5c154} fixed.
+\item \textbf{A \code{deploy} user without permission to traverse into
+  \code{/root}} fails the same way. This is what \code{f698421} fixed, and it is the
+  least obvious of the three: the user can hold the key, connect successfully, and
+  still be unable to reach the target directory.
+\item \textbf{GitHub's runner being refused by the server} fails the host-key fetch,
+  which is what both retry loops exist for.
+\item \textbf{A commit whose subject does not start with \code{[deploy]}} does
+  nothing at all, by design, and the log says so.
+\item \textbf{The site failing to come back} produces a warning and a green tick,
+  which is the failure mode worth fixing first.
+\end{itemize}
+
+\subsubsection*{Honest findings for this file}
+
+The server address is recorded in a comment describing it as a secret; the
+\code{rsync} source path and the \file{ASSETS.md} exclusion are both stale after
+the move; the host key is trusted on first sight rather than pinned, unlike the
+sibling \code{passbolt-digitalise} repository; and a failed post-deploy check
+produces a warning rather than a failure. Against those: the commit message is
+handled safely as data rather than as code, both retry loops are well built, the
+key is cleaned up unconditionally, and the comment block at the top is the most
+useful documentation in the repository.
