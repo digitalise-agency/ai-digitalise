@@ -181,10 +181,10 @@ records where the scheme came from: the tokens mirror those of the Gantry projec
 elsewhere in this workspace.
 
 \begin{keyidea}{Why the token names are numbers rather than colours}
-Calling a colour \code{--s1} instead of \code{--dark-navy} names what it is
+Calling a colour \code{-{}-s1} instead of \code{-{}-dark-navy} names what it is
 \emph{for} (the surface one step up from the page) rather than how it looks.
-Redesign in a light theme and \code{--s1} still means the right thing while
-\code{--dark-navy} becomes a lie. This is the single most transferable idea in the
+Redesign in a light theme and \code{-{}-s1} still means the right thing while
+\code{-{}-dark-navy} becomes a lie. This is the single most transferable idea in the
 repository.
 \end{keyidea}
 
@@ -317,9 +317,9 @@ The Deep Dive argues each of these at the line where it arises. Summarized:
   maintains the live build should know.
 \item \textbf{Restoring the deploy workflow unchanged would break the live site.}
   It copies the repository root, which since the move contains a folder rather
-  than a home page, and it copies with \code{--delete}.
+  than a home page, and it copies with \code{-{}-delete}.
 \item \textbf{A failed post-deploy check is only a warning}, so the workflow would
-  finish green even if the site never came back after an \code{rsync --delete}.
+  finish green even if the site never came back after an \code{rsync -{}-delete}.
 \end{itemize}
 
 \subsection{Unfinished work}
@@ -494,8 +494,8 @@ pointing at the wrong domain.
 \item[clamp] A CSS function taking a minimum, a preferred value and a maximum, used
   here so headings scale with the window between fixed limits.
 \item[CSS] Cascading Style Sheets: the file controlling appearance.
-\item[Custom property] A named value in CSS, written \code{--name} and read back
-  with \code{var(--name)}. The ``tokens'' are these.
+\item[Custom property] A named value in CSS, written \code{-{}-name} and read back
+  with \code{var(-{}-name)}. The ``tokens'' are these.
 \item[Data attribute] An attribute beginning \code{data-} that HTML ignores and
   JavaScript can read. The four statistics keep their real values in these.
 \item[Flexbox] A layout system arranging children in a row or column.

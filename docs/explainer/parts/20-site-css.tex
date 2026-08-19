@@ -83,13 +83,13 @@ most of understanding the file:
 \toprule
 Tokens & Line & What the group is for \\
 \midrule
-\code{--s0} to \code{--s2}      & 6--8   & Surfaces, darkest to lightest. \code{s0} is the page, \code{s1} is a card, \code{s2} is a detail inside a card \\
-\code{--ink1} to \code{--ink3}  & 9--11  & Text, brightest to dimmest. \code{ink1} is a heading, \code{ink2} is body text, \code{ink3} is a caption \\
-\code{--accent}, \code{--accentH}, \code{--accent2} & 12--14 & The brand blue, its hover variant, and an orange \\
-\code{--green}                  & 15     & The one success colour \\
-\code{--border}, \code{--borderS} & 16--17 & A visible hairline, and a subtler one \\
-\code{--font-d}, \code{--font-b} & 18--19 & The display typeface and the body typeface \\
-\code{--r}, \code{--rsm}, \code{--ease}, \code{--maxw}, \code{--shadow} & 20--24 & Corner radius, small radius, motion curve, content width, drop shadow \\
+\code{-{}-s0} to \code{-{}-s2}      & 6--8   & Surfaces, darkest to lightest. \code{s0} is the page, \code{s1} is a card, \code{s2} is a detail inside a card \\
+\code{-{}-ink1} to \code{-{}-ink3}  & 9--11  & Text, brightest to dimmest. \code{ink1} is a heading, \code{ink2} is body text, \code{ink3} is a caption \\
+\code{-{}-accent}, \code{-{}-accentH}, \code{-{}-accent2} & 12--14 & The brand blue, its hover variant, and an orange \\
+\code{-{}-green}                  & 15     & The one success colour \\
+\code{-{}-border}, \code{-{}-borderS} & 16--17 & A visible hairline, and a subtler one \\
+\code{-{}-font-d}, \code{-{}-font-b} & 18--19 & The display typeface and the body typeface \\
+\code{-{}-r}, \code{-{}-rsm}, \code{-{}-ease}, \code{-{}-maxw}, \code{-{}-shadow} & 20--24 & Corner radius, small radius, motion curve, content width, drop shadow \\
 \bottomrule
 \end{tabular}
 \caption{The token vocabulary. The numeric suffix always means the same thing:
@@ -98,10 +98,10 @@ dim down.}
 \end{table}
 
 \begin{keyidea}{Why a numbered scale beats named colours}
-Calling a colour \code{--dark-navy} ties the name to how it looks. Calling it
-\code{--s1} ties the name to what it is \emph{for}: the surface one step up from
-the page. Redesign the site in a light theme and \code{--s1} still means the same
-thing while \code{--dark-navy} becomes a lie. This is the single most transferable
+Calling a colour \code{-{}-dark-navy} ties the name to how it looks. Calling it
+\code{-{}-s1} ties the name to what it is \emph{for}: the surface one step up from
+the page. Redesign the site in a light theme and \code{-{}-s1} still means the same
+thing while \code{-{}-dark-navy} becomes a lie. This is the single most transferable
 idea in this repository, and it is why the author borrowed the scheme from
 another project rather than inventing one.
 \end{keyidea}
@@ -120,9 +120,9 @@ described as ``ease out''. Every transition in the file refers to it, so all
 movement on the page shares one personality.
 
 \begin{honest}{Two tokens are defined and never used}
-\code{--accent2} (line 14, an orange) and \code{--shadow} (line 24) are read zero
-times in the entire file. Counted with \code{grep -c 'var(--accent2)'}, which
-returns \code{0}, and likewise for \code{--shadow}.
+\code{-{}-accent2} (line 14, an orange) and \code{-{}-shadow} (line 24) are read zero
+times in the entire file. Counted with \code{grep -c 'var(-{}-accent2)'}, which
+returns \code{0}, and likewise for \code{-{}-shadow}.
 
 The orange is not entirely absent from the page: it appears as the literal
 \code{\#ff6719} in the second avatar gradient (line 320) and \code{\#ff9a5c} in
@@ -348,14 +348,14 @@ between the two over 0.7 seconds rather than snapping.
 
 The stagger is the same idea with one addition. \code{.stagger > *} means every
 direct child of a staggered container, and line 90 delays each child's transition
-by \code{calc(var(--i, 0) * 90ms)}: the number the HTML wrote inline, multiplied by
+by \code{calc(var(-{}-i, 0) * 90ms)}: the number the HTML wrote inline, multiplied by
 90 milliseconds. Child 0 starts immediately, child 3 starts 270 milliseconds later.
 
 \begin{jargon}{calc, and a custom property's fallback}
 \code{calc()} performs arithmetic in CSS, and can mix units.
-\code{var(--i, 0)} reads the custom property \code{--i} and falls back to
+\code{var(-{}-i, 0)} reads the custom property \code{-{}-i} and falls back to
 \code{0} if it was never set, which is what keeps this rule safe on any element
-whose inline \code{--i} was forgotten: it simply gets no delay instead of breaking.
+whose inline \code{-{}-i} was forgotten: it simply gets no delay instead of breaking.
 \end{jargon}
 
 \begin{keyidea}{Why the animation lives in CSS and the trigger lives in JavaScript}
@@ -821,9 +821,9 @@ tight. Flex items shrink by default, and circles that shrink become ovals.
 
 \begin{honest}{Four literal colours where tokens exist}
 Lines 319 to 322 write \code{\#1967ff}, \code{\#3f82ff}, \code{\#ff6719} and
-\code{\#34d399} directly. Three of those four have tokens (\code{--accent},
-\code{--accentH}, \code{--green}) and the fourth has one that is otherwise unused
-(\code{--accent2}). Gradients accept custom properties perfectly well, so there is
+\code{\#34d399} directly. Three of those four have tokens (\code{-{}-accent},
+\code{-{}-accentH}, \code{-{}-green}) and the fourth has one that is otherwise unused
+(\code{-{}-accent2}). Gradients accept custom properties perfectly well, so there is
 no technical reason for the literals. This is the same inconsistency as the inline
 styles in the HTML, and together they mean the token system governs most of the
 page rather than all of it.
@@ -930,7 +930,7 @@ title is the large heading beneath it. Both follow the same tracking rule as the
 metrics band.
 
 \begin{honest}{The kicker's contrast is worth measuring}
-\code{--accent} is \code{\#1967ff}, a saturated blue, and the kicker sets it at 12
+\code{-{}-accent} is \code{\#1967ff}, a saturated blue, and the kicker sets it at 12
 pixels in uppercase on the near-black page background. Small text needs more
 contrast than large text, not less. This document does not have a measured
 contrast ratio for that exact pairing and so does not assert a failure, but it is

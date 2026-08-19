@@ -178,7 +178,7 @@ Line 18 opens \code{<body>}: everything from here to line 596 is what a visitor
 actually sees.
 
 Line 19 is blank, and lines 20 to 22 are a comment banner. Anything between
-\code{<!--} and \code{-->} is ignored entirely by the browser. This file uses
+\code{<!-{}-} and \code{-{}->} is ignored entirely by the browser. This file uses
 seven of these banners as signposts, one per major band of the page, each drawn
 with a rule of repeated double-line characters. They are the author's table of
 contents, and they are the reason a 597-line file stays navigable.
@@ -372,7 +372,7 @@ stop being able to control what appears in the other.
 \end{lstlisting}
 
 This tile has no icon and no bars, just a large number, a caption and the usual
-meta row. Note \code{style="background:var(--s1);"} on line 73: an inline style
+meta row. Note \code{style="background:var(-{}-s1);"} on line 73: an inline style
 that reads a custom property defined in the stylesheet. It works, and it is
 redundant, because the \code{.tile} rule at line 155 already sets exactly that
 background. Two more tiles (lines 96 and 121) repeat the same redundant inline
@@ -426,7 +426,7 @@ row, line 101 styles the word ``Published'', and line 103 overrides a font size.
 None of it has a class, so none of it can be restyled from the stylesheet.
 
 Note the green on lines 98 and 101 is written as the literal \code{\#34d399},
-even though the stylesheet defines exactly that colour as \code{--green} at line
+even though the stylesheet defines exactly that colour as \code{-{}-green} at line
 15. Change the token and this tile would not follow. The same literal appears
 again at line 276 in the pipeline. This is the clearest illustration in the file
 of what inline styles cost: a colour system that only mostly applies.
@@ -473,7 +473,7 @@ built from the same template.
 The mirror image of tile 5: same layout, calendar icon instead of a tick, and
 ``queued'' instead of ``published''. Together the pair tells a small story in the
 background of the hero, that work is both finished and lined up. Note that here
-the colour \emph{is} read from a token, \code{var(--accentH)} on lines 123 and
+the colour \emph{is} read from a token, \code{var(-{}-accentH)} on lines 123 and
 126, unlike tile 5 which used a literal. The two tiles were written minutes apart
 and are inconsistent with each other.
 
@@ -659,7 +659,7 @@ count towards it from zero, which fails gracefully. This file chose the fragile
 form.
 
 The second mechanism is the \textbf{stagger}. Line 191 gives the grid the class
-\code{stagger}, and each child carries \code{style="--i:0"}, \code{--i:1} and so
+\code{stagger}, and each child carries \code{style="-{}-i:0"}, \code{-{}-i:1} and so
 on. That custom property is multiplied by 90 milliseconds in the stylesheet (line
 90) to delay each child's fade-in, so the four items appear in sequence rather
 than together. Setting a custom property inline is the cleanest way to pass a
@@ -779,7 +779,7 @@ Node 5 is the only one that differs, and it differs three times over: it overrid
 its background and border colour inline on line 275, hard-codes the same green in
 the SVG stroke on line 276, and colours its label inline on line 280. Everything
 is written to make the final step green rather than blue, and none of it uses the
-\code{--green} token that exists for exactly this purpose. The same criticism as
+\code{-{}-green} token that exists for exactly this purpose. The same criticism as
 tile 5 applies, and this is the fourth and last place the literal \code{\#34d399}
 appears.
 
@@ -903,7 +903,7 @@ until the videos exist.
 \end{lstlisting}
 
 Structurally identical to card one, differing only in the stagger index
-(\code{--i:1} and \code{--i:2}), the gradient class (\code{pt2}, \code{pt3}), the
+(\code{-{}-i:1} and \code{-{}-i:2}), the gradient class (\code{pt2}, \code{pt3}), the
 badge text, the platform label and the title. Note that the same arrow icon is
 used as the ``platform'' icon on every card regardless of what the platform
 actually is, so it is decorative rather than informative.

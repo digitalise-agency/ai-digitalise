@@ -311,9 +311,9 @@ document says ``element'', it means one of these, not a chemical one.
 \subsection{Custom properties: colours defined once}
 
 At the top of the stylesheet is a block that gives names to values:
-\code{--accent: \#1967ff;} means ``from now on, the name \code{--accent} stands
+\code{-{}-accent: \#1967ff;} means ``from now on, the name \code{-{}-accent} stands
 for this particular blue''. Everywhere else, the stylesheet writes
-\code{var(--accent)} instead of the raw colour. Change the definition once and
+\code{var(-{}-accent)} instead of the raw colour. Change the definition once and
 every use changes with it.
 
 \begin{jargon}{Hex colour}
@@ -737,9 +737,9 @@ It is collected once so it can be read as a list.
 \subsection{Findings about dead or contradictory code}
 
 \begin{enumerate}\setcounter{enumi}{3}
-\item \textbf{Two colour tokens are defined and never used.} \code{--accent2}
-  (an orange) and \code{--shadow} are declared in \file{site.css} and read zero
-  times. Counted mechanically: \code{grep -c 'var(--accent2)'} returns 0.
+\item \textbf{Two colour tokens are defined and never used.} \code{-{}-accent2}
+  (an orange) and \code{-{}-shadow} are declared in \file{site.css} and read zero
+  times. Counted mechanically: \code{grep -c 'var(-{}-accent2)'} returns 0.
 \item \textbf{The rule \code{.metric-num .accent} styles nothing.} No element in
   \file{index.html} carries the class \code{accent}.
 \item \textbf{One responsive rule contradicts itself.} In the 900-pixel
@@ -995,8 +995,8 @@ configuration on the VPS, so that they actually take effect.
   them again. It has no meaning to the browser by itself.
 \item[Commit] One recorded change to a repository, with a message explaining it.
 \item[CSS] Cascading Style Sheets: the file that controls appearance.
-\item[Custom property] A named value in CSS, defined as \code{--name: value} and
-  read back as \code{var(--name)}.
+\item[Custom property] A named value in CSS, defined as \code{-{}-name: value} and
+  read back as \code{var(-{}-name)}.
 \item[Element] One thing on the page, produced by a tag.
 \item[Hex colour] A colour written as six characters after a hash, giving red,
   green and blue amounts.
@@ -1064,7 +1064,7 @@ Path & Coverage & Lines & Section \\
 
 \subsection*{Untracked directories (tier 3)}
 
-\textbf{There are none.} Running \code{git status --porcelain --ignored} in this
+\textbf{There are none.} Running \code{git status -{}-porcelain -{}-ignored} in this
 repository produces no output at all: there are no ignored files, no build
 output, no dependency folder, and not even a \file{.gitignore}. Every file
 present on disk is tracked and every tracked file is explained above.
