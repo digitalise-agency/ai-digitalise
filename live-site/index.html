@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digitalise Agency · AI &amp; Full-Stack Engineering</title>
+  <meta name="description" content="Digitalise Agency builds AI systems and the software underneath them: an engine that runs AI models, a database built from scratch, a data store that survives crashes, agent tooling, and search that works by meaning. Every number comes from a test you can re-run.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Digitalise Agency · AI &amp; Full-Stack Engineering">
+  <meta property="og:description" content="AI systems and the software underneath them: an engine that runs AI models, a database built from scratch, a data store that survives crashes, and search that works by meaning.">
+  <meta property="og:url" content="https://salmanadnan.com/">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Digitalise Agency · AI &amp; Full-Stack Engineering">
+  <meta name="twitter:description" content="AI systems and the software underneath them: an engine that runs AI models, a database built from scratch, a data store that survives crashes, and search that works by meaning.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="styles.css?v=20260714">
+
+  <!-- The only inline script on the page. It marks the document as scripted BEFORE
+       first paint, which is what lets the project wall ship expanded in the HTML (so
+       a crawler and a JS-less visitor get all 38 projects) while a scripted visitor
+       sees it collapsed behind the "See all 38 projects" button with no flash of the
+       full grid and no layout shift. -->
+  <script>document.documentElement.className += " js";</script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+
+  <!-- The FAQ section carried no structured data until 2026-07-29, so six written
+       answers were earning nothing in search. Kept as its own block rather than
+       merged into the one above, because build-agency.py rewrites that block from
+       Person to Organization and this one is identical on both sites. Any edit to a
+       FAQ answer in the body must be mirrored here or the markup starts lying. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What languages and frameworks do you use?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Python (Django, PyTorch), JavaScript and React, SQL, and C++. PostgreSQL behind the scenes, React in the browser, C++ when raw speed decides the outcome." }
+      },
+      {
+        "@type": "Question",
+        "name": "How long do projects typically take?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A single feature: 1 to 2 weeks. A complete application, browser through to database: 4 to 12 weeks. A system built from the ground up: 8 weeks or more. Estimated upfront, with milestones." }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you do revisions and changes?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Reasonable changes to what we agreed are covered. If the job grows significantly, the timeline and the budget change with it, and only with your agreement." }
+      },
+      {
+        "@type": "Question",
+        "name": "What about maintenance and updates?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Every system ships production-ready and documented. Bug fixes and minor updates are covered. Ongoing maintenance or post-launch features run as a retainer or per request." }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you handle security?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Everything a user types is checked before it is trusted. Data is scrambled on disk and in transit. Sign-in and permissions are enforced on the server, not hidden in the interface. Reviewed against the OWASP Top Ten before launch." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is your communication style?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Weekly status updates minimum: what is being built, what is blocked, and what comes next." }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="#top" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#work">Work</a>
+      <a href="#process">Process</a>
+      <a href="#contact" class="nav__cta">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-title">
+    <!-- Decorative header background. Purely presentational, so it is hidden from
+         assistive tech and takes no pointer events. Until script.js starts it, the
+         hero keeps its CSS dot grid, so a JS-less or canvas-less visitor still gets
+         the intended texture and nothing shifts. See the hero background block in
+         script.js for the three modes and their tunables. -->
+    <canvas class="hero__bg" id="hero-bg" aria-hidden="true"></canvas>
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">Software Engineering</p>
+        <h1 id="hero-title" class="hero__title">
+          <!-- Two cursor glyphs flanking the headline, pointing inward at the words and
+               bobbing in opposite phase. Decoration and nothing else: aria-hidden, never
+               focusable, never a link, and pointer-events: none, so it can never become a
+               control a visitor clicks at and nothing happens. Absolutely positioned, so
+               it costs no layout and cannot shift the headline. It is shown only where
+               there is real room for it (>= 1240px) and never on a phone, and it holds
+               still for anyone who asked for reduced motion. -->
+          <span class="cursor-nudge cursor-nudge--l" aria-hidden="true">
+            <svg viewBox="0 0 26 33" width="30" height="38" focusable="false" role="presentation">
+              <path d="M3 2 L3 25.5 L9.2 19.8 L12.7 28 L16.6 26.2 L13.2 18.3 L21 18 Z" transform="translate(2.6 2.6)" fill="var(--coral)"/>
+              <path d="M3 2 L3 25.5 L9.2 19.8 L12.7 28 L16.6 26.2 L13.2 18.3 L21 18 Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          We build the software a business runs on:
+          <span class="word-rotator" aria-live="polite"><span class="word-rotator__word" data-words="websites,web apps,automations,AI tools">websites</span></span>.
+          <span class="cursor-nudge cursor-nudge--r" aria-hidden="true">
+            <svg viewBox="0 0 26 33" width="30" height="38" focusable="false" role="presentation">
+              <path d="M3 2 L3 25.5 L9.2 19.8 L12.7 28 L16.6 26.2 L13.2 18.3 L21 18 Z" transform="translate(2.6 2.6)" fill="var(--yellow)"/>
+              <path d="M3 2 L3 25.5 L9.2 19.8 L12.7 28 L16.6 26.2 L13.2 18.3 L21 18 Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </h1>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#work">See what we've built</a>
+          <a class="btn btn--ghost" href="#contact">Hire us</a>
+        </div>
+        <ul class="hero__meta" aria-label="Links">
+          <li><a data-repo="" class="hero__link" rel="noopener">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/company/digitalise-agency/" rel="noopener">LinkedIn</a></li>
+          <li><a href="mailto:salman@digitalise.agency">Email</a></li>
+        </ul>
+      </div>
+      <div class="hero__photo">
+        <div class="photo-frame">
+          <img
+            src="assets/agency-logo.svg"
+            width="1000" height="1000"
+            alt="Digitalise Agency" loading="eager" decoding="async">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HERO STAT / CTA PANEL -->
+  <section class="hero-cta" aria-label="At a glance and next step">
+    <div class="wrap">
+      <div class="hero-panel hero-panel--row">
+        <div class="hero-banner hero-banner--yellow">38 projects, 703 tests across 14 systems</div>
+        <div class="hero-banner hero-banner--cream">2 production systems, live clients</div>
+      </div>
+      <div class="hero-cta__actions">
+        <a class="btn btn--primary btn--big" href="#book-a-call">Book a free call &rarr;</a>
+        <a class="btn btn--ghost btn--big" href="#work">See what we've built</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <section class="stats" aria-label="At a glance">
+    <div class="wrap stats__row">
+      <div class="stat"><span class="stat__num">2</span><span class="stat__label">in production</span></div>
+      <div class="stat"><span class="stat__num">6</span><span class="stat__label">core systems, built solo</span></div>
+      <div class="stat"><span class="stat__num">38</span><span class="stat__label">projects shipped</span></div>
+    </div>
+  </section>
+
+  <!-- IS THIS YOU? -->
+  <section class="section section--tint" id="pain" aria-labelledby="pain-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Is this you?</p>
+        <h2 id="pain-title" class="section__title">If any of these sound familiar, it's costing you.</h2>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-card__icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 22h14" /><path d="M5 2h14" /><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" /></svg></div>
+          <h3>Manual work eating your week</h3>
+        </div>
+        <div class="pain-card">
+          <div class="pain-card__icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 14 4-4" /><path d="M3.34 19a10 10 0 1 1 17.32 0" /></svg></div>
+          <h3>Slow, clunky software</h3>
+        </div>
+        <div class="pain-card">
+          <div class="pain-card__icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m14.5 9.5-5 5" /><path d="m9.5 9.5 5 5" /></svg></div>
+          <h3>No tests, no confidence</h3>
+        </div>
+        <div class="pain-card">
+          <div class="pain-card__icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /></svg></div>
+          <h3>Data you can't trust</h3>
+        </div>
+        <div class="pain-card">
+          <div class="pain-card__icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 22V7a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H2" /><rect x="14" y="2" width="8" height="8" rx="1" /></svg></div>
+          <h3>A fragile MVP you outgrew</h3>
+        </div>
+        <div class="pain-card">
+          <div class="pain-card__icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></div>
+          <h3>AI features you can't audit</h3>
+        </div>
+      </div>
+      <div class="pain-cta">
+        <a class="btn btn--primary btn--big" href="#book-a-call">Book a free call &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process" aria-labelledby="process-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Our Approach</p>
+        <h2 id="process-title" class="section__title">How we work.</h2>
+      </div>
+
+      <div class="process-grid">
+        <div class="process-step">
+          <div class="step-num">01</div>
+          <h3>Understand the Problem</h3>
+        </div>
+        <div class="process-step">
+          <div class="step-num">02</div>
+          <h3>Plan & Design</h3>
+        </div>
+        <div class="process-step">
+          <div class="step-num">03</div>
+          <h3>Implement with Tests</h3>
+        </div>
+        <div class="process-step">
+          <div class="step-num">04</div>
+          <h3>Verify & Deploy</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE FLAGSHIP
+       Thirty-eight cards is a wall, and a wall gets scrolled past. So the wall is folded
+       away behind one button and a single project leads: the SQL database engine, chosen
+       because its proof needs no vocabulary (it was killed 300 times and lost nothing)
+       and because it is the claim the achievements strip already leads on.
+
+       The other 37 cards are NOT injected by script. They are in the HTML, exactly as
+       they always were, one <div> below this one; a crawler and a JS-less visitor get the
+       whole grid. The only thing script does is fold it. -->
+  <section class="section flagship" id="flagship" aria-labelledby="flag-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Start with three</p>
+        <h2 id="flag-title" class="section__title">Three projects worth your time.</h2>
+      </div>
+
+      <div class="featured-grid">
+
+        <a class="pcard pcard--feature span-6 acc-yellow" href="projects/agency-blog-saas.html" aria-label="Agency Blog SaaS: how it works">
+          <div class="pcard__media"><img src="assets/screenshots/agency-blog-saas.webp" alt="The davonex.com homepage, a Digitalise Agency client site" loading="lazy" decoding="async"></div>
+          <!-- Everything that is not the picture is wrapped, so the card can set the two
+               side by side on a wide screen. Stacked, this one card ran 851px tall and
+               pushed the other two of the three clean off the bottom of the screen. -->
+          <div class="pcard__body">
+            <div class="pcard__head">
+              <span class="pcard__idx">01</span>
+              <span class="pcard__metric">132 / 132 tests pass</span>
+            </div>
+            <h3 class="pcard__title">Agency Blog SaaS</h3>
+            <code class="pcard__repo">agency-blog-saas</code>
+            <p class="pcard__what">The code is private, so the linked demo is a scripted tour on made-up data.</p>
+            <ul class="pcard__tags"><li>Django</li><li>Postgres</li><li>Production</li></ul>
+            <span class="pcard__go">How it works <span aria-hidden="true">&rarr;</span></span>
+          </div>
+        </a>
+
+        <a class="pcard span-3 acc-purple" href="projects/inference-engine.html" aria-label="LLM Inference Engine: the speed gain">
+          <div class="pcard__media"><img src="assets/screenshots/inference-engine.webp" alt="Benchmark chart for the LLM Inference Engine" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">02</span>
+            <span class="pcard__metric">113.5 tokens a second</span>
+          </div>
+          <h3 class="pcard__title">LLM Inference Engine</h3>
+          <code class="pcard__repo">inference-engine</code>
+          <ul class="pcard__tags"><li>Python</li><li>Performance</li></ul>
+          <span class="pcard__go">The speed gain <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-3 acc-coral" href="projects/raft-kv.html" aria-label="Raft Consensus KV Store: surviving crashes">
+          <div class="pcard__media"><img src="assets/screenshots/raft-kv.webp" alt="Terminal output from a real Raft chaos test run" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">03</span>
+            <span class="pcard__metric">5,000 disasters, 0 contradictions</span>
+          </div>
+          <h3 class="pcard__title">Raft Consensus KV Store</h3>
+          <code class="pcard__repo">raft-kv</code>
+          <ul class="pcard__tags"><li>Python</li><li>Distributed</li></ul>
+          <span class="pcard__go">Surviving crashes <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+      </div>
+
+      <div class="flagship__more">
+        <button class="btn btn--ghost btn--big" id="all-toggle" type="button" aria-expanded="false" aria-controls="all-projects">See all 38 projects</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="all-projects" class="allproj">
+
+  <!-- PRODUCTION WORK -->
+  <section class="section" id="production" aria-labelledby="prod-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Production work</p>
+        <h2 id="prod-title" class="section__title">Systems shipped and running live.</h2>
+        <p class="section__intro">
+          The source stays private, so the linked demos are walkthroughs built on fabricated data, and each page says so plainly.
+        </p>
+      </div>
+
+      <div class="featured-grid">
+
+        <a class="pcard span-3 acc-yellow" href="projects/agency-blog-saas.html" aria-label="Agency Blog SaaS: how it works">
+          <div class="pcard__media"><img src="assets/screenshots/agency-blog-saas.webp" alt="The davonex.com homepage, a Digitalise Agency client site" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">01</span>
+            <span class="pcard__metric">132 / 132 tests pass</span>
+          </div>
+          <h3 class="pcard__title">Agency Blog SaaS</h3>
+          <code class="pcard__repo">agency-blog-saas</code>
+          <p class="pcard__what">The code is private, so the linked demo is a scripted tour on made-up data.</p>
+          <ul class="pcard__tags"><li>Django</li><li>Postgres</li><li>Production</li></ul>
+          <span class="pcard__go">How it works <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-3 acc-coral" href="projects/blog-posting-pipeline.html" aria-label="Blog Posting Pipeline: the live posts">
+          <div class="pcard__media"><img src="assets/screenshots/blog-posting-pipeline.webp" alt="A real live blog post published on davonex.com" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">02</span>
+            <span class="pcard__metric">Runs unattended, posts live</span>
+          </div>
+          <h3 class="pcard__title">Blog Posting Pipeline</h3>
+          <code class="pcard__repo">blog-posting-pipeline</code>
+          <p class="pcard__what">The linked demo is a made-up walkthrough.</p>
+          <ul class="pcard__tags"><li>Python</li><li>AI</li><li>Production</li></ul>
+          <span class="pcard__go">The live posts <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED SYSTEMS -->
+  <section class="section" id="work" aria-labelledby="work-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Core systems</p>
+        <h2 id="work-title" class="section__title">The hard parts, built from scratch.</h2>
+        <p class="section__intro">
+          The seventh card, the C++ ray tracer, is team coursework and is badged as such.
+        </p>
+      </div>
+
+      <div class="featured-grid">
+
+        <a class="pcard span-2 acc-coral" href="projects/urdu-slm.html" aria-label="Urdu Language Model: how it learned">
+          <div class="pcard__media"><img src="assets/screenshots/urdu-slm.webp" alt="Training loss curve for the Urdu Language Model" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">01</span>
+            <span class="pcard__metric">5.23x fewer chunks than GPT-2</span>
+          </div>
+          <h3 class="pcard__title">Urdu Language Model</h3>
+          <code class="pcard__repo">urdu-slm</code>
+          <ul class="pcard__tags"><li>Python</li><li>Language</li></ul>
+          <span class="pcard__go">How it learned <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-yellow" href="projects/inference-engine.html" aria-label="LLM Inference Engine: the speed gain">
+          <div class="pcard__media"><img src="assets/screenshots/inference-engine.webp" alt="Benchmark chart for the LLM Inference Engine" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">02</span>
+            <span class="pcard__metric">113.5 tokens a second</span>
+          </div>
+          <h3 class="pcard__title">LLM Inference Engine</h3>
+          <code class="pcard__repo">inference-engine</code>
+          <ul class="pcard__tags"><li>Python</li><li>Performance</li></ul>
+          <span class="pcard__go">The speed gain <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-purple" href="projects/sqlmill.html" aria-label="SQL Database Engine: surviving power cuts">
+          <div class="pcard__media"><img src="assets/screenshots/sqlmill.webp" alt="Benchmark chart for the SQL Database Engine" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">03</span>
+            <span class="pcard__metric">300 / 300 crash rounds</span>
+          </div>
+          <h3 class="pcard__title">SQL Database Engine</h3>
+          <code class="pcard__repo">sqlmill</code>
+          <ul class="pcard__tags"><li>Python</li><li>Systems</li></ul>
+          <span class="pcard__go">Surviving power cuts <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-coral" href="projects/raft-kv.html" aria-label="Raft Consensus KV Store: surviving crashes">
+          <div class="pcard__media"><img src="assets/screenshots/raft-kv.webp" alt="Terminal output from a real Raft chaos test run" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">04</span>
+            <span class="pcard__metric">5,000 disasters, 0 contradictions</span>
+          </div>
+          <h3 class="pcard__title">Raft Consensus KV Store</h3>
+          <code class="pcard__repo">raft-kv</code>
+          <ul class="pcard__tags"><li>Python</li><li>Distributed</li></ul>
+          <span class="pcard__go">Surviving crashes <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-yellow" href="projects/agent-runtime.html" aria-label="Agent Runtime: recording decisions">
+          <div class="pcard__media"><img src="assets/screenshots/agent-runtime.webp" alt="Terminal output from a real Agent Runtime scenario replay" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">05</span>
+            <span class="pcard__metric">93 tests, 0 live API calls</span>
+          </div>
+          <h3 class="pcard__title">Agent Runtime</h3>
+          <code class="pcard__repo">agent-runtime</code>
+          <ul class="pcard__tags"><li>Python</li><li>AI</li></ul>
+          <span class="pcard__go">Recording decisions <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-purple" href="projects/vector-db.html" aria-label="Vector Database Engine: search accuracy">
+          <div class="pcard__media"><img src="assets/screenshots/vector-db.webp" alt="Recall vs throughput chart for the Vector Database Engine" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">06</span>
+            <span class="pcard__metric">99.97% of matches found</span>
+          </div>
+          <h3 class="pcard__title">Vector Database Engine</h3>
+          <code class="pcard__repo">vector-db</code>
+          <ul class="pcard__tags"><li>Python</li><li>Search</li></ul>
+          <span class="pcard__go">Search accuracy <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-yellow" href="projects/cpp-ray-tracer.html" aria-label="C++ Ray Tracer Team: the shading layer">
+          <div class="pcard__media"><img src="assets/screenshots/cpp-ray-tracer.webp" alt="A rendered scene from the C++ Ray Tracer" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">07</span>
+            <span class="pcard__metric">1.29M triangles</span>
+          </div>
+          <h3 class="pcard__title">C++ Ray Tracer <span class="badge badge--purple">Team</span></h3>
+          <code class="pcard__repo">cpp-ray-tracer</code>
+          <p class="pcard__what">A three-person course project. Our founder, Salman Adnan, wrote the shading layer: how each surface catches light.</p>
+          <ul class="pcard__tags"><li>C++</li><li>Graphics</li></ul>
+          <span class="pcard__go">The shading layer <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- APPLICATIONS -->
+  <section class="section section--tint" id="apps" aria-labelledby="apps-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Real-world problems solved</p>
+        <h2 id="apps-title" class="section__title">Complete applications, front to back.</h2>
+        <p class="section__intro">
+          Each page says plainly what runs live and what is still ahead.
+        </p>
+      </div>
+
+      <div class="featured-grid">
+
+        <a class="pcard span-2 acc-coral" href="projects/trade-intelligence-copilot.html" aria-label="Trade Intelligence Copilot: answer accuracy">
+          <div class="pcard__media"><img src="assets/screenshots/trade-intelligence-copilot.webp" alt="Evaluation results chart for Trade Intelligence Copilot" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">01</span>
+            <span class="pcard__metric">15 / 15 SQL answers correct</span>
+          </div>
+          <h3 class="pcard__title">Trade Intelligence Copilot</h3>
+          <code class="pcard__repo">trade-intelligence-copilot</code>
+          <ul class="pcard__tags"><li>Python</li><li>Agents</li><li>Evaluation</li></ul>
+          <span class="pcard__go">Answer accuracy <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-yellow" href="projects/zarailink.html" aria-label="ZaraiLink Team: the trade directory">
+          <div class="pcard__media"><img src="assets/screenshots/zarailink.webp" alt="Screenshot of the ZaraiLink Trade Directory" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">02</span>
+            <span class="pcard__metric">112 tests passing</span>
+          </div>
+          <h3 class="pcard__title">ZaraiLink <span class="badge badge--purple">Team</span></h3>
+          <code class="pcard__repo">zarailink</code>
+          <p class="pcard__what">Final-year project, led by our founder, Salman Adnan, 112 tests passing. The demo runs on 14 made-up companies, not live customs data.</p>
+          <ul class="pcard__tags"><li>Django</li><li>React</li><li>NLP</li></ul>
+          <span class="pcard__go">The trade directory <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-purple" href="projects/balochi-poet-classifier.html" aria-label="Balochi Poet Classifier Team: the poetry dataset">
+          <div class="pcard__media"><img src="assets/screenshots/balochi-poet-classifier.webp" alt="Dataset chart for the Balochi Poet Classifier" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">03</span>
+            <span class="pcard__metric">1,670 labelled couplets</span>
+          </div>
+          <h3 class="pcard__title">Balochi Poet Classifier <span class="badge badge--purple">Team</span></h3>
+          <code class="pcard__repo">balochi-poet-classifier</code>
+          <ul class="pcard__tags"><li>Python</li><li>NLP</li><li>Low-Resource</li></ul>
+          <span class="pcard__go">The poetry dataset <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="pcard span-2 acc-coral" href="projects/voice-agent.html" aria-label="Voice Appointment Agent: the booking flow">
+          <div class="pcard__media"><img src="assets/screenshots/voice-agent.webp" alt="Terminal output from the Voice Appointment Agent's eval suite" loading="lazy" decoding="async"></div>
+          <div class="pcard__head">
+            <span class="pcard__idx">04</span>
+            <span class="pcard__metric">25 / 25 scripted scenarios</span>
+          </div>
+          <h3 class="pcard__title">Voice Appointment Agent</h3>
+          <code class="pcard__repo">voice-agent</code>
+          <ul class="pcard__tags"><li>Python</li><li>Voice</li><li>Agents</li></ul>
+          <span class="pcard__go">The booking flow <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECONDARY GRID -->
+  <section class="section section--tint" id="more" aria-labelledby="more-title">
+    <div class="wrap">
+      <div class="section__head section__head--row">
+        <div>
+          <p class="eyebrow">Also built</p>
+          <h2 id="more-title" class="section__title">Twenty-five more, same standards.</h2>
+        </div>
+        <a class="btn btn--ghost" data-repo="" rel="noopener">All repositories</a>
+      </div>
+      <div class="minis">
+
+        <a class="mini" href="projects/task-manager-django.html" aria-label="Task Manager: anyone could change your task">
+          <div class="mini__media"><img src="assets/screenshots/task-manager-django.webp" alt="Screenshot of the Task Manager homepage" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">22 tests</span>
+          <span class="mini__repo">task-manager-django</span>
+          <h3>Task Manager</h3>
+          <p>Built during an internship.</p>
+          <span class="mini__go">The sharing bug <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/prompt-evolution-ga.html" aria-label="Prompt Evolution GA: the hand-written prompt held its own">
+          <div class="mini__media"><img src="assets/screenshots/prompt-evolution-ga.webp" alt="GA convergence chart for Prompt Evolution GA" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">200 unseen problems</span>
+          <span class="mini__repo">prompt-evolution-ga</span>
+          <h3>Prompt Evolution GA</h3>
+          <p>A course project.</p>
+          <span class="mini__go">Hand-written still won <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/postgres-scaling-lab.html" aria-label="Postgres Scaling Lab: one change made it 70% slower">
+          <div class="mini__media"><img src="assets/screenshots/postgres-scaling-lab.webp" alt="Terminal output of a real EXPLAIN ANALYZE indexing demo" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">Read 2,494 pages, then 4</span>
+          <span class="mini__repo">postgres-scaling-lab</span>
+          <h3>Postgres Scaling Lab</h3>
+          <p>Course work; the numbers come from the original course runs.</p>
+          <span class="mini__go">70% slower <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/webgl-terrain-explorer.html" aria-label="WebGL Terrain Explorer: no libraries">
+          <div class="mini__media"><img src="assets/screenshots/webgl-terrain-explorer.webp" alt="Screenshot of the WebGL Terrain Explorer" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">0 outside libraries</span>
+          <span class="mini__repo">webgl-terrain-explorer</span>
+          <h3>WebGL Terrain Explorer</h3>
+          <p>A university graphics course project, deliberately with no ready-made 3D toolkit.</p>
+          <span class="mini__go">No libraries <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/reelflow-studio.html" aria-label="ReelFlow Studio: handling failures">
+          <div class="mini__media"><img src="assets/screenshots/reelflow-studio.webp" alt="Screenshot of the ReelFlow Studio UI" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">33 automation hooks</span>
+          <span class="mini__repo">reelflow-studio</span>
+          <h3>ReelFlow Studio</h3>
+          <p>The demo runs on a made-up queue, not the client's live system.</p>
+          <span class="mini__go">Handling failures <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/university-enrollment-system.html" aria-label="University Enrollment System, team project: clashes and full sections blocked">
+          <div class="mini__media"><img src="assets/screenshots/university-enrollment-system.webp" alt="Screenshot of the University Enrollment System schedule view" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">6-digit emailed login code</span>
+          <span class="mini__repo">university-enrollment-system</span>
+          <h3>University Enrollment System <span class="badge badge--purple">Team</span></h3>
+          <span class="mini__go">Clashes get blocked <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/hitec-shopify-automation.html" aria-label="Hi-Tec Shopify Automation: matching two spreadsheets">
+          <div class="mini__media"><img src="assets/screenshots/hitec-shopify-automation.webp" alt="Screenshot of the Hi-Tec Shopify Automation GUI" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">11,000-line Shopify export</span>
+          <span class="mini__repo">hitec-shopify-automation</span>
+          <h3>Hi-Tec Shopify Automation</h3>
+          <span class="mini__go">Matching two spreadsheets <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/codeforces-mashup-generator.html" aria-label="Codeforces Mashup Generator: only problems nobody has solved">
+          <div class="mini__media"><img src="assets/screenshots/codeforces-mashup-generator.webp" alt="Real output table from the Codeforces Mashup Generator" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">14 s verified live run</span>
+          <span class="mini__repo">codeforces-mashup-generator</span>
+          <h3>Codeforces Mashup Generator</h3>
+          <span class="mini__go">Only unsolved problems <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/paws-rescue-donations.html" aria-label="Paws Rescue Donations: replaces the spreadsheet anyone could edit">
+          <div class="mini__media"><img src="assets/screenshots/paws-rescue-donations.webp" alt="Screenshot of the Paws Rescue donation dashboard" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">11 tests</span>
+          <span class="mini__repo">paws-rescue-donations</span>
+          <h3>Paws Rescue Donations</h3>
+          <span class="mini__go">Replaces the spreadsheet <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/n8n-automations.html" aria-label="N8N Automations: an 8-stage campaign, 1 stage wired">
+          <div class="mini__media"><img src="assets/screenshots/n8n-automations.webp" alt="Terminal output verifying the 59 documented n8n automation folders" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">59 automations</span>
+          <span class="mini__repo">n8n-automations</span>
+          <h3>N8N Automations</h3>
+          <span class="mini__go">One stage wired <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/space-race-analysis.html" aria-label="Space Race Analysis: count the Cold War launches">
+          <div class="mini__media"><img src="assets/screenshots/space-race-analysis.webp" alt="Chart from the Space Race Analysis dashboard" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">4,324 launches</span>
+          <span class="mini__repo">space-race-analysis</span>
+          <h3>Space Race Analysis</h3>
+          <span class="mini__go">Cold War launches <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/police-shootings-analysis.html" aria-label="Police Shootings Analysis: joined to five Census datasets">
+          <div class="mini__media"><img src="assets/screenshots/police-shootings-analysis.webp" alt="Chart from the Police Shootings Analysis dashboard" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">2,535 records</span>
+          <span class="mini__repo">police-shootings-analysis</span>
+          <h3>Police Shootings Analysis</h3>
+          <span class="mini__go">Five Census datasets <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/earnings-regression.html" aria-label="Earnings Regression: watch the model fail honestly">
+          <div class="mini__media"><img src="assets/screenshots/earnings-regression.webp" alt="Residuals chart from the Earnings Regression model" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">-0.008: worse than guessing</span>
+          <span class="mini__repo">earnings-regression</span>
+          <h3>Earnings Regression</h3>
+          <span class="mini__go">It fails honestly <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/flask-todo-list.html" aria-label="Flask TODO List: passwords were readable, now scrambled">
+          <div class="mini__media"><img src="assets/screenshots/flask-todo-list.webp" alt="Screenshot of the Flask TODO List app" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">8 flows verified by hand</span>
+          <span class="mini__repo">flask-todo-list</span>
+          <h3>Flask TODO List</h3>
+          <span class="mini__go">Passwords now scrambled <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/flask-online-shop.html" aria-label="Flask Online Shop: find the login bug">
+          <div class="mini__media"><img src="assets/screenshots/flask-online-shop.webp" alt="Screenshot of the Flask Online Shop product grid" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">9 planets in the catalog</span>
+          <span class="mini__repo">flask-online-shop</span>
+          <h3>Flask Online Shop</h3>
+          <span class="mini__go">The login bug <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/pdf-to-audiobook.html" aria-label="PDF to Audiobook: one bad page crashed the batch">
+          <div class="mini__media"><img src="assets/screenshots/pdf-to-audiobook.webp" alt="Screenshot of the PDF to Audiobook tool" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">0 API keys required</span>
+          <span class="mini__repo">pdf-to-audiobook</span>
+          <h3>PDF to Audiobook</h3>
+          <span class="mini__go">One page crashed <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/color-palette-generator.html" aria-label="Color Palette Generator: what broke it">
+          <div class="mini__media"><img src="assets/screenshots/color-palette-generator.webp" alt="A real extracted palette from the Color Palette Generator" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">10 colors per image</span>
+          <span class="mini__repo">color-palette-generator</span>
+          <h3>Color Palette Generator</h3>
+          <span class="mini__go">What broke it <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/custom-web-scraper.html" aria-label="Web Element Inspector: point, click, highlight in Chrome">
+          <div class="mini__media"><img src="assets/screenshots/custom-web-scraper.webp" alt="Screenshot of the Web Element Inspector tool" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">7 ways to search a page</span>
+          <span class="mini__repo">custom-web-scraper</span>
+          <h3>Web Element Inspector</h3>
+          <span class="mini__go">Point and click <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/morse-code-converter.html" aria-label="Morse Code Converter: the missing letter V">
+          <div class="mini__media"><img src="assets/screenshots/morse-code-converter.webp" alt="Screenshot of the Morse Code Converter GUI" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">0 outside libraries used</span>
+          <span class="mini__repo">morse-code-converter</span>
+          <h3>Morse Code Converter</h3>
+          <span class="mini__go">The missing V <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/tic-tac-toe-gui.html" aria-label="Tic Tac Toe: a win-check bug, and the fix">
+          <div class="mini__media"><img src="assets/screenshots/tic-tac-toe-gui.webp" alt="Screenshot of the Tic Tac Toe GUI" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">8 win lines checked</span>
+          <span class="mini__repo">tic-tac-toe-gui</span>
+          <h3>Tic Tac Toe</h3>
+          <span class="mini__go">The win-check bug <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/image-watermarking-tool.html" aria-label="Image Watermarking Tool: the stamp bug">
+          <div class="mini__media"><img src="assets/screenshots/image-watermarking-tool.webp" alt="Screenshot of the Image Watermarking Tool" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">9 stamp positions</span>
+          <span class="mini__repo">image-watermarking-tool</span>
+          <h3>Image Watermarking Tool</h3>
+          <span class="mini__go">The stamp bug <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/typing-master-gui.html" aria-label="Typing Master: mistakes you can actually see">
+          <div class="mini__media"><img src="assets/screenshots/typing-master-gui.webp" alt="Screenshot of the Typing Master GUI" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">10,000-word list</span>
+          <span class="mini__repo">typing-master-gui</span>
+          <h3>Typing Master</h3>
+          <span class="mini__go">See your mistakes <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/breakout-game.html" aria-label="Breakout: cutting corners">
+          <div class="mini__media"><img src="assets/screenshots/breakout-game.webp" alt="Screenshot of the Breakout game running" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">52 blocks, verified run</span>
+          <span class="mini__repo">breakout-game</span>
+          <h3>Breakout</h3>
+          <span class="mini__go">Cutting corners <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/disappearing-text-app.html" aria-label="Disappearing Text: making an invisible timer visible">
+          <div class="mini__media"><img src="assets/screenshots/disappearing-text-app.webp" alt="Screenshot of the Disappearing Text app" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">Redraws every 40 ms</span>
+          <span class="mini__repo">disappearing-text-app</span>
+          <h3>Disappearing Text</h3>
+          <span class="mini__go">The invisible timer <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a class="mini" href="projects/dino-game-bot.html" aria-label="Dino Game Bot: only correct on one screen">
+          <div class="mini__media"><img src="assets/screenshots/dino-game-bot.webp" alt="Screenshot of the Dino Game Bot dashboard" loading="lazy" decoding="async"></div>
+          <span class="mini__metric">Pixels only, no game state</span>
+          <span class="mini__repo">dino-game-bot</span>
+          <h3>Dino Game Bot</h3>
+          <span class="mini__go">One screen only <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /#all-projects -->
+
+  <!-- SEE IT RUNNING: the live, draggable 3D stage.
+       One WebGL context on the whole page, ever. The rail swaps which system is
+       running by tearing the old frame down before it builds the new one, so the
+       browser is never asked to hold two. See the viz stage block in script.js.
+       The id stays "start-here" though the label no longer says so: nothing links
+       to it, but tests/test-stage.mjs and two probes drive the section by that id. -->
+  <section class="stage" id="start-here" aria-labelledby="stage-title">
+    <div class="wrap">
+      <div class="section__head stage__head">
+        <p class="eyebrow">See it running</p>
+        <h2 id="stage-title" class="section__title">Grab it, turn it, see how it actually works.</h2>
+      </div>
+
+      <figure class="stage__figure">
+        <div class="stage__box">
+          <div class="stage__bar">
+            <span class="stage__live"><span class="stage__dot" aria-hidden="true"></span>Live 3D</span>
+            <span class="stage__grab" id="stage-grab">Drag it to orbit &middot; scroll or pinch to zoom &middot; double-click to reset</span>
+          </div>
+          <div class="stage__frame" id="stage-frame">
+            <img class="stage__poster" id="stage-poster"
+                 src="assets/screenshots/trade-intelligence-copilot.webp"
+                 alt="Evaluation results chart for Trade Intelligence Copilot"
+                 width="1200" height="733" decoding="async">
+          </div>
+        </div>
+        <figcaption class="stage__caption" id="stage-caption">
+          <strong>Trade Intelligence Copilot.</strong> Signal Routes: a question fans out in gold across the world's trade lanes, the answer streams home in coral, and a scoring pass checks every answer as it lands.
+        </figcaption>
+      </figure>
+
+      <!-- The rail is picked on two axes at once: the scene has to stop a stranger who
+           has just landed, and the project underneath it has to survive an interview.
+           Every number below is the one its own project page reports. -->
+      <div class="stage__rail" role="group" aria-label="Choose which system runs in 3D">
+        <button class="stage__pick is-on" type="button" aria-pressed="true"
+                data-viz="trade-intelligence-copilot"
+                data-title="Trade Intelligence Copilot"
+                data-shot="assets/screenshots/trade-intelligence-copilot.webp"
+                data-alt="Evaluation results chart for Trade Intelligence Copilot"
+                data-caption="Signal Routes: a question fans out in gold across the world's trade lanes, the answer streams home in coral, and a scoring pass checks every answer as it lands.">
+          <span class="stage__pick-name">Trade Intelligence Copilot</span>
+          <span class="stage__pick-num">15 / 15 SQL answers correct</span>
+        </button>
+
+        <button class="stage__pick" type="button" aria-pressed="false"
+                data-viz="raft-kv"
+                data-title="Raft Consensus KV Store"
+                data-shot="assets/screenshots/raft-kv.webp"
+                data-alt="Terminal output from a real Raft chaos test run"
+                data-caption="Consensus Ring: the machines check in on each other, copy every change, get cut off by a broken network, vote in a new leader, and heal.">
+          <span class="stage__pick-name">Raft Consensus KV Store</span>
+          <span class="stage__pick-num">564,170 reads and writes, 0 contradictions</span>
+        </button>
+
+        <button class="stage__pick" type="button" aria-pressed="false"
+                data-viz="agent-runtime"
+                data-title="Agent Runtime"
+                data-shot="assets/screenshots/agent-runtime.webp"
+                data-alt="Terminal output from a real Agent Runtime scenario replay"
+                data-caption="Event Helix: a run is written down once, bead by bead, then replayed into a perfectly identical ghost.">
+          <span class="stage__pick-name">Agent Runtime</span>
+          <span class="stage__pick-num">93 tests, 0 live API calls</span>
+        </button>
+
+        <button class="stage__pick" type="button" aria-pressed="false"
+                data-viz="zarailink"
+                data-title="ZaraiLink"
+                data-shot="assets/screenshots/zarailink.webp"
+                data-alt="Screenshot of the ZaraiLink Trade Directory"
+                data-caption="Field of Trade: a team project, led by our founder, Salman Adnan. The wheat is the crop being traded, the arcs are deals crossing the sky, and every deal that lands stirs the field below it.">
+          <span class="stage__pick-name">ZaraiLink (team project)</span>
+          <span class="stage__pick-num">112 tests passing</span>
+        </button>
+
+        <button class="stage__pick" type="button" aria-pressed="false"
+                data-viz="sqlmill"
+                data-title="SQL Database Engine"
+                data-shot="assets/screenshots/sqlmill.webp"
+                data-alt="Benchmark charts for the SQL Database Engine"
+                data-caption="B+tree Pulse: a search dives down the index to one row, a scan sweeps sideways across many, and every change goes into a safety journal first, so a crash loses nothing.">
+          <span class="stage__pick-name">SQL Database Engine</span>
+          <span class="stage__pick-num">300 / 300 crash rounds</span>
+        </button>
+
+        <button class="stage__pick" type="button" aria-pressed="false"
+                data-viz="urdu-slm"
+                data-title="Urdu Language Model"
+                data-shot="assets/screenshots/urdu-slm.webp"
+                data-alt="Training loss curve for the Urdu Language Model"
+                data-caption="Attention Loom: the model reads right to left, the way Urdu does, and every word weighs every other word as it goes.">
+          <span class="stage__pick-name">Urdu Language Model</span>
+          <span class="stage__pick-num">5.23x fewer chunks than GPT-2</span>
+        </button>
+      </div>
+
+      <!-- The way into whichever system is loaded, under the model and under the rail,
+           so it is the last thing in the section and never covers the scene. Its text
+           and href are rebuilt from the rail's own data, so it cannot name the wrong
+           system. It used to be revealed only after a dwell-and-drag on the canvas;
+           that gate is gone, because it could not see a touch inside a cross-origin
+           frame and so could leave a phone visitor with no way through at all. -->
+      <div class="stage__convert" id="stage-convert">
+        <p class="stage__convert-copy" id="stage-convert-copy"></p>
+        <a class="btn btn--primary" id="stage-convert-cta" href="projects/trade-intelligence-copilot.html">Open it &rarr;</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NOTABLE ACHIEVEMENTS -->
+  <section class="section" id="achievements" aria-labelledby="achievements-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Recognition</p>
+        <h2 id="achievements-title" class="section__title">Notable achievements.</h2>
+      </div>
+
+      <div class="achievements-grid">
+        <div class="achievement">
+          <div class="achievement-stat">703</div>
+          <div class="achievement-label">Automated tests<br>across 14 systems</div>
+        </div>
+        <div class="achievement">
+          <div class="achievement-stat">5+</div>
+          <div class="achievement-label">Years shipping<br>production software</div>
+        </div>
+        <div class="achievement">
+          <div class="achievement-stat">300 / 300</div>
+          <div class="achievement-label">Sudden-kill crash rounds survived,<br>zero data loss</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU'LL GET -->
+  <section class="section section--tint" id="deliverables" aria-labelledby="deliverables-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Value Delivered</p>
+        <h2 id="deliverables-title" class="section__title">What you'll get.</h2>
+      </div>
+
+      <div class="deliverables-grid">
+        <div class="deliverable">
+          <div class="deliverable-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 18 6-6-6-6" /><path d="m8 6-6 6 6 6" /></svg></div>
+          <h3>Working Code</h3>
+        </div>
+        <div class="deliverable">
+          <div class="deliverable-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /><path d="M6.453 15h11.094" /><path d="M8.5 2h7" /></svg></div>
+          <h3>Full Test Suite</h3>
+        </div>
+        <div class="deliverable">
+          <div class="deliverable-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg></div>
+          <h3>Documentation</h3>
+        </div>
+        <div class="deliverable">
+          <div class="deliverable-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09" /><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" /></svg></div>
+          <h3>Deploy Ready</h3>
+        </div>
+        <div class="deliverable">
+          <div class="deliverable-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></div>
+          <h3>Security Verified</h3>
+        </div>
+        <div class="deliverable">
+          <div class="deliverable-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></svg></div>
+          <h3>Performance Audited</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FREQUENTLY ASKED QUESTIONS -->
+  <section class="section section--tint" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">Questions?</p>
+        <h2 id="faq-title" class="section__title">Frequently asked questions.</h2>
+      </div>
+
+      <div class="faq-grid">
+        <details class="faq-item">
+          <summary>What languages and frameworks do you use?</summary>
+          <div class="faq-content">
+            <p>Python (Django, PyTorch), JavaScript and React, SQL, and C++. PostgreSQL behind the scenes, React in the browser, C++ when raw speed decides the outcome.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How long do projects typically take?</summary>
+          <div class="faq-content">
+            <p>A single feature: 1 to 2 weeks. A complete application, browser through to database: 4 to 12 weeks. A system built from the ground up: 8 weeks or more. Estimated upfront, with milestones.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Do you do revisions and changes?</summary>
+          <div class="faq-content">
+            <p>Yes. Reasonable changes to what we agreed are covered. If the job grows significantly, the timeline and the budget change with it, and only with your agreement.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What about maintenance and updates?</summary>
+          <div class="faq-content">
+            <p>Every system ships production-ready and documented. Bug fixes and minor updates are covered. Ongoing maintenance or post-launch features run as a retainer or per request.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do you handle security?</summary>
+          <div class="faq-content">
+            <p>Everything a user types is checked before it is trusted. Data is scrambled on disk and in transit. Sign-in and permissions are enforced on the server, not hidden in the interface. Reviewed against the OWASP Top Ten before launch.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What's your communication style?</summary>
+          <div class="faq-content">
+            <p>Weekly status updates minimum: what is being built, what is blocked, and what comes next.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact" aria-labelledby="contact-title">
+    <div class="wrap contact__inner">
+      <p class="eyebrow eyebrow--light">Contact</p>
+      <h2 id="contact-title" class="contact__title">Have a system that needs building?</h2>
+      <div class="contact__actions">
+        <a class="btn btn--primary btn--big" href="#book-a-call">Book a free call &rarr;</a>
+        <a class="btn btn--ghost btn--big" href="mailto:salman@digitalise.agency">salman@digitalise.agency</a>
+        <a class="btn btn--ghost btn--big" href="https://www.linkedin.com/company/digitalise-agency/" rel="noopener">LinkedIn</a>
+        <a class="btn btn--ghost btn--big" data-repo="" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOK A CALL -->
+  <!-- partial:book-a-call -->
+  <section class="book" id="book-a-call" aria-labelledby="book-title">
+    <div class="wrap book__inner">
+      <p class="eyebrow eyebrow--light">Book a call</p>
+      <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+      <p class="book__lead">Pick a slot below.</p>
+      <div class="book__embed">
+        <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+  <!-- /partial:book-a-call -->
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <span>Digitalise Agency</span>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+    <span>Built from scratch. &copy; <span id="year">2026</span></span>
+  </div>
+</footer>
+
+<!-- EXIT NUDGE: the safety net, and the only one.
+     Shown once, to a visitor who is about to leave without having opened a single
+     project. A small bar at the foot of the window: never a modal, never over the
+     content, dismissible with the mouse, the keyboard, or Escape, and once dismissed it
+     is gone for good (localStorage). It offers exactly one project and one honest line.
+     Anyone who has already clicked into a project never sees it at all. -->
+<div class="nudge" id="exit-nudge" role="region" aria-label="One suggestion before you go" hidden>
+  <p class="nudge__copy">
+    <strong>Read just one?</strong> The database that survived 300 crashes: killed at random 300 times, and all 300 times the data came back intact.
+  </p>
+  <a class="nudge__go" href="projects/sqlmill.html">Read that one <span aria-hidden="true">&rarr;</span></a>
+  <button class="nudge__x" id="exit-nudge-x" type="button" aria-label="Dismiss this suggestion">&times;</button>
+</div>
+
+<script src="script.js?v=20260714" defer></script>
+</body>
+</html>

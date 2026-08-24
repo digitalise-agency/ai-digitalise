@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morse Code Converter · Digitalise Agency</title>
+  <meta name="description" content="Morse Code Converter: a two-way Tkinter GUI that converts text to International Morse Code and back live as you type, with a visual dot-dash playback of the current message.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/morse-code-converter.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Morse Code Converter · Digitalise Agency">
+  <meta property="og:description" content="Morse Code Converter: a two-way Tkinter GUI that converts text to International Morse Code and back live as you type, with a visual dot-dash playback of the current message.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/morse-code-converter.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/morse-code-converter.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Morse Code Converter · Digitalise Agency">
+  <meta name="twitter:description" content="Morse Code Converter: a two-way Tkinter GUI that converts text to International Morse Code and back live as you type, with a visual dot-dash playback of the current message.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/morse-code-converter.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-purple" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">morse-code-converter</p>
+      <h1 id="proj-title" class="proj-title">Morse Code Converter</h1>
+      <p class="proj-lede">Morse code is the old dots-and-dashes alphabet for sending messages by radio beep or flashing lamp. This desktop app converts ordinary writing into Morse and back again, live as you type, and a Play button flashes the sequence on screen so you can see its rhythm. The starting code was missing the letter V, so it crashed on any word containing one; fixing that is most of the story.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Solo</strong>
+            <p>Solo work by our founder, Salman Adnan.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/morse-code-converter.html" title="Interactive 3D visualization: Morse Code Converter" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Signal Beacon: the beacon flashes genuine Morse timing, one beat for a dot and three for a dash, and the wire of lamps carries each letter away and spells it back out as text. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/morse-code-converter.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/morse-code-converter.webp" alt="The real Morse Code Converter GUI." loading="lazy" decoding="async" width="788" height="626">
+        <figcaption>Live screenshot of the actual Tkinter app.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>2</b><span>directions, converted live on every keystroke</span></div>
+          <div class="proj-stat"><b>0</b><span>third-party dependencies</span></div>
+          <div class="proj-stat"><b>1</b><span>missing letter (V) fixed in the source table</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/morse-code-converter" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-purple">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A desktop GUI that converts text to International Morse Code and decodes Morse code back into text, live, as you type. Started as a practice exercise in dictionary lookups and string processing, extended into a two-tab tkinter app with a visual dot-dash playback of the current message.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Two-way conversion: a "Text to Morse" tab and a "Morse to Text" tab, both updating on every keystroke.</li>
+          <li>Converts letters (A-Z), digits (0-9), and common punctuation in either direction, case-insensitive on the text side.</li>
+          <li>Words are separated with <code>/</code>, the conventional Morse word separator, in both directions.</li>
+          <li>Raises a clear error naming the offending character or symbol instead of crashing with a raw <code>KeyError</code>; the GUI shows it as an inline message.</li>
+          <li>A "Play" button visually flashes each dot and dash of the current sequence in order, dashes held longer than dots.</li>
+          <li>"Copy result" puts the converted text on the system clipboard with tkinter's built-in <code>clipboard_append</code>.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Verification</h2>
+        <div class="proj-callout"><p>The conversion functions live in <code>morse_converter.py</code> with no tkinter import, so they were tested directly with no GUI dependency. The original CLI entry point still works for a one-off check: running <code>python3 morse_converter.py</code> and entering "SOS HELLO WORLD" produces <code>... --- ... / .... . .-.. .-.. --- / .-- --- .-. .-.. -..</code>, a real run of the script in the repo. There's no automated test file committed; round-trip and error cases were verified manually rather than with an assertion suite.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python 3</li>
+          <li>tkinter</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="custom-web-scraper.html">Prev: Web Element Inspector</a>
+      <a class="proj-foot__link" href="tic-tac-toe-gui.html">Next: Tic Tac Toe</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

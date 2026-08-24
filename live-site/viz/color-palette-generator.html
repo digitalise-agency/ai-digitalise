@@ -1,0 +1,1313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#101014">
+  <title>Color Palette Generator in 3D · Digitalise Agency</title>
+  <meta name="description" content="Swatch Bloom: an interactive 3D study of image pixels gathering by color into ten swatch bars.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #101014;
+      overflow: hidden;
+      font: 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    #stage { position: fixed; inset: 0; }
+    canvas {
+      display: block; width: 100%; height: 100%; outline: none;
+      cursor: grab; touch-action: pan-y;
+    }
+    canvas.is-grabbing { cursor: grabbing; }
+    canvas:focus-visible { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); }
+    #hint {
+      position: absolute; left: 12px; bottom: 12px;
+      padding: 6px 11px; border-radius: 999px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none; white-space: nowrap;
+      opacity: 0.75; transition: opacity 0.5s ease;
+    }
+    #hint b { font-weight: 600; color: rgba(255, 255, 255, 0.95); }
+    #hint.is-gone { opacity: 0; }
+    /* Narrow frames have no room for the tail, and a finger cannot scroll or
+       double-click anyway: the drag is the part that matters on touch. */
+    @media (max-width: 700px), (pointer: coarse) {
+      #hintMore { display: none; }
+    }
+    /* The hint and the HUD share the bottom edge, one on each side, and below
+       this width they overlap: first the hint's tail crosses into the HUD, then,
+       once the tail is gone and the HUD has dropped its speed slider, the bare
+       "Drag to turn it any way" still lands on top of the Pause button. Give the
+       hint its own line above the HUD instead of shortening it, so the tail
+       survives everywhere it fits. */
+    @media (max-width: 1120px) {
+      #hint { bottom: 56px; }
+    }
+    #hud {
+      position: absolute; right: 12px; bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: 999px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      opacity: 0.55; transition: opacity 0.25s ease;
+    }
+    #hud:hover, #hud:focus-within { opacity: 1; }
+    #hud button {
+      appearance: none; border: 1px solid rgba(255, 255, 255, 0.25);
+      background: transparent; color: inherit; font: inherit;
+      padding: 3px 10px; border-radius: 999px; cursor: pointer;
+    }
+    #hud button:hover { border-color: rgba(255, 255, 255, 0.6); }
+    #hud button:focus-visible, #hud input:focus-visible {
+      outline: 2px solid #fff; outline-offset: 2px;
+    }
+    #hud label { display: flex; align-items: center; gap: 6px; }
+    #hud input[type="range"] { width: 72px; accent-color: #C87888; }
+    #err {
+      position: absolute; inset: 0; display: none;
+      place-items: center; text-align: center; padding: 24px;
+    }
+    #lbl {
+      position: absolute; left: 12px; top: 12px; max-width: 44ch;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    #lbl h1 {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    #lblSub { margin-top: 3px; opacity: 0.72; }
+    #lblPhase {
+      margin-top: 8px; min-height: 1.4em; color: #D8A458;
+      opacity: 1; transition: opacity 0.18s ease;
+    }
+    #legend {
+      position: absolute; right: 12px; top: 12px;
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 9px 12px; border-radius: 10px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none; font-size: 11px;
+    }
+    #legend span { display: flex; align-items: center; gap: 7px; }
+    #legend i {
+      width: 9px; height: 9px; border-radius: 2px; flex: none;
+      background: var(--c); box-shadow: 0 0 6px var(--c);
+    }
+    @media (max-width: 640px) {
+      #lblSub { display: none; }
+      #lbl { max-width: 30ch; }
+      #legend { font-size: 10px; padding: 7px 9px; gap: 4px; }
+    }
+    @media (max-width: 560px) {
+      #hud label { display: none; }
+    }
+    @media (max-width: 480px) {
+      /* keep even the longest title on one line, clear of the legend */
+      #lbl h1 { font-size: 10px; letter-spacing: 0.1em; }
+      #lbl { max-width: 26ch; padding: 8px 11px; }
+    }
+    /* Below this the title cannot have 26ch AND clear the legend, so it takes
+       what is left and wraps. 212px is the widest legend here (191px) plus the
+       gap between them. */
+    @media (max-width: 440px) {
+      #lbl { max-width: calc(100% - 224px); }
+    }
+    /* And below this there is no room for the legend at all: what is left for
+       the title is narrower than one word. The legend goes, the title gets its
+       width back, and the live caption inside it carries the commentary. */
+    @media (max-width: 400px) {
+      #legend { display: none; }
+      #lbl { max-width: calc(100% - 24px); }
+      /* The HUD is one flex row of buttons about 272px wide. Narrower than that
+         and it runs off its own left edge, across the hint. Let it wrap, and
+         give the hint the room for the second row it may now grow. */
+      #hud { flex-wrap: wrap; justify-content: flex-end; }
+      #hint { bottom: 96px; }
+    }
+    /* Compact mode, opted into with ?compact=1 on the URL. The frame is then a
+       card, roughly 380x260, and panels sized for a window cover the scene they
+       exist to explain. At that size the scene is the whole point, so it gets the
+       whole frame: no title card, no legend, no control HUD, no drag hint. The
+       host page carries the title and the affordance. The piece itself is
+       untouched: it still runs, still orbits, still zooms. */
+    html.is-compact #lbl,
+    html.is-compact #legend,
+    html.is-compact #hud,
+    html.is-compact #hint { display: none; }
+    /* The one panel compact mode keeps: if WebGL is missing there is nothing else
+       to look at, so the note stays, sized for the card. */
+    html.is-compact #err { padding: 14px; font-size: 11px; line-height: 1.5; }
+  </style>
+  <script>
+    /* Read here, ahead of the first paint, so a card never flashes the chrome it
+       is about to hide. Any value but 0 turns it on. */
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.has('compact') && p.get('compact') !== '0') {
+        document.documentElement.classList.add('is-compact');
+      }
+    })();
+  </script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c" tabindex="0" aria-label="Animated cloud of thousands of tiny colored cubes lifted from a source image, drifting and then gathering by color into ten piles that compact into ten floating swatch bars."></canvas>
+  <div id="hud" role="group" aria-label="Visualization controls">
+    <button id="btnPlay" type="button" aria-pressed="false">Pause</button>
+    <label for="speed">speed
+      <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1"
+             aria-label="Animation speed">
+    </label>
+    <button id="btnPng" type="button">Save PNG</button>
+    <button id="btnReset" type="button" hidden>Reset view</button>
+    <button id="btnFs" type="button" aria-pressed="false">Fullscreen</button>
+  </div>
+  <div id="lbl">
+    <h1>Swatch Bloom</h1>
+    <p id="lblSub">Stylized, not a screen recording: pixels lifted from an image gather by color, each pile counted, and the ten most common settle into the ten swatch bars the app returns.</p>
+    <p id="lblPhase" aria-hidden="true"></p>
+  </div>
+  <div id="legend" role="list" aria-label="Legend">
+    <span role="listitem"><i style="--c:#C87888"></i>Image pixel</span>
+    <span role="listitem"><i style="--c:#FFFFFF"></i>Color tally</span>
+    <span role="listitem"><i style="--c:#9AA0A6"></i>Swatch bar (10)</span>
+  </div>
+  <p id="hint" aria-hidden="true"><b>Drag</b> to turn it any way<span id="hintMore"> &middot; shift-drag to roll &middot; scroll to zoom &middot; double-click to reset</span></p>
+  <div id="err"><p>This visualization needs WebGL, which is unavailable here.<br>
+     A screenshot of it lives on the project page.</p></div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ================= scene: color-palette-generator ================= */
+// SWATCH BLOOM
+// Concept: pixels lifted from a source image drift, gather by color into ten
+//          piles (one tally per color, which is what the app actually does:
+//          it counts exact RGB values with numpy.unique), and the ten most
+//          common compact into ten swatch bars, hung as a palette card, then
+//          released so the next image can scatter in.
+// Counts:  TEN, everywhere. The tool returns the ten most frequent RGB values,
+//          so the piece racks up exactly ten piles and exactly ten bars. The
+//          tool counts, it does not cluster, and neither does this scene: keep
+//          centroid and cluster language out of the labels and the captions.
+// Palette: bg neutral studio #101014; the pixels cycle through one curated
+//          ten-step sweep, rotated and hue-shifted per cycle: dusty rose
+//          #C87888, clay #C68563, ochre #D8A458, wheat #C4BC72, sage #88A878,
+//          fern #6FA88C, teal #5E9EA8, denim #5878A8, periwinkle #7A78BC,
+//          plum #8858A0. Justification: the piece must prove taste in color,
+//          so even the chaos samples a disciplined sweep, never random RGB.
+// Layout:  the ten bars rack up as two columns of five, read top to bottom,
+//          left column first: the app's own result grid, and the shape that
+//          keeps all ten legible inside a small embed. One column of ten would
+//          be too tall to clear the title card at 420x320.
+// Signature: chaos assembling into a tidy, hangable ten-swatch palette card.
+
+function createScene(THREE, ctx) {
+  const Q = ctx.quality;
+
+  // Tunables
+  const COUNT = Math.floor(5000 * Q);  // tiny cubes (500 per swatch at full quality)
+  const SWATCHES = 10;                 // the ten most common colors: the app's whole output
+  // Fewer cubes on a weak or small device, so each one is drawn bigger: the
+  // bars keep the same solidity at every quality tier instead of going gauzy.
+  const CUBE = 0.075 / Math.sqrt(Q);   // cube edge length
+  const CYCLE = 16.0;                  // full loop seconds
+  const T_G0 = 5.0, T_G1 = 9.0;        // gather window
+  const T_B0 = 9.0, T_B1 = 11.0;       // bar-forming window
+  const T_R0 = 14.0, T_R1 = 16.0;      // release window
+  const DRIFT_R = 5.4;                 // radius of the drifting cloud
+  const PILE_R = 0.62;                 // radius of one color's pile while it is counted
+  const RING_X = 4.5, RING_Y = 2.9;    // the ten piles ring up in the camera's plane, not
+                                       // flat in the world, so none hides behind another
+  const ROWS = 5;                      // 2 columns x 5 rows = the ten swatches
+  const BAR_W = 1.55;                  // swatch bar half length
+  const BAR_R = 0.22;                  // swatch bar half thickness
+  const COL_X = 1.75;                  // x of each column's centre line
+  const ROW_GAP = 0.82;                // vertical spacing inside a column
+  const CARD_TOP = ((ROWS - 1) / 2) * ROW_GAP;   // y of the top row (1.64)
+  const SWIRL = 0.9;                   // iron-filings swirl strength on arrival
+  const CAM_R = 11.8;                  // camera distance: frames all ten bars with margin
+  const SWING = 0.75;                  // the camera sways this far either side of front,
+                                       // never a full orbit: the card must stay readable
+  const BG = 0x101014;
+  const HARMONY = [
+    0xC87888, 0xC68563, 0xD8A458, 0xC4BC72, 0x88A878,
+    0x6FA88C, 0x5E9EA8, 0x5878A8, 0x7A78BC, 0x8858A0
+  ];
+
+  ctx.scene.background = new THREE.Color(BG);
+  ctx.scene.fog = new THREE.FogExp2(BG, 0.014);
+
+  // Cube geometry with per-face brightness baked into vertex colors
+  // (fake lighting without lights).
+  function makeCubeGeo(s) {
+    const h = s / 2;
+    const faces = [
+      // normal-axis, sign, brightness
+      [1, 1, 0.74], [1, -1, 0.62], [2, 1, 1.00],
+      [2, -1, 0.45], [0, 1, 0.86], [0, -1, 0.55]
+    ];
+    // axis order per face: [u, v, w] where w is the face normal axis
+    const pos = [], col = [], idx = [];
+    let vi = 0;
+    for (const f of faces) {
+      const w = f[0] === 0 ? 2 : f[0] === 1 ? 0 : 1; // pick normal axis
+      const axes = [0, 1, 2].filter(a => a !== w);
+      const corners = [[-h, -h], [h, -h], [h, h], [-h, h]];
+      for (const c of corners) {
+        const p = [0, 0, 0];
+        p[axes[0]] = c[0]; p[axes[1]] = c[1]; p[w] = h * f[1];
+        pos.push(p[0], p[1], p[2]);
+        col.push(f[2], f[2], f[2]);
+      }
+      if (f[1] > 0) idx.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3);
+      else idx.push(vi, vi + 2, vi + 1, vi, vi + 3, vi + 2);
+      vi += 4;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx);
+    return g;
+  }
+
+  const cubeGeo = makeCubeGeo(CUBE);
+  const cubeMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+  const mesh = new THREE.InstancedMesh(cubeGeo, cubeMat, COUNT);
+  ctx.scene.add(mesh);
+
+  // Per-cube static data
+  const driftBase = new Float32Array(COUNT * 3);
+  const wanderF = new Float32Array(COUNT * 3);   // wander frequencies
+  const wanderP = new Float32Array(COUNT * 3);   // wander phases
+  const swatchOf = new Uint8Array(COUNT);
+  const pileOff = new Float32Array(COUNT * 3);
+  const barSlot = new Float32Array(COUNT * 3);
+  const stagger = new Float32Array(COUNT);
+  const spinAxis = new Float32Array(COUNT * 3);
+  const spinSpeed = new Float32Array(COUNT);
+  const spinPhase = new Float32Array(COUNT);
+  // colors: current jittered, current pure, next jittered
+  const colJit = new Float32Array(COUNT * 3);
+  const colPure = new Float32Array(COUNT * 3);
+  const colNextJit = new Float32Array(COUNT * 3);
+
+  function gauss() { return (Math.random() + Math.random() + Math.random()) / 1.5 - 1; }
+
+  // Where each of the ten bars sits on the card: left column (swatches 1..5)
+  // top to bottom, then right column (6..10), the way a ranked list is read.
+  const barCX = new Float32Array(SWATCHES);
+  const barCY = new Float32Array(SWATCHES);
+  for (let k = 0; k < SWATCHES; k++) {
+    barCX[k] = (k < ROWS ? -1 : 1) * COL_X;
+    barCY[k] = CARD_TOP - (k % ROWS) * ROW_GAP;
+  }
+  const CARD_H = CARD_TOP + BAR_R;   // half height of the finished card
+
+  for (let i = 0; i < COUNT; i++) {
+    const u = Math.random(), v = Math.random(), w = Math.random();
+    const r = DRIFT_R * Math.cbrt(u);
+    const th = v * Math.PI * 2, ph = Math.acos(2 * w - 1);
+    driftBase[i * 3] = r * Math.sin(ph) * Math.cos(th);
+    driftBase[i * 3 + 1] = r * Math.cos(ph) * 0.75;
+    driftBase[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+    for (let c = 0; c < 3; c++) {
+      wanderF[i * 3 + c] = 0.15 + Math.random() * 0.25;
+      wanderP[i * 3 + c] = Math.random() * Math.PI * 2;
+    }
+    swatchOf[i] = i % SWATCHES;
+    pileOff[i * 3] = gauss() * PILE_R;
+    pileOff[i * 3 + 1] = gauss() * PILE_R * 0.8;
+    pileOff[i * 3 + 2] = gauss() * PILE_R;
+    // slot inside the swatch bar: uniform x, disc in yz, tapered ends
+    const bx = (Math.random() * 2 - 1);
+    const taper = Math.sqrt(Math.max(0.15, 1 - Math.pow(Math.abs(bx), 6)));
+    const ang = Math.random() * Math.PI * 2;
+    const rad = Math.sqrt(Math.random()) * BAR_R * taper;
+    barSlot[i * 3] = bx * BAR_W;
+    barSlot[i * 3 + 1] = Math.sin(ang) * rad;
+    barSlot[i * 3 + 2] = Math.cos(ang) * rad;
+    stagger[i] = Math.random();
+    const ax = gauss(), ay = gauss(), az = gauss();
+    const al = Math.hypot(ax, ay, az) || 1;
+    spinAxis[i * 3] = ax / al; spinAxis[i * 3 + 1] = ay / al; spinAxis[i * 3 + 2] = az / al;
+    spinSpeed[i] = 0.3 + Math.random() * 0.7;
+    spinPhase[i] = Math.random() * Math.PI * 2;
+  }
+
+  // Harmony management: ten colors, one per swatch.
+  const pure = [];       // the ten THREE.Colors of the current harmony
+  const nextPure = [];
+  for (let k = 0; k < SWATCHES; k++) { pure.push(new THREE.Color()); nextPure.push(new THREE.Color()); }
+  const tmpC = new THREE.Color();
+
+  function harmonyFor(cycleIdx, out) {
+    const rot = cycleIdx % SWATCHES;
+    const shift = ((cycleIdx * 0.073) % 0.35) * (cycleIdx % 2 === 0 ? 1 : -1);
+    for (let k = 0; k < SWATCHES; k++) {
+      out[k].setHex(HARMONY[(k + rot) % SWATCHES]);
+      out[k].offsetHSL(shift, 0, 0);
+    }
+  }
+
+  function jitterInto(arr, i, base) {
+    tmpC.copy(base);
+    tmpC.offsetHSL((Math.random() - 0.5) * 0.05, (Math.random() - 0.5) * 0.14, (Math.random() - 0.5) * 0.16);
+    arr[i * 3] = tmpC.r; arr[i * 3 + 1] = tmpC.g; arr[i * 3 + 2] = tmpC.b;
+  }
+
+  // Where each color's pixels pile up while they are counted, refreshed per cycle.
+  // Ten of them, spaced around an upright ellipse facing the viewer, alternating
+  // slightly toward and away from the camera so the ring has depth without any
+  // pile eclipsing its neighbour. Every one of the ten stays countable.
+  const pileAt = [];
+  for (let k = 0; k < SWATCHES; k++) pileAt.push(new THREE.Vector3());
+  function placePiles() {
+    const a0 = (Math.random() - 0.5) * 0.3;
+    for (let k = 0; k < SWATCHES; k++) {
+      const a = a0 + k * (Math.PI * 2 / SWATCHES);
+      pileAt[k].set(
+        Math.cos(a) * RING_X + (Math.random() - 0.5) * 0.3,
+        Math.sin(a) * RING_Y + (Math.random() - 0.5) * 0.3,
+        (k % 2 ? 0.85 : -0.85) + (Math.random() - 0.5) * 0.4
+      );
+    }
+  }
+
+  // Pile beacons: soft billboards that fade in while the colors are counted.
+  function makeGlowTexture() {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 128;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+    grad.addColorStop(0.25, 'rgba(255,255,255,0.3)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(c);
+  }
+  const glowTex = makeGlowTexture();
+  const quad = new THREE.BufferGeometry();
+  quad.setAttribute('position', new THREE.Float32BufferAttribute(
+    [-0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, 0.5, 0], 3));
+  quad.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2));
+  quad.setIndex([0, 1, 2, 0, 2, 3]);
+  const beacons = [];
+  for (let k = 0; k < SWATCHES; k++) {
+    const m = new THREE.Mesh(quad, new THREE.MeshBasicMaterial({
+      map: glowTex, transparent: true, opacity: 0,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    m.scale.setScalar(1.15);
+    ctx.scene.add(m);
+    beacons.push(m);
+  }
+
+  // Floating tags: one names a pile while the colors are counted, one names the card.
+  const tallyTag = ctx.makeTag('color tally', '#FFFFFF', 0.3);
+  tallyTag.material.opacity = 0;
+  ctx.scene.add(tallyTag);
+  // The tag hangs under the card, not over it: at 420x320 the title panel owns
+  // the top-left corner and the legend the top-right, and this must clear both.
+  const paletteTag = ctx.makeTag('top ten', '#D8A458', 0.34);
+  paletteTag.position.set(0, -(CARD_H + 0.72), 0);
+  paletteTag.material.opacity = 0;
+  ctx.scene.add(paletteTag);
+
+  // Initialize harmony 0 and colors.
+  harmonyFor(0, pure);
+  for (let i = 0; i < COUNT; i++) {
+    const k = swatchOf[i];
+    jitterInto(colJit, i, pure[k]);
+    colPure[i * 3] = pure[k].r; colPure[i * 3 + 1] = pure[k].g; colPure[i * 3 + 2] = pure[k].b;
+  }
+  // seed the next-harmony buffers too, so a skipped frame can never leave
+  // uninitialized (black) colors at a cycle rollover
+  for (let k = 0; k < SWATCHES; k++) nextPure[k].copy(pure[k]);
+  colNextJit.set(colJit);
+  placePiles();
+
+  // Seed instance colors once so instanceColor exists.
+  for (let i = 0; i < COUNT; i++) {
+    tmpC.setRGB(colJit[i * 3], colJit[i * 3 + 1], colJit[i * 3 + 2]);
+    mesh.setColorAt(i, tmpC);
+  }
+  mesh.instanceColor.needsUpdate = true;
+
+  // Source image: a small procedural photo painted from the current harmony,
+  // pinned beside the cloud. The tool's whole job is extracting colors from an
+  // image, so the pixels visibly come from here: the photo fades in with each
+  // cycle and dissolves as the gather pulls its samples away.
+  const imgCanvas = document.createElement('canvas');
+  imgCanvas.width = 256; imgCanvas.height = 176;
+  const imgCtx2d = imgCanvas.getContext('2d');
+  const imgTex = new THREE.CanvasTexture(imgCanvas);
+  imgTex.colorSpace = THREE.SRGBColorSpace;
+  function css(c) { return '#' + c.getHexString(); }
+  function paintSourceImage(cols) {
+    const w = imgCanvas.width, h = imgCanvas.height;
+    const grad = imgCtx2d.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, css(tmpC.copy(cols[7]).multiplyScalar(0.85)));
+    grad.addColorStop(0.55, css(tmpC.copy(cols[0]).multiplyScalar(0.9)));
+    grad.addColorStop(1, css(tmpC.copy(cols[4]).multiplyScalar(0.55)));
+    imgCtx2d.fillStyle = grad;
+    imgCtx2d.fillRect(0, 0, w, h);
+    // 30 blobs, three per color, so all ten swatches are visibly in the image
+    for (let n = 0; n < 30; n++) {
+      const c = cols[n % SWATCHES];
+      const x = Math.random() * w, y = Math.random() * h;
+      const r = 14 + Math.random() * 46;
+      const rg = imgCtx2d.createRadialGradient(x, y, 0, x, y, r);
+      rg.addColorStop(0, css(tmpC.copy(c)) + 'B8');
+      rg.addColorStop(1, css(tmpC.copy(c)) + '00');
+      imgCtx2d.fillStyle = rg;
+      imgCtx2d.beginPath(); imgCtx2d.arc(x, y, r, 0, Math.PI * 2); imgCtx2d.fill();
+    }
+    imgCtx2d.strokeStyle = 'rgba(255,255,255,0.5)';
+    imgCtx2d.lineWidth = 5;
+    imgCtx2d.strokeRect(2.5, 2.5, w - 5, h - 5);
+    imgTex.needsUpdate = true;
+  }
+  paintSourceImage(pure);
+  const imgMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.2, 2.2),
+    new THREE.MeshBasicMaterial({ map: imgTex, transparent: true, opacity: 0, depthWrite: false })
+  );
+  imgMesh.position.set(-4.9, -1.6, 0.6);
+  imgMesh.rotation.y = 0.34;
+  ctx.scene.add(imgMesh);
+  const imgTag = ctx.makeTag('source image', '#EDE7DC', 0.3);
+  imgTag.position.set(-4.9, -3.05, 0.6);
+  imgTag.material.opacity = 0;
+  ctx.scene.add(imgTag);
+
+  // Reused temps for the per-frame instance loop.
+  const _p = new THREE.Vector3();
+  const _q = new THREE.Quaternion();
+  const _qi = new THREE.Quaternion();
+  const _s = new THREE.Vector3(1, 1, 1);
+  const _m = new THREE.Matrix4();
+  const _axis = new THREE.Vector3();
+
+  let cycleSeen = 0;
+  let releasePrepared = false;
+
+  ctx.camera.position.set(0, 0.8, CAM_R);
+  ctx.camera.lookAt(0, 0, 0);
+
+  function smooth01(x) { return x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x); }
+
+  return {
+    update(t) {
+      const cyc = Math.floor(t / CYCLE);
+      const tl = t - cyc * CYCLE;
+
+      // new cycle: commit the harmony chosen during release, new pile positions
+      if (cyc !== cycleSeen) {
+        cycleSeen = cyc;
+        releasePrepared = false;
+        placePiles();
+        for (let k = 0; k < SWATCHES; k++) pure[k].copy(nextPure[k]);
+        colJit.set(colNextJit);
+        for (let i = 0; i < COUNT; i++) {
+          const k = swatchOf[i];
+          colPure[i * 3] = pure[k].r; colPure[i * 3 + 1] = pure[k].g; colPure[i * 3 + 2] = pure[k].b;
+        }
+        paintSourceImage(pure);
+      }
+
+      // source image visibility: in while pixels drift, dissolving as the
+      // gather starts, a faint ghost while the palette holds
+      const imgIn = smooth01(tl / 1.2);
+      const imgOut = 1 - smooth01((tl - T_G0) / 2.2);
+      const imgO = Math.min(imgIn, Math.max(imgOut, 0.12));
+      imgMesh.material.opacity = imgO * 0.92;
+      imgMesh.position.y = -1.6 + Math.sin(t * 0.5) * 0.07;
+      imgTag.material.opacity = imgO * 0.8;
+
+      // choose the NEXT harmony as release begins
+      if (tl >= T_R0 && !releasePrepared) {
+        releasePrepared = true;
+        harmonyFor(cyc + 1, nextPure);
+        for (let i = 0; i < COUNT; i++) jitterInto(colNextJit, i, nextPure[swatchOf[i]]);
+      }
+
+      // Live caption follows the cycle timeline. It may only describe what the
+      // scene is doing, and what the scene does is what the app does: count
+      // pixels by color and keep the ten most common. No clustering language.
+      let cap;
+      if (tl < T_G0) cap = 'Pixels lifted from the source image drift in color space';
+      else if (tl < T_G1) cap = 'Matching pixels gather: one pile per color, counted';
+      else if (tl < T_B1) cap = 'The ten most common colors compact into swatch bars';
+      else if (tl < T_R0) cap = 'Ten swatches hang as a palette card, ready to copy';
+      else cap = 'Released; the next image scatters in';
+      ctx.caption(cap);
+
+      // global phase envelopes (per-cube stagger applied inside the loop)
+      const g1 = (tl - T_G0) / (T_G1 - T_G0);   // gather
+      const g2 = (tl - T_B0) / (T_B1 - T_B0);   // bars
+      const g3 = (tl - T_R0) / (T_R1 - T_R0);   // release
+      const bob = Math.sin(t * 0.8) * 0.05;     // held card breathes
+      const stirX = ctx.pointer.x * 0.9, stirY = ctx.pointer.y * 0.7;
+
+      for (let i = 0; i < COUNT; i++) {
+        const s = stagger[i];
+        const e1 = smooth01(g1 * 1.3 - s * 0.3);
+        const e2 = smooth01(g2 * 1.25 - s * 0.25);
+        const e3 = smooth01(g3 * 1.25 - s * 0.25);
+        const k = swatchOf[i];
+        const i3 = i * 3;
+
+        // analytic drift (continuous across cycles)
+        const dx = driftBase[i3] + Math.sin(t * wanderF[i3] + wanderP[i3]) * 0.9 + stirX;
+        const dy = driftBase[i3 + 1] + Math.sin(t * wanderF[i3 + 1] + wanderP[i3 + 1]) * 0.7 + stirY;
+        const dz = driftBase[i3 + 2] + Math.sin(t * wanderF[i3 + 2] + wanderP[i3 + 2]) * 0.9;
+
+        // gather into this color's pile with a tangential swirl
+        const cx = pileAt[k].x + pileOff[i3];
+        const cy = pileAt[k].y + pileOff[i3 + 1];
+        const cz = pileAt[k].z + pileOff[i3 + 2];
+        let px = dx + (cx - dx) * e1;
+        let py = dy + (cy - dy) * e1;
+        let pz = dz + (cz - dz) * e1;
+        if (e1 > 0 && e1 < 1) {
+          const sw = Math.sin(e1 * Math.PI) * SWIRL;
+          const vx = cx - dx, vz = cz - dz;
+          const vl = Math.hypot(vx, vz) || 1;
+          px += (-vz / vl) * sw;
+          pz += (vx / vl) * sw;
+        }
+
+        // compact into the swatch bar: ten of them, two columns of five
+        if (e2 > 0) {
+          const bx = barCX[k] + barSlot[i3];
+          const by = barCY[k] + barSlot[i3 + 1] + bob * e2;
+          const bz = barSlot[i3 + 2];
+          px += (bx - px) * e2;
+          py += (by - py) * e2;
+          pz += (bz - pz) * e2;
+        }
+
+        // release back to drift
+        if (e3 > 0) {
+          px += (dx - px) * e3;
+          py += (dy - py) * e3;
+          pz += (dz - pz) * e3;
+        }
+
+        // spin that aligns to identity while racked in the card
+        const spinScale = 1 - e2 * (1 - e3);
+        const ang = (t * spinSpeed[i] + spinPhase[i]) * spinScale;
+        _axis.set(spinAxis[i3], spinAxis[i3 + 1], spinAxis[i3 + 2]);
+        _q.setFromAxisAngle(_axis, ang % (Math.PI * 2));
+        _p.set(px, py, pz);
+        _m.compose(_p, _q, _s);
+        mesh.setMatrixAt(i, _m);
+
+        // color: jitter -> pure while gathering, pure -> next jitter on release
+        const cm = Math.max(e1, e2) * (1 - e3);
+        let r0, g0, b0;
+        if (e3 > 0 && releasePrepared) {
+          r0 = colPure[i3] + (colNextJit[i3] - colPure[i3]) * e3;
+          g0 = colPure[i3 + 1] + (colNextJit[i3 + 1] - colPure[i3 + 1]) * e3;
+          b0 = colPure[i3 + 2] + (colNextJit[i3 + 2] - colPure[i3 + 2]) * e3;
+        } else {
+          r0 = colJit[i3] + (colPure[i3] - colJit[i3]) * cm;
+          g0 = colJit[i3 + 1] + (colPure[i3 + 1] - colJit[i3 + 1]) * cm;
+          b0 = colJit[i3 + 2] + (colPure[i3 + 2] - colJit[i3 + 2]) * cm;
+        }
+        tmpC.setRGB(r0, g0, b0);
+        mesh.setColorAt(i, tmpC);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.instanceColor.needsUpdate = true;
+
+      // ten beacons fade in while the colors are counted, out as the bars form
+      const bg1 = smooth01(g1 * 1.3);
+      const bg2 = smooth01(g2 * 1.25);
+      for (let k = 0; k < SWATCHES; k++) {
+        beacons[k].position.copy(pileAt[k]);
+        beacons[k].material.color.copy(pure[k]);
+        beacons[k].material.opacity = bg1 * (1 - bg2) * (0.30 + 0.07 * Math.sin(t * 2.0 + k));
+        beacons[k].quaternion.copy(ctx.camera.quaternion);
+      }
+
+      // tags: the tally label rides the pile on the right of the ring, which is
+      // clear of the title card and the legend even at 420x320; the palette
+      // label appears with the card
+      tallyTag.position.set(pileAt[0].x, pileAt[0].y + 1.1, pileAt[0].z);
+      tallyTag.material.opacity = bg1 * (1 - bg2) * 0.85;
+      const rg3 = smooth01(g3 * 1.25);
+      paletteTag.material.opacity = bg2 * (1 - rg3) * 0.8;
+
+      // Camera: a slow sway either side of front rather than a full orbit, and
+      // it settles almost square to the card while the card hangs, so all ten
+      // swatches read as full bars instead of edge-on slivers. The viewer's own
+      // drag still orbits freely on top of this.
+      const face = 1 - 0.8 * (bg2 * (1 - rg3));
+      const a = Math.sin(t * 0.06) * SWING * face + ctx.pointer.x * 0.25;
+      ctx.camera.position.set(
+        Math.sin(a) * CAM_R,
+        0.7 + ctx.pointer.y * 0.7,
+        Math.cos(a) * CAM_R);
+      ctx.camera.lookAt(0, 0, 0);
+    }
+  };
+}
+
+/* ================= shared runtime ================= */
+
+const canvas = document.getElementById('c');
+const btnPlay = document.getElementById('btnPlay');
+const speedEl = document.getElementById('speed');
+const btnPng = document.getElementById('btnPng');
+
+/* The piece is running in something card-sized (?compact=1). The head script has
+   already taken the panels out of the layout; what is left for the scene is its own
+   in-frame labelling, below. */
+const COMPACT = document.documentElement.classList.contains('is-compact');
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+} catch (e) {
+  document.getElementById('err').style.display = 'grid';
+  document.getElementById('hud').hidden = true;
+  throw e;
+}
+
+/* Quality tier: 1 on desktop, lower on small screens or few cores.
+   Scenes scale particle counts by ctx.quality. */
+const small = Math.min(window.innerWidth, window.innerHeight) < 700;
+const weak = (navigator.hardwareConcurrency || 8) <= 4;
+const quality = small ? 0.5 : (weak ? 0.7 : 1);
+
+/* Point sprites are sized in device pixels against a fixed reference, tuned in a
+   window about 700px tall. In a 260px card at one device pixel per CSS pixel each
+   sprite keeps that pixel count and so covers nearly three times the share of the
+   frame it was drawn for: the piece turns into a smear of its own glow. Rendering
+   the card at about a window's worth of device pixels puts them back in proportion.
+   The buffer stays smaller than the one a project page already runs the same piece
+   at full size, and the particle counts are still on the small-screen tier. */
+function pixelRatio() {
+  if (COMPACT) return Math.min(2.6, Math.max(1, 640 / Math.max(1, window.innerHeight)));
+  return Math.min(window.devicePixelRatio || 1, quality < 1 ? 1.5 : 2);
+}
+renderer.setPixelRatio(pixelRatio());
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+camera.position.set(0, 0, 12);
+
+const ctx = {
+  scene: new THREE.Scene(),
+  camera,
+  renderer,
+  quality,
+  /* A handful of scenes size their points off the canvas height, so the points hold
+     their proportion of any frame, which in a card is a single pixel of dust. Those
+     scenes multiply by this; the rest never read it. 1 unless compact. */
+  pxScale: COMPACT ? 1.6 : 1,
+  pointer: { x: 0, y: 0 },  /* smoothed, -1..1, y up */
+};
+
+/* The scene drives the camera itself, calling camera.lookAt(target) every
+   frame. Recording that target is what lets the viewer orbit the piece: the
+   pivot below is whatever the scene is looking at right now, so the orbit
+   layer further down can swing the camera around it without the scene and
+   the viewer fighting over the camera. */
+const sceneLook = new THREE.Vector3(0, 0, 0);
+const rawLookAt = camera.lookAt.bind(camera);
+camera.lookAt = function (x, y, z) {
+  if (x && x.isVector3) sceneLook.copy(x); else sceneLook.set(x, y, z);
+  return rawLookAt(sceneLook);
+};
+
+/* Live phase caption: scenes call ctx.caption('...') each frame; the text
+   only touches the DOM when it changes, with a quick cross-fade. */
+const lblPhase = document.getElementById('lblPhase');
+let capText = null, capTimer = 0;
+ctx.caption = (s) => {
+  if (s === capText || !lblPhase) return;
+  capText = s;
+  lblPhase.style.opacity = '0';
+  clearTimeout(capTimer);
+  capTimer = setTimeout(() => {
+    lblPhase.textContent = capText;
+    lblPhase.style.opacity = '1';
+  }, 180);
+};
+
+/* Small floating text tag rendered to a canvas texture, for labelling
+   objects inside the 3D scene. Returns a sprite; scale is world height. */
+ctx.makeTag = (text, color, h = 0.42) => {
+  const pad = 18, fpx = 46;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = '600 ' + fpx + 'px ui-monospace, Menlo, Consolas, monospace';
+  const tw = Math.ceil(meas.measureText(text).width);
+  const cw = tw + pad * 2, ch = fpx + pad * 2;
+  const cnv = document.createElement('canvas');
+  cnv.width = cw; cnv.height = ch;
+  const g = cnv.getContext('2d');
+  g.font = meas.font;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.shadowColor = color; g.shadowBlur = 14;
+  g.fillStyle = color;
+  g.fillText(text, cw / 2, ch / 2 + 2);
+  g.shadowBlur = 0;
+  g.fillText(text, cw / 2, ch / 2 + 2);
+  const tex = new THREE.CanvasTexture(cnv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthWrite: false, depthTest: false,
+  }));
+  spr.scale.set(h * cw / ch, h, 1);
+  spr.renderOrder = 20;
+  /* A card has no room to read a tag: it arrives as a grey smudge across the very
+     thing it names. The sprite is still built and still carried by the scene, it is
+     simply not drawn, so no scene has to know about compact mode. */
+  spr.visible = !COMPACT;
+  return spr;
+};
+
+let piece;
+try {
+  piece = createScene(THREE, ctx);
+} catch (e) {
+  document.getElementById('err').style.display = 'grid';
+  document.getElementById('hud').hidden = true;
+  console.error(e);
+  throw e;
+}
+
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  /* A card can be re-laid-out under the piece; the ratio is derived from the frame,
+     so it is re-derived with it. Outside compact the ratio never depended on size. */
+  if (COMPACT) renderer.setPixelRatio(pixelRatio());
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  if (piece.resize) piece.resize(w, h);
+}
+/* Resizing clears the drawing buffer, and a paused piece has no loop running to
+   redraw it, so ask the view loop for a single frame. */
+window.addEventListener('resize', () => { resize(); kickView(); });
+resize();
+
+/* Pointer parallax target, lerped each frame for weight. Frozen while the
+   viewer is dragging, so a grab is a clean orbit and not a double motion. */
+const target = { x: 0, y: 0 };
+window.addEventListener('pointermove', (e) => {
+  if (drag.id !== -1) return;
+  target.x = (e.clientX / window.innerWidth) * 2 - 1;
+  target.y = -((e.clientY / window.innerHeight) * 2 - 1);
+}, { passive: true });
+
+/* ================= direct manipulation =================
+   Grab the piece and it turns freely around whatever the scene is looking at,
+   with a little weight on release. Wheel or pinch zooms, double-click or the
+   Reset button returns the framing. The orbit is an offset applied after the
+   scene has placed its camera for the frame, never a replacement for it, so the
+   animation keeps playing from wherever the viewer parked the view.
+
+   The rotation is a quaternion, not a yaw/pitch pair, and that is the whole
+   design. A yaw/pitch orbit against a fixed up vector has two poles: straight
+   over the top the view snaps a half turn, which is why such an orbit has to be
+   clamped short of them and can never come all the way round. A quaternion has
+   no poles and no gimbal lock, so every axis turns the full 360 and keeps going.
+
+   It is held in the camera's own frame (qL below), not the world's. That is what
+   lets it survive the scene flying its camera around underneath: the viewer's
+   turn means "from where this piece is being watched, spin it this way", and it
+   stays true whatever the scene does with the framing next frame. */
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ZOOM_MIN = 0.4, ZOOM_MAX = 2.6;
+const EPS = 1e-4;
+const SPIN_EPS = 1e-5;               // radians per frame below which momentum is spent
+
+/* The viewer's rotation, in the camera's local frame: x is the axis a vertical
+   drag turns about, y a horizontal one, z the roll axis down the line of sight.
+   qL is what is applied this frame, qGoal where it is easing to. Momentum on
+   release is an axis and a per-frame angle, also local, decayed like the old
+   yaw/pitch velocities were. */
+const view = {
+  qL: new THREE.Quaternion(),
+  qGoal: new THREE.Quaternion(),
+  zoom: 1, zoomGoal: 1,
+  spinAxis: new THREE.Vector3(0, 1, 0),
+  spinAngle: 0,
+  touched: false                           // the viewer has taken the wheel
+};
+const QI = new THREE.Quaternion();         // identity, for comparisons and resets
+const dq = new THREE.Quaternion();         // scratch: the delta a gesture just asked for
+const dqAxis = new THREE.Vector3();
+const drag = { id: -1, x: 0, y: 0 };
+const touches = new Map();                 // live touch points, for pinch and twist
+let pinchFrom = 0, pinchZoom = 1, twistFrom = 0;
+/* What the view looked like when the gesture now in flight began. Embedded, the
+   canvas is touch-action: pan-y, so a vertical swipe is the host page's to keep:
+   the browser hands over a pointerdown and a move, then cancels. That gesture was
+   never an orbit, and this is what it gets put back to. */
+const gesture = {
+  active: false,
+  qL: new THREE.Quaternion(),
+  qGoal: new THREE.Quaternion(),
+  zoom: 1, zoomGoal: 1,
+  touched: false
+};
+
+/* Turn the view by `ang` about a local axis. Post-multiplying is what keeps the
+   gesture in the camera's frame: the axis is read from where the viewer is sitting
+   now, not from where the scene first framed the piece, so a turn means the same
+   thing to the hand however far round it has already been brought. */
+function turn(x, y, z, ang) {
+  if (!ang) return;
+  dq.setFromAxisAngle(dqAxis.set(x, y, z), ang);
+  view.qGoal.multiply(dq).normalize();
+}
+
+/* A drag step: turn by rx about local x, ry about local y, rz about local z, and
+   remember the whole of it as the momentum to carry on with when the pointer
+   lifts. The three collapse to one axis and one angle, so a release keeps
+   travelling along the exact arc the hand was drawing, roll included, rather than
+   along a pair of axes that have to be re-composed every frame. */
+const spinQ = new THREE.Quaternion();
+function spinFrom(rx, ry, rz) {
+  if (!rx && !ry && !rz) return;
+  spinQ.identity();
+  if (ry) { dq.setFromAxisAngle(dqAxis.set(0, 1, 0), ry); spinQ.multiply(dq); }
+  if (rx) { dq.setFromAxisAngle(dqAxis.set(1, 0, 0), rx); spinQ.multiply(dq); }
+  if (rz) { dq.setFromAxisAngle(dqAxis.set(0, 0, 1), rz); spinQ.multiply(dq); }
+  spinQ.normalize();
+  view.qGoal.multiply(spinQ).normalize();
+  /* Read the composed turn back as an axis and an angle. w is cos(angle/2) and the
+     vector part is the axis scaled by sin(angle/2), so the axis needs normalising
+     out; a turn too small to have a stable axis is simply no momentum. */
+  const s = Math.hypot(spinQ.x, spinQ.y, spinQ.z);
+  if (s < 1e-8) { view.spinAngle = 0; return; }
+  view.spinAxis.set(spinQ.x / s, spinQ.y / s, spinQ.z / s);
+  view.spinAngle = 2 * Math.atan2(s, spinQ.w);
+}
+
+const hintEl = document.getElementById('hint');
+const btnReset = document.getElementById('btnReset');
+
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+/* The viewer has taken the wheel. The hint and the Reset button are deliberately
+   not set from here: they follow the view's own state, synced every frame, so a
+   gesture the browser takes back for a page scroll leaves no trace on either. */
+function engage() { view.touched = true; }
+
+function beginGesture() {
+  if (gesture.active) return;
+  gesture.active = true;
+  gesture.qL.copy(view.qL); gesture.qGoal.copy(view.qGoal);
+  gesture.zoom = view.zoom; gesture.zoomGoal = view.zoomGoal;
+  gesture.touched = view.touched;
+}
+
+function undoGesture() {
+  if (!gesture.active) return;
+  view.qL.copy(gesture.qL); view.qGoal.copy(gesture.qGoal);
+  view.zoom = gesture.zoom; view.zoomGoal = gesture.zoomGoal;
+  view.spinAngle = 0;
+  view.touched = gesture.touched;
+}
+
+/* Is a quaternion the identity turn, to within the same hair the eased scalars are
+   settled against? w is the cosine of half the angle, and -q is the same rotation
+   as q, so it is the distance of |w| from 1 that answers it. */
+function isIdentity(q) {
+  return Math.abs(Math.abs(q.w) - 1) < EPS;
+}
+
+/* Is there anything to reset? Only if the view sits off the framing the scene gave
+   it, or is still carrying a release back into one. A finger that merely crossed the
+   canvas on its way down the page moved nothing, so it is offered nothing. */
+function viewMoved() {
+  return !isIdentity(view.qL) || !isIdentity(view.qGoal) ||
+    view.zoom !== 1 || view.zoomGoal !== 1 || view.spinAngle !== 0;
+}
+
+function syncViewUi() {
+  if (hintEl && hintEl.classList.contains('is-gone') !== view.touched) {
+    hintEl.classList.toggle('is-gone', view.touched);
+  }
+  if (!btnReset) return;
+  const show = viewMoved();
+  if (btnReset.hidden === !show) return;   // already saying the right thing
+  /* Hiding the control the keyboard is standing on would drop focus to nowhere:
+     hand it back to the piece first. */
+  if (!show && document.activeElement === btnReset) canvas.focus({ preventScroll: true });
+  btnReset.hidden = !show;
+}
+
+function resetView() {
+  view.qGoal.copy(QI); view.zoomGoal = 1;
+  view.spinAngle = 0;
+  if (reduceMotion) { view.qL.copy(QI); view.zoom = 1; }
+  kickView();
+}
+
+/* Wheel belongs to the host page until the viewer has actually grabbed the
+   piece, so scrolling past an embedded visualization never gets hijacked. */
+function ownsWheel() {
+  return view.touched || window.self === window.top || !!document.fullscreenElement;
+}
+
+/* Touch: a vertical swipe still scrolls the host page while embedded; taken
+   full screen or opened on its own, the canvas takes every axis. */
+function syncTouchAction() {
+  const own = window.self === window.top || !!document.fullscreenElement;
+  canvas.style.touchAction = own ? 'none' : 'pan-y';
+}
+syncTouchAction();
+
+function pinchSpan() {
+  const p = Array.from(touches.values());
+  return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+}
+
+/* The angle of the line between two fingers. Turning that line rolls the piece,
+   which is the one axis a single finger cannot reach on its own. */
+function twistAngle() {
+  const p = Array.from(touches.values());
+  return Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x);
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;   // the left button orbits; leave the rest alone
+  beginGesture();
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size >= 2) {
+      drag.id = -1;
+      canvas.classList.remove('is-grabbing');
+      /* seed the pinch and the twist on exactly two fingers; a third neither
+         orbits nor re-seeds */
+      if (touches.size === 2) {
+        pinchFrom = pinchSpan();
+        pinchZoom = view.zoomGoal;
+        twistFrom = twistAngle();
+        engage();
+      }
+      return;
+    }
+  }
+  if (drag.id !== -1) return;
+  drag.id = e.pointerId;
+  drag.x = e.clientX;
+  drag.y = e.clientY;
+  view.spinAngle = 0;
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ }
+  canvas.classList.add('is-grabbing');
+  canvas.focus({ preventScroll: true });
+  /* Engaging happens on the first actual movement, not here: a stray click on an
+     embedded piece must not quietly take the scroll wheel away from the host page. */
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2 && pinchFrom > 0) {
+      view.zoomGoal = clamp(pinchZoom * (pinchFrom / Math.max(1, pinchSpan())), ZOOM_MIN, ZOOM_MAX);
+      /* Twisting the two fingers rolls the piece. Re-seeded every move, so the
+         step is always the small angle just travelled and never has to be
+         unwrapped across the half turn where atan2 changes sign. */
+      const tw = twistAngle();
+      let roll = tw - twistFrom;
+      if (roll > Math.PI) roll -= Math.PI * 2;
+      else if (roll < -Math.PI) roll += Math.PI * 2;
+      twistFrom = tw;
+      turn(0, 0, 1, roll);
+      view.qL.copy(view.qGoal);   // a two-finger turn tracks the fingers, unsmoothed
+      kickView();
+      return;
+    }
+  }
+  if (e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x;
+  const dy = e.clientY - drag.y;
+  drag.x = e.clientX;
+  drag.y = e.clientY;
+  /* Held shift, a horizontal drag rolls instead of turning: the third axis from a
+     single pointer, for anyone without two fingers to twist with. */
+  if (e.shiftKey) {
+    spinFrom(0, 0, -(dx / Math.max(1, window.innerWidth)) * Math.PI * 2);
+  } else {
+    /* Direct manipulation: the piece follows the pointer. Drag right and it turns
+       right, which is the camera going the other way around it, hence the signs.
+       Nothing is clamped: keep dragging and it keeps coming round, past the top,
+       upside down, and back, because a quaternion has no pole to snag on. */
+    spinFrom(
+      -(dy / Math.max(1, window.innerHeight)) * Math.PI * 1.4,
+      -(dx / Math.max(1, window.innerWidth)) * Math.PI * 2,
+      0
+    );
+  }
+  engage();
+  kickView();
+});
+
+function endDrag(e) {
+  touches.delete(e.pointerId);
+  if (touches.size === 2) {
+    pinchFrom = pinchSpan(); pinchZoom = view.zoomGoal; twistFrom = twistAngle();
+  } else if (touches.size < 2) pinchFrom = 0;
+  if (e.pointerId === drag.id) {
+    drag.id = -1;
+    canvas.classList.remove('is-grabbing');
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* already gone */ }
+  }
+  if (drag.id === -1 && touches.size === 0) gesture.active = false;
+  kickView();
+}
+canvas.addEventListener('pointerup', endDrag);
+/* The browser has taken the gesture back: the finger that started on the piece
+   turned out to be the host page scrolling past it, so it was never an orbit. Give
+   the view back exactly as the gesture found it, hint and Reset button included. */
+canvas.addEventListener('pointercancel', (e) => { undoGesture(); endDrag(e); });
+
+canvas.addEventListener('wheel', (e) => {
+  if (!ownsWheel()) return;   // let the host page scroll
+  e.preventDefault();
+  const d = e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? 400 : 1));
+  view.zoomGoal = clamp(view.zoomGoal * Math.exp(d * 0.0012), ZOOM_MIN, ZOOM_MAX);
+  engage();
+  kickView();
+}, { passive: false });
+
+canvas.addEventListener('dblclick', (e) => { e.preventDefault(); resetView(); });
+if (btnReset) btnReset.addEventListener('click', resetView);
+
+/* The same orbit from the keyboard, for anyone not using a pointer. */
+canvas.setAttribute('aria-label', (canvas.getAttribute('aria-label') || '') +
+  ' Interactive: drag or use the arrow keys to turn the view freely in any direction,' +
+  ' shift and drag or Q and E to roll it, plus and minus to zoom, R to reset it.');
+
+let userPaused = false;
+let hidden = false;
+let speed = 1;
+let t = 0;
+let last = performance.now();
+
+function setPlayUi() {
+  btnPlay.textContent = userPaused ? 'Play' : 'Pause';
+  btnPlay.setAttribute('aria-pressed', String(userPaused));
+}
+btnPlay.addEventListener('click', () => {
+  userPaused = !userPaused;
+  setPlayUi();
+  if (!userPaused) {
+    if (vraf) { cancelAnimationFrame(vraf); vraf = 0; }
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    last = performance.now();
+    loop(last);
+  }
+});
+canvas.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); btnPlay.click(); return; }
+  const step = 0.14;
+  /* Every axis the pointer can reach, the keyboard reaches too, and just as far:
+     hold an arrow and the piece comes all the way round. Q and E are the roll the
+     pointer gets from shift or a two-finger twist. */
+  if (e.code === 'ArrowLeft') turn(0, 1, 0, step);
+  else if (e.code === 'ArrowRight') turn(0, 1, 0, -step);
+  else if (e.code === 'ArrowUp') turn(1, 0, 0, step);
+  else if (e.code === 'ArrowDown') turn(1, 0, 0, -step);
+  else if (e.key === 'q' || e.key === 'Q') turn(0, 0, 1, step);
+  else if (e.key === 'e' || e.key === 'E') turn(0, 0, 1, -step);
+  else if (e.key === '+' || e.key === '=') view.zoomGoal = clamp(view.zoomGoal * 0.88, ZOOM_MIN, ZOOM_MAX);
+  else if (e.key === '-' || e.key === '_') view.zoomGoal = clamp(view.zoomGoal / 0.88, ZOOM_MIN, ZOOM_MAX);
+  else if (e.key === 'r' || e.key === 'R') { resetView(); engage(); e.preventDefault(); return; }
+  else return;
+  e.preventDefault();
+  engage();
+  kickView();
+});
+speedEl.addEventListener('input', () => { speed = parseFloat(speedEl.value) || 1; });
+
+btnPng.addEventListener('click', () => {
+  renderer.render(ctx.scene, camera);
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'color-palette-generator-3d.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  });
+});
+
+const btnFs = document.getElementById('btnFs');
+if (!document.fullscreenEnabled) {
+  btnFs.hidden = true; /* e.g. embedded without allow="fullscreen" */
+} else {
+  btnFs.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', () => {
+    const on = !!document.fullscreenElement;
+    btnFs.textContent = on ? 'Exit fullscreen' : 'Fullscreen';
+    btnFs.setAttribute('aria-pressed', String(on));
+    syncTouchAction();
+  });
+}
+
+document.addEventListener('visibilitychange', () => {
+  hidden = document.hidden;
+  if (!hidden && !userPaused) {
+    /* the hidden tab left a frame queued; drop it rather than run two loops */
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    last = performance.now();
+    loop(last);
+  }
+});
+
+/* The scene's own camera placement for this frame, before the viewer's orbit
+   is layered on. Kept so the orbit is re-derived from the scene's framing every
+   frame instead of compounding on its own output. */
+const baseCam = new THREE.Vector3();
+const off = new THREE.Vector3();
+/* Whatever the scene rotated the camera by beyond simply aiming it at the pivot
+   (the terrain piece banks into its turns). Re-applied after every orbit so the
+   viewer moving the view never flattens the scene's own tilt. */
+const sceneTwist = new THREE.Quaternion();
+const aimQ = new THREE.Quaternion();
+/* The scene's pure aim at the pivot from its own camera spot this frame, twist
+   removed. It is the frame the viewer's rotation is composed onto. */
+const baseAim = new THREE.Quaternion();
+let baseSet = false;
+
+function stepView(dt) {
+  if (reduceMotion) view.spinAngle = 0;
+  else if (drag.id === -1 && view.spinAngle !== 0) {
+    turn(view.spinAxis.x, view.spinAxis.y, view.spinAxis.z, view.spinAngle);
+    view.spinAngle *= Math.pow(0.9, dt * 60);
+    if (Math.abs(view.spinAngle) < SPIN_EPS) view.spinAngle = 0;
+  }
+  const k = reduceMotion ? 1 : Math.min(1, dt * 9);
+  /* slerp, not a lerp per axis: the eased view travels the short way round the one
+     arc between here and the goal, which is the same path however far round the
+     piece has been turned. */
+  if (k >= 1) view.qL.copy(view.qGoal);
+  else view.qL.slerp(view.qGoal, k);
+  view.zoom += (view.zoomGoal - view.zoom) * k;
+  /* Settle exactly on the identity view rather than asymptotically near it, so a
+     reset gives the framing back to the scene instead of leaving it a hair off. */
+  if (isIdentity(view.qGoal) && isIdentity(view.qL)) view.qL.copy(QI);
+  if (Math.abs(view.zoom - 1) < EPS) view.zoom = 1;
+  syncViewUi();
+}
+
+/* fresh: the scene has just placed the camera this frame. Otherwise the piece
+   is paused and the camera is restored from the last placement it made. */
+function applyView(fresh) {
+  if (fresh) {
+    baseCam.copy(camera.position);
+    baseSet = true;
+    /* Measure the scene's own twist: aim at the pivot, compare with where the
+       scene actually left the camera, then put the scene's orientation back. */
+    aimQ.copy(camera.quaternion);
+    rawLookAt(sceneLook);
+    baseAim.copy(camera.quaternion);
+    sceneTwist.copy(baseAim).invert().multiply(aimQ);
+    camera.quaternion.copy(aimQ);
+  } else if (baseSet) {
+    camera.position.copy(baseCam);
+  }
+  if (!view.touched || !baseSet) return;
+  /* Nothing to add: give the scene's own framing straight back, so an untouched
+     view and a reset view are the same view, down to the pixel. When the piece is
+     paused the scene is not re-aiming the camera itself, so do it here. */
+  if (view.zoom === 1 && isIdentity(view.qL)) {
+    if (!fresh) { rawLookAt(sceneLook); camera.quaternion.multiply(sceneTwist); }
+    return;
+  }
+  off.copy(baseCam).sub(sceneLook);
+  const r = off.length();
+  if (r < 1e-5) return;
+  /* Turn the whole rig, camera and aim together, rigidly about the pivot. Aiming
+     the camera at the pivot leaves its local +z pointing back along the offset, so
+     the offset is just that axis at length r: rotate the aim by the viewer's turn
+     and the new spot on the sphere falls out of the same quaternion that gives the
+     new orientation. No up vector is consulted anywhere, which is exactly why
+     there is no pole to flip over and nothing to clamp. */
+  camera.quaternion.copy(baseAim).multiply(view.qL);
+  off.set(0, 0, Math.max(0.05, r * view.zoom)).applyQuaternion(camera.quaternion);
+  camera.position.copy(sceneLook).add(off);
+  camera.quaternion.multiply(sceneTwist);
+}
+
+function viewSettling() {
+  return drag.id !== -1 || view.spinAngle !== 0 ||
+    Math.abs(view.qL.dot(view.qGoal)) < 1 - EPS ||
+    Math.abs(view.zoomGoal - view.zoom) > EPS;
+}
+
+/* Dragging a paused piece still moves the view: a light loop that eases the
+   orbit and redraws, without advancing the scene. */
+let vraf = 0, vlast = 0;
+function viewFrame(now) {
+  vraf = 0;
+  const dt = Math.min((now - vlast) / 1000, 0.1);
+  vlast = now;
+  stepView(dt);
+  applyView(false);
+  renderer.render(ctx.scene, camera);
+  if (viewSettling()) kickView();
+}
+function kickView() {
+  if (!userPaused || hidden || vraf) return;
+  vlast = performance.now();
+  vraf = requestAnimationFrame(viewFrame);
+}
+
+let raf = 0;
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.1);
+  last = now;
+  t += dt * speed;
+  ctx.pointer.x += (target.x - ctx.pointer.x) * 0.06;
+  ctx.pointer.y += (target.y - ctx.pointer.y) * 0.06;
+  /* Give the scene back its own camera before it steps. Some pieces ease the camera
+     from wherever it currently is rather than placing it outright, and they must not
+     read the viewer's orbit back as their own starting point: the two would feed each
+     other and the framing would run away within a second. */
+  if (baseSet) camera.position.copy(baseCam);
+  piece.update(t, dt * speed);
+  stepView(dt);
+  applyView(true);
+  renderer.render(ctx.scene, camera);
+}
+function loop(now) {
+  if (userPaused || hidden) return;
+  frame(now);
+  raf = requestAnimationFrame(loop);
+}
+
+/* Always autoplay; the Pause button is the opt-out. */
+loop(performance.now());
+</script>
+</body>
+</html>

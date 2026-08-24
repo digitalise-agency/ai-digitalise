@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voice Appointment Agent · Digitalise Agency</title>
+  <meta name="description" content="A Gemini-driven phone agent that books, reschedules, and cancels appointments over a real Twilio line, with real conflict detection and 54 tests passing.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/voice-agent.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Voice Appointment Agent · Digitalise Agency">
+  <meta property="og:description" content="A Gemini-driven phone agent that books, reschedules, and cancels appointments over a real Twilio line, with real conflict detection and 54 tests passing.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/voice-agent.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/voice-agent.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Voice Appointment Agent · Digitalise Agency">
+  <meta name="twitter:description" content="A Gemini-driven phone agent that books, reschedules, and cancels appointments over a real Twilio line, with real conflict detection and 54 tests passing.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/voice-agent.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-coral" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">voice-agent</p>
+      <h1 id="proj-title" class="proj-title">Voice Appointment Agent</h1>
+      <p class="proj-lede">A phone line that answers itself: the caller speaks normally and the program books, moves, or cancels an appointment, asking for whatever details are missing and never giving away a slot that is already taken. It was proved by driving a real three-turn booking over the open internet into a real calendar entry; the live phone number was never used, so no human voice has tested it yet.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Verified on a real public tunnel</strong>
+            <p>A three-turn booking conversation was driven through a real HMAC-SHA1-signed request (the same algorithm Twilio uses, computed from the real auth token) over a public internet tunnel, ending in a real row written to the SQLite calendar. The live phone number itself was left untouched throughout.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/voice-agent.html" title="Interactive 3D visualization: Voice Appointment Agent" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Voiceprint Torus: caller and machine taking turns around a ring, one burst of speech each, until the missing details are filled in and an appointment slot clicks into place. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/voice-agent.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/voice-agent.webp" alt="Terminal output from a real run of voice-agent's 25-scenario scripted evaluation suite, all passing." loading="lazy" decoding="async" width="1200" height="800">
+        <figcaption>25/25 scripted scenarios passed; no live Twilio/Gemini calls needed for this suite.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>54 / 54</b><span>tests passing</span></div>
+          <div class="proj-stat"><b>25 / 25</b><span>scripted scenarios</span></div>
+          <div class="proj-stat"><b>3-turn</b><span>real signed booking, verified</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/voice-agent" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-coral">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A phone agent that answers a real Twilio line and books, reschedules, or cancels appointments in natural conversation. Gemini handles the language, a SQLite calendar handles real conflict detection, and the whole multi-turn flow has been proven end to end over a real public tunnel with a genuine Twilio signature, not just unit-tested in isolation.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Multi-turn slot filling for booking, rescheduling, and cancelling, with an explicit confirmation step before anything is written.</li>
+          <li>Real conflict detection: overlapping and back-to-back adjacent appointments are handled correctly, verified with an explicit boundary test.</li>
+          <li>Business-hours and past-date rejection, with a path for the caller to correct a bad time and try again.</li>
+          <li>A retry cap and an absolute turn cap that hand off to a human message instead of looping forever on unclear speech.</li>
+          <li>An outbound test-call CLI that refuses to run without a public URL and requires explicit confirmation before it places a real, billed call.</li>
+          <li>A fully implemented (not stubbed) Google Calendar adapter behind the same interface as the default SQLite store, used only if calendar credentials are supplied.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Results</h2>
+        <div class="proj-table-wrap"><table class="proj-table">
+          <thead><tr><th>Metric</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Full test suite</td><td>54 / 54 passed</td></tr>
+            <tr><td>Scripted evaluation scenarios</td><td>25 / 25 passed</td></tr>
+            <tr><td>Real public-tunnel booking conversation</td><td>3 / 3 signed turns accepted, 1 real appointment written</td></tr>
+            <tr><td>Real Gemini calls (build + live verification)</td><td>12 total, under $0.01</td></tr>
+            <tr><td>Real Twilio cost incurred</td><td>$0.00 (read-only lookups only, no call placed)</td></tr>
+          </tbody></table></div>
+      </section>
+      <section class="proj-section">
+        <h2>Reading the numbers honestly</h2>
+        <p>The 25 scripted scenarios run against a deterministic stand-in for Gemini, documented in its own code as a test double, not a production fallback, specifically so a 100+-call evaluation harness doesn't quietly become a recurring bill. We deliberately broke the retry-cap and turn-cap logic once to confirm those two scenarios actually fail when the invariant is broken, then reverted it, since a scenario suite that cannot fail is not proof of anything.</p>
+        <p>The real public-tunnel test is the one piece of evidence in this project that isn't a unit test: a genuine HMAC-SHA1 Twilio signature, computed from the real auth token, was sent over the actual public internet to a live-booted instance of the app, and Gemini correctly resolved a relative date ("tomorrow") against the real current date across three turns before writing a real database row. The one thing that test still doesn't cover is an actual human voice call: Twilio's real speech-to-text output is noisier than the clean, hand-typed text used here, and that gap is stated plainly rather than glossed over.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python</li>
+          <li>FastAPI</li>
+          <li>Twilio</li>
+          <li>gemini-2.5-flash</li>
+          <li>SQLite</li>
+          <li>pytest</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="balochi-poet-classifier.html">Prev: Balochi Poet Classifier</a>
+      <a class="proj-foot__link" href="agency-blog-saas.html">Next: Agency Blog SaaS</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

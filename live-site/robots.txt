@@ -1,0 +1,6 @@
+# SITE_URL: the site's absolute base URL is https://ai.digitalise.agency
+# (the same host is used in sitemap.xml, every HTML head, and this file).
+User-agent: *
+Allow: /
+
+Sitemap: https://ai.digitalise.agency/sitemap.xml

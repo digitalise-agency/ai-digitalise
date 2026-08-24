@@ -1,0 +1,1280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0C0A14">
+  <title>Breakout in 3D · Digitalise Agency</title>
+  <meta name="description" content="The Perfect Run: an interactive 3D study of a breakout rally that never misses.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #0C0A14;
+      overflow: hidden;
+      font: 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    #stage { position: fixed; inset: 0; }
+    canvas {
+      display: block; width: 100%; height: 100%; outline: none;
+      cursor: grab; touch-action: pan-y;
+    }
+    canvas.is-grabbing { cursor: grabbing; }
+    canvas:focus-visible { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); }
+    #hint {
+      position: absolute; left: 12px; bottom: 12px;
+      padding: 6px 11px; border-radius: 999px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none; white-space: nowrap;
+      opacity: 0.75; transition: opacity 0.5s ease;
+    }
+    #hint b { font-weight: 600; color: rgba(255, 255, 255, 0.95); }
+    #hint.is-gone { opacity: 0; }
+    /* Narrow frames have no room for the tail, and a finger cannot scroll or
+       double-click anyway: the drag is the part that matters on touch. */
+    @media (max-width: 700px), (pointer: coarse) {
+      #hintMore { display: none; }
+    }
+    /* The hint and the HUD share the bottom edge, one on each side, and below
+       this width they overlap: first the hint's tail crosses into the HUD, then,
+       once the tail is gone and the HUD has dropped its speed slider, the bare
+       "Drag to turn it any way" still lands on top of the Pause button. Give the
+       hint its own line above the HUD instead of shortening it, so the tail
+       survives everywhere it fits. */
+    @media (max-width: 1120px) {
+      #hint { bottom: 56px; }
+    }
+    #hud {
+      position: absolute; right: 12px; bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: 999px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      opacity: 0.55; transition: opacity 0.25s ease;
+    }
+    #hud:hover, #hud:focus-within { opacity: 1; }
+    #hud button {
+      appearance: none; border: 1px solid rgba(255, 255, 255, 0.25);
+      background: transparent; color: inherit; font: inherit;
+      padding: 3px 10px; border-radius: 999px; cursor: pointer;
+    }
+    #hud button:hover { border-color: rgba(255, 255, 255, 0.6); }
+    #hud button:focus-visible, #hud input:focus-visible {
+      outline: 2px solid #fff; outline-offset: 2px;
+    }
+    #hud label { display: flex; align-items: center; gap: 6px; }
+    #hud input[type="range"] { width: 72px; accent-color: #7FC8E0; }
+    #err {
+      position: absolute; inset: 0; display: none;
+      place-items: center; text-align: center; padding: 24px;
+    }
+    #lbl {
+      position: absolute; left: 12px; top: 12px; max-width: 44ch;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    #lbl h1 {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    #lblSub { margin-top: 3px; opacity: 0.72; }
+    #lblPhase {
+      margin-top: 8px; min-height: 1.4em; color: #7FC8E0;
+      opacity: 1; transition: opacity 0.18s ease;
+    }
+    #legend {
+      position: absolute; right: 12px; top: 12px;
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 9px 12px; border-radius: 10px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none; font-size: 11px;
+    }
+    #legend span { display: flex; align-items: center; gap: 7px; }
+    #legend i {
+      width: 9px; height: 9px; border-radius: 2px; flex: none;
+      background: var(--c); box-shadow: 0 0 6px var(--c);
+    }
+    @media (max-width: 640px) {
+      #lblSub { display: none; }
+      #lbl { max-width: 30ch; }
+      #legend { font-size: 10px; padding: 7px 9px; gap: 4px; }
+    }
+    @media (max-width: 560px) {
+      #hud label { display: none; }
+    }
+    @media (max-width: 480px) {
+      /* keep even the longest title on one line, clear of the legend */
+      #lbl h1 { font-size: 10px; letter-spacing: 0.1em; }
+      #lbl { max-width: 26ch; padding: 8px 11px; }
+    }
+    /* Below this the title cannot have 26ch AND clear the legend, so it takes
+       what is left and wraps. 212px is the widest legend here (191px) plus the
+       gap between them. */
+    @media (max-width: 440px) {
+      #lbl { max-width: calc(100% - 224px); }
+    }
+    /* And below this there is no room for the legend at all: what is left for
+       the title is narrower than one word. The legend goes, the title gets its
+       width back, and the live caption inside it carries the commentary. */
+    @media (max-width: 400px) {
+      #legend { display: none; }
+      #lbl { max-width: calc(100% - 24px); }
+      /* The HUD is one flex row of buttons about 272px wide. Narrower than that
+         and it runs off its own left edge, across the hint. Let it wrap, and
+         give the hint the room for the second row it may now grow. */
+      #hud { flex-wrap: wrap; justify-content: flex-end; }
+      #hint { bottom: 96px; }
+    }
+    /* Compact mode, opted into with ?compact=1 on the URL. The frame is then a
+       card, roughly 380x260, and panels sized for a window cover the scene they
+       exist to explain. At that size the scene is the whole point, so it gets the
+       whole frame: no title card, no legend, no control HUD, no drag hint. The
+       host page carries the title and the affordance. The piece itself is
+       untouched: it still runs, still orbits, still zooms. */
+    html.is-compact #lbl,
+    html.is-compact #legend,
+    html.is-compact #hud,
+    html.is-compact #hint { display: none; }
+    /* The one panel compact mode keeps: if WebGL is missing there is nothing else
+       to look at, so the note stays, sized for the card. */
+    html.is-compact #err { padding: 14px; font-size: 11px; line-height: 1.5; }
+  </style>
+  <script>
+    /* Read here, ahead of the first paint, so a card never flashes the chrome it
+       is about to hide. Any value but 0 turns it on. */
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.has('compact') && p.get('compact') !== '0') {
+        document.documentElement.classList.add('is-compact');
+      }
+    })();
+  </script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c" tabindex="0" aria-label="Animated 3D breakout arena where a trailing ball carves through a dusk-gradient brick wall, shards falling with gravity, paddle gliding beneath."></canvas>
+  <div id="hud" role="group" aria-label="Visualization controls">
+    <button id="btnPlay" type="button" aria-pressed="false">Pause</button>
+    <label for="speed">speed
+      <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1"
+             aria-label="Animation speed">
+    </label>
+    <button id="btnPng" type="button">Save PNG</button>
+    <button id="btnReset" type="button" hidden>Reset view</button>
+    <button id="btnFs" type="button" aria-pressed="false">Fullscreen</button>
+  </div>
+  <div id="lbl">
+    <h1>The Perfect Run</h1>
+    <p id="lblSub">A Breakout rally that never misses: real reflections, falling shards, a wall that rebuilds.</p>
+    <p id="lblPhase" aria-hidden="true"></p>
+  </div>
+  <div id="legend" role="list" aria-label="Legend">
+    <span role="listitem"><i style="--c:#D86A88"></i>Brick (top rows)</span>
+    <span role="listitem"><i style="--c:#E8B45C"></i>Brick (low rows)</span>
+    <span role="listitem"><i style="--c:#7FC8E0"></i>Paddle</span>
+    <span role="listitem"><i style="--c:#F2F0E8"></i>Ball</span>
+    <span role="listitem"><i style="--c:#8A6AD0"></i>Shard</span>
+  </div>
+  <p id="hint" aria-hidden="true"><b>Drag</b> to turn it any way<span id="hintMore"> &middot; shift-drag to roll &middot; scroll to zoom &middot; double-click to reset</span></p>
+  <div id="err"><p>This visualization needs WebGL, which is unavailable here.<br>
+     A screenshot of it lives on the project page.</p></div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ================= scene: breakout-game ================= */
+// THE PERFECT RUN, a breakout rally that never misses: a real reflection sim
+// carves a dusk-gradient wall, shards fall with gravity, and the wall rebuilds
+// itself brick by brick after every clear.
+// Palette: bg arcade dark #0C0A14, brick rose #D86A88 to gold #E8B45C gradient,
+//   paddle ice #7FC8E0, ball white #F2F0E8, shard violet #8A6AD0.
+//   Dusk arcade warmth instead of neon cliche; the ball's white keeps focus.
+// Signature: the wall rebuilding itself brick by brick after the clear.
+
+function createScene(THREE, ctx) {
+  const q = ctx.quality;
+
+  // ---- tunables -----------------------------------------------------------
+  const BG = 0x0C0A14;            // arcade dark background
+  const BRICK_TOP = 0xD86A88;     // rose, top rows of the wall
+  const BRICK_BOT = 0xE8B45C;     // gold, bottom rows of the wall
+  const PADDLE_COL = 0x7FC8E0;    // ice blue paddle
+  const BALL_COL = 0xF2F0E8;      // warm white ball
+  const SHARD_COL = 0x8A6AD0;     // violet shards
+  const COLS = 12;                            // bricks per row
+  const ROWS = Math.max(4, Math.floor(10 * q)); // brick rows, scaled by quality
+  const CELL_W = 0.95, CELL_H = 0.5;          // brick grid cell size
+  const BRICK_W = 0.86, BRICK_H = 0.4, BRICK_D = 0.5; // brick body size
+  const GRID_TOP = 5.1;           // y of top brick row center
+  const HALF_W = 5.8;             // arena half width (inner wall)
+  const TOP_Y = 6.1;              // ceiling y
+  const PADDLE_Y = -5.0;          // paddle center y
+  const PADDLE_W = 1.9;           // paddle width
+  const BALL_R = 0.16;            // ball radius
+  const SPEED_BASE = 6.4;         // rally start speed, units/s
+  const SPEED_RAMP = 0.65;        // fraction of extra speed as the wall thins
+  const SHARDS_PER_BRICK = Math.max(8, Math.floor(40 * q)); // pop debris count
+  const SHARD_POOL = Math.max(240, Math.floor(900 * q));    // live shard budget
+  const TRAIL_N = Math.max(20, Math.floor(56 * q));         // comet trail points
+  const GRAV = 9.5;               // shard gravity
+  const PHYS_STEP = 1 / 120;      // fixed physics substep (framerate independent)
+
+  // ---- small helpers ------------------------------------------------------
+  const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+  const smooth = (a, b, v) => { const x = clamp((v - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
+  const easeOut = (x) => 1 - Math.pow(1 - clamp(x, 0, 1), 3);
+  let seed = 1234567;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let z = Math.imul(seed ^ seed >>> 15, 1 | seed); z = z + Math.imul(z ^ z >>> 7, 61 | z) ^ z; return ((z ^ z >>> 14) >>> 0) / 4294967296; };
+
+  ctx.scene.background = new THREE.Color(BG);
+  ctx.scene.fog = new THREE.FogExp2(BG, 0.016);
+
+  const amb = new THREE.AmbientLight(0x8688a8, 0.85);
+  const key = new THREE.DirectionalLight(0xfff2e0, 1.5);
+  key.position.set(4, 6, 8);
+  ctx.scene.add(amb, key);
+
+  // ---- arena frame: two dim side rails and a ceiling rail -----------------
+  const railMat = new THREE.MeshBasicMaterial({ color: 0x2a2440, transparent: true, opacity: 0.9 });
+  const railGeo = new THREE.BoxGeometry(0.14, TOP_Y - PADDLE_Y + 1.4, 0.6);
+  const railL = new THREE.Mesh(railGeo, railMat);
+  railL.position.set(-HALF_W - 0.2, (TOP_Y + PADDLE_Y) / 2 + 0.2, 0);
+  const railR = railL.clone(); railR.position.x = HALF_W + 0.2;
+  const railT = new THREE.Mesh(new THREE.BoxGeometry(2 * HALF_W + 0.7, 0.14, 0.6), railMat);
+  railT.position.set(0, TOP_Y + 0.2, 0);
+  ctx.scene.add(railL, railR, railT);
+
+  // ---- brick wall (instanced) ---------------------------------------------
+  const N_BRICKS = COLS * ROWS;
+  const brickGeo = new THREE.BoxGeometry(BRICK_W, BRICK_H, BRICK_D);
+  const brickMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  const bricks = new THREE.InstancedMesh(brickGeo, brickMat, N_BRICKS);
+  const baseX = new Float32Array(N_BRICKS);
+  const baseY = new Float32Array(N_BRICKS);
+  const alive = new Uint8Array(N_BRICKS);
+  const bScale = new Float32Array(N_BRICKS);   // visual scale 0..1
+  const shiverAmp = new Float32Array(N_BRICKS);
+  const shiverAge = new Float32Array(N_BRICKS);
+  const dirty = new Set();                      // bricks needing a matrix update
+  const m4 = new THREE.Matrix4();
+  const cTop = new THREE.Color(BRICK_TOP), cBot = new THREE.Color(BRICK_BOT), cTmp = new THREE.Color();
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const i = r * COLS + c;
+      baseX[i] = -((COLS - 1) / 2) * CELL_W + c * CELL_W;
+      baseY[i] = GRID_TOP - r * CELL_H;
+      alive[i] = 1; bScale[i] = 1;
+      m4.makeTranslation(baseX[i], baseY[i], 0);
+      bricks.setMatrixAt(i, m4);
+      cTmp.lerpColors(cTop, cBot, ROWS <= 1 ? 0 : r / (ROWS - 1));
+      bricks.setColorAt(i, cTmp);
+    }
+  }
+  bricks.instanceMatrix.needsUpdate = true;
+  bricks.instanceColor.needsUpdate = true;
+  ctx.scene.add(bricks);
+  let aliveCount = N_BRICKS;
+
+  function setBrickMatrix(i, extraX, extraY) {
+    const s = bScale[i];
+    m4.makeScale(s, s, s);
+    m4.setPosition(baseX[i] + (extraX || 0), baseY[i] + (extraY || 0), 0);
+    bricks.setMatrixAt(i, m4);
+  }
+
+  // ---- paddle and ball -----------------------------------------------------
+  const paddle = new THREE.Mesh(
+    new THREE.BoxGeometry(PADDLE_W, 0.32, 0.6),
+    new THREE.MeshLambertMaterial({ color: PADDLE_COL, emissive: 0x1c4454 })
+  );
+  paddle.position.set(0, PADDLE_Y, 0);
+  ctx.scene.add(paddle);
+
+  const ball = new THREE.Mesh(
+    new THREE.SphereGeometry(BALL_R, 16, 12),
+    new THREE.MeshBasicMaterial({ color: BALL_COL })
+  );
+  ctx.scene.add(ball);
+
+  // soft additive glow sprite riding on the ball
+  function makeGlowMat(hex, size, op) {
+    return new THREE.ShaderMaterial({
+      uniforms: { uColor: { value: new THREE.Color(hex) }, uSize: { value: size }, uOp: { value: op } },
+      vertexShader: [
+        'uniform float uSize;',
+        'void main(){',
+        '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+        '  gl_PointSize = uSize * (140.0 / -mv.z);',
+        '  gl_Position = projectionMatrix * mv;',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform vec3 uColor;',
+        'uniform float uOp;',
+        'void main(){',
+        '  float d = length(gl_PointCoord - 0.5);',
+        '  float a = smoothstep(0.5, 0.05, d);',
+        '  gl_FragColor = vec4(uColor, a * uOp);',
+        '}'
+      ].join('\n'),
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+  }
+  const glowGeo = new THREE.BufferGeometry();
+  glowGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+  const ballGlow = new THREE.Points(glowGeo, makeGlowMat(BALL_COL, 1.6, 0.55));
+  ctx.scene.add(ballGlow);
+
+  // ---- comet trail ---------------------------------------------------------
+  const trailPos = new Float32Array(TRAIL_N * 3);
+  const trailFade = new Float32Array(TRAIL_N);
+  for (let i = 0; i < TRAIL_N; i++) trailFade[i] = 1 - i / TRAIL_N;
+  const trailGeo = new THREE.BufferGeometry();
+  trailGeo.setAttribute('position', new THREE.Float32BufferAttribute(trailPos, 3));
+  trailGeo.setAttribute('aFade', new THREE.Float32BufferAttribute(trailFade, 1));
+  const trailMat = new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color(BALL_COL) } },
+    vertexShader: [
+      'attribute float aFade;',
+      'varying float vFade;',
+      'void main(){',
+      '  vFade = aFade;',
+      '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+      '  gl_PointSize = (0.5 + 0.9 * aFade) * (140.0 / -mv.z);',
+      '  gl_Position = projectionMatrix * mv;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      'uniform vec3 uColor;',
+      'varying float vFade;',
+      'void main(){',
+      '  float d = length(gl_PointCoord - 0.5);',
+      '  float a = smoothstep(0.5, 0.05, d) * vFade * vFade * 0.7;',
+      '  gl_FragColor = vec4(uColor, a);',
+      '}'
+    ].join('\n'),
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+  });
+  const trail = new THREE.Points(trailGeo, trailMat);
+  ctx.scene.add(trail);
+
+  // ---- shard pool ----------------------------------------------------------
+  const sPos = new Float32Array(SHARD_POOL * 3);
+  const sVel = new Float32Array(SHARD_POOL * 3);
+  const sLife = new Float32Array(SHARD_POOL);   // remaining life, <=0 means free
+  const sMax = new Float32Array(SHARD_POOL);
+  const sAlpha = new Float32Array(SHARD_POOL);
+  const shardGeo = new THREE.BufferGeometry();
+  shardGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos, 3));
+  shardGeo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(sAlpha, 1));
+  const shardMat = new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color(SHARD_COL) } },
+    vertexShader: [
+      'attribute float aAlpha;',
+      'varying float vA;',
+      'void main(){',
+      '  vA = aAlpha;',
+      '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+      '  gl_PointSize = (0.35 + 0.55 * aAlpha) * (140.0 / -mv.z);',
+      '  gl_Position = projectionMatrix * mv;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      'uniform vec3 uColor;',
+      'varying float vA;',
+      'void main(){',
+      '  float d = length(gl_PointCoord - 0.5);',
+      '  float a = smoothstep(0.5, 0.08, d) * vA;',
+      '  gl_FragColor = vec4(uColor + vec3(0.25) * vA, a);',
+      '}'
+    ].join('\n'),
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+  });
+  const shards = new THREE.Points(shardGeo, shardMat);
+  ctx.scene.add(shards);
+  let shardCursor = 0;
+
+  function spawnShards(x, y, n, kick) {
+    for (let k = 0; k < n; k++) {
+      const i = shardCursor; shardCursor = (shardCursor + 1) % SHARD_POOL;
+      const a = rnd() * Math.PI * 2;
+      const sp = 0.8 + rnd() * 2.4;
+      sPos[i * 3] = x + (rnd() - 0.5) * BRICK_W;
+      sPos[i * 3 + 1] = y + (rnd() - 0.5) * BRICK_H;
+      sPos[i * 3 + 2] = (rnd() - 0.5) * 0.4;
+      sVel[i * 3] = Math.cos(a) * sp;
+      sVel[i * 3 + 1] = Math.sin(a) * sp + (kick || 1.2);
+      sVel[i * 3 + 2] = (rnd() - 0.5) * 1.2;
+      sMax[i] = 0.9 + rnd() * 0.9;
+      sLife[i] = sMax[i];
+    }
+  }
+
+  // ---- game state -----------------------------------------------------------
+  let bx = 0, by = -2.4;
+  let ang = (rnd() * 0.6 + 0.35) * Math.PI / 2 + Math.PI / 4; // upward-ish
+  let bvx = Math.cos(ang), bvy = Math.abs(Math.sin(ang));
+  let speed = SPEED_BASE;
+  let paddleX = 0;
+  let phase = 'play';        // play | clear | rebuild
+  let phaseT = 0;
+  let simT = 0;              // total simulated time, for caption beats
+  let lastPopT = -10;        // moment the last brick shattered
+  let camDist = 14, camDistTarget = 14;
+  let acc = 0;
+
+  function foldX(p) {
+    // reflect a projected x back into the arena, mirroring off side walls
+    const lo = -HALF_W + BALL_R, hi = HALF_W - BALL_R;
+    const range = (hi - lo) * 2;
+    let v = (p - lo) % range;
+    if (v < 0) v += range;
+    return v < hi - lo ? lo + v : hi - (v - (hi - lo));
+  }
+
+  function paddleTarget() {
+    if (bvy < 0) {
+      const tta = (by - PADDLE_Y) / (-bvy * speed);
+      return foldX(bx + bvx * speed * tta);
+    }
+    return bx * 0.5; // shadow the ball loosely while it climbs
+  }
+
+  function killBrick(i) {
+    lastPopT = simT;
+    alive[i] = 0; bScale[i] = 0; aliveCount--;
+    setBrickMatrix(i, 0, 0); dirty.add(i);
+    spawnShards(baseX[i], baseY[i], SHARDS_PER_BRICK, 1.2);
+    // shiver the 4-neighborhood
+    const r = Math.floor(i / COLS), c = i % COLS;
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const rr = r + dr, cc = c + dc;
+      if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) continue;
+      const j = rr * COLS + cc;
+      if (alive[j]) { shiverAmp[j] = 0.05; shiverAge[j] = 0; dirty.add(j); }
+    }
+    if (aliveCount === 0) {
+      // quiet firework across the fallen wall, then pull the camera back
+      for (let k = 0; k < Math.floor(160 * q); k++) {
+        spawnShards(
+          (rnd() - 0.5) * COLS * CELL_W,
+          GRID_TOP - rnd() * ROWS * CELL_H, 1, 2.6);
+      }
+      phase = 'clear'; phaseT = 0; camDistTarget = 17;
+    }
+  }
+
+  function tryBrickHit() {
+    if (phase !== 'play') return;
+    // candidate cells around the ball
+    const probes = [[bx, by], [bx + BALL_R, by], [bx - BALL_R, by], [bx, by + BALL_R], [bx, by - BALL_R]];
+    for (let p = 0; p < probes.length; p++) {
+      const px = probes[p][0], py = probes[p][1];
+      const c = Math.round((px + ((COLS - 1) / 2) * CELL_W) / CELL_W);
+      const r = Math.round((GRID_TOP - py) / CELL_H);
+      if (r < 0 || r >= ROWS || c < 0 || c >= COLS) continue;
+      const i = r * COLS + c;
+      if (!alive[i]) continue;
+      const cx = baseX[i], cy = baseY[i];
+      const dx = bx - cx, dy = by - cy;
+      const ox = BRICK_W / 2 + BALL_R - Math.abs(dx);
+      const oy = BRICK_H / 2 + BALL_R - Math.abs(dy);
+      if (ox <= 0 || oy <= 0) continue;
+      if (ox < oy) { bvx = Math.abs(bvx) * (dx >= 0 ? 1 : -1); bx += (dx >= 0 ? ox : -ox); }
+      else { bvy = Math.abs(bvy) * (dy >= 0 ? 1 : -1); by += (dy >= 0 ? oy : -oy); }
+      killBrick(i);
+      return;
+    }
+  }
+
+  function stepPhysics(h) {
+    // gentle ramp as the wall thins
+    const frac = phase === 'play' ? 1 - aliveCount / N_BRICKS : 0;
+    const target = SPEED_BASE * (1 + SPEED_RAMP * frac);
+    speed += (target - speed) * Math.min(1, h * 1.5);
+
+    bx += bvx * speed * h;
+    by += bvy * speed * h;
+
+    if (bx < -HALF_W + BALL_R) { bx = -HALF_W + BALL_R; bvx = Math.abs(bvx); }
+    if (bx > HALF_W - BALL_R) { bx = HALF_W - BALL_R; bvx = -Math.abs(bvx); }
+    if (by > TOP_Y - BALL_R) { by = TOP_Y - BALL_R; bvy = -Math.abs(bvy); }
+    // invisible safety floor: the perfect run never actually drops the ball
+    if (by < PADDLE_Y - 0.5) { by = PADDLE_Y - 0.5; bvy = Math.abs(bvy); }
+
+    // paddle reflection: angle depends on where the ball meets the paddle
+    if (bvy < 0 && by < PADDLE_Y + BALL_R + 0.16 && by > PADDLE_Y - 0.35) {
+      const off = clamp((bx - paddleX) / (PADDLE_W / 2), -1, 1);
+      by = PADDLE_Y + BALL_R + 0.16;
+      bvx = off * 0.82;
+      bvy = Math.sqrt(Math.max(0.2, 1 - bvx * bvx));
+      const len = Math.hypot(bvx, bvy); bvx /= len; bvy /= len;
+    }
+    // keep the rally lively: never dead-vertical, never dead-horizontal
+    if (Math.abs(bvx) < 0.12) { bvx = bvx < 0 ? -0.12 : 0.12; }
+    if (Math.abs(bvy) < 0.28) { bvy = bvy < 0 ? -0.28 : 0.28; }
+    const l2 = Math.hypot(bvx, bvy); bvx /= l2; bvy /= l2;
+
+    tryBrickHit();
+  }
+
+  // camera baseline
+  ctx.camera.position.set(0, 0.6, camDist);
+  ctx.camera.lookAt(0, 0.3, 0);
+
+  function update(t, dt) {
+    dt = clamp(dt, 0, 0.05);
+    phaseT += dt;
+    simT += dt;
+
+    // fixed-step simulation
+    acc += dt;
+    let guard = 0;
+    while (acc >= PHYS_STEP && guard < 20) { stepPhysics(PHYS_STEP); acc -= PHYS_STEP; guard++; }
+
+    // paddle glide with eased anticipation, like a confident player
+    const tgt = clamp(paddleTarget(), -HALF_W + PADDLE_W / 2, HALF_W - PADDLE_W / 2);
+    paddleX += (tgt - paddleX) * (1 - Math.exp(-dt * (bvy < 0 ? 9 : 3.5)));
+    paddle.position.x = paddleX;
+    paddle.position.y = PADDLE_Y - 0.16 + Math.sin(t * 2.1) * 0.02;
+
+    ball.position.set(bx, by, 0);
+    ballGlow.position.set(bx, by, 0);
+
+    // trail: shift the ring buffer back one slot, head follows the ball
+    const pa = trailGeo.attributes.position.array;
+    pa.copyWithin(3, 0, (TRAIL_N - 1) * 3);
+    pa[0] = bx; pa[1] = by; pa[2] = 0;
+    trailGeo.attributes.position.needsUpdate = true;
+
+    // shards: gravity, drag, fade
+    const spArr = shardGeo.attributes.position.array;
+    const saArr = shardGeo.attributes.aAlpha.array;
+    for (let i = 0; i < SHARD_POOL; i++) {
+      if (sLife[i] <= 0) { if (saArr[i] !== 0) saArr[i] = 0; continue; }
+      sLife[i] -= dt;
+      sVel[i * 3 + 1] -= GRAV * dt;
+      sVel[i * 3] *= (1 - 0.6 * dt);
+      spArr[i * 3] += sVel[i * 3] * dt;
+      spArr[i * 3 + 1] += sVel[i * 3 + 1] * dt;
+      spArr[i * 3 + 2] += sVel[i * 3 + 2] * dt;
+      const u = clamp(sLife[i] / sMax[i], 0, 1);
+      saArr[i] = u * u;
+    }
+    shardGeo.attributes.position.needsUpdate = true;
+    shardGeo.attributes.aAlpha.needsUpdate = true;
+
+    // brick shivers decay
+    for (const i of Array.from(dirty)) {
+      if (!alive[i] && bScale[i] === 0 && phase !== 'rebuild') {
+        setBrickMatrix(i, 0, 0); dirty.delete(i); continue;
+      }
+      if (shiverAmp[i] > 0.001) {
+        shiverAge[i] += dt;
+        shiverAmp[i] *= Math.exp(-dt * 7);
+        setBrickMatrix(i, Math.sin(shiverAge[i] * 42) * shiverAmp[i], Math.cos(shiverAge[i] * 37) * shiverAmp[i] * 0.6);
+      } else if (phase !== 'rebuild') {
+        shiverAmp[i] = 0; setBrickMatrix(i, 0, 0); dirty.delete(i);
+      }
+    }
+
+    // phase choreography
+    if (phase === 'clear' && phaseT > 2.2) {
+      phase = 'rebuild'; phaseT = 0;
+    } else if (phase === 'rebuild') {
+      let done = true;
+      for (let i = 0; i < N_BRICKS; i++) {
+        const start = ((N_BRICKS - 1 - i) % COLS) * 0.028 + Math.floor((N_BRICKS - 1 - i) / COLS) * 0.24;
+        const u = (phaseT - start) / 0.4;
+        if (u < 1) done = false;
+        const s = easeOut(u);
+        if (s > 0 && bScale[i] !== 1) {
+          bScale[i] = s;
+          if (s >= 1) { bScale[i] = 1; alive[i] = 1; aliveCount++; }
+          setBrickMatrix(i, 0, 0); dirty.add(i);
+        }
+      }
+      if (done) {
+        for (let i = 0; i < N_BRICKS; i++) { if (!alive[i]) { alive[i] = 1; aliveCount++; bScale[i] = 1; setBrickMatrix(i, 0, 0); } }
+        aliveCount = N_BRICKS;
+        phase = 'play'; phaseT = 0; camDistTarget = 14;
+      }
+    }
+    bricks.instanceMatrix.needsUpdate = true;
+
+    // live caption follows the rally phases
+    let cap;
+    if (phase === 'clear') cap = 'Board cleared: the last brick falls in a quiet firework';
+    else if (phase === 'rebuild') cap = 'The wall rebuilds itself brick by brick';
+    else if (simT - lastPopT < 1.1) cap = 'A brick shatters into falling violet shards';
+    else if (aliveCount < N_BRICKS * 0.4) cap = 'The wall thins and the rally quickens';
+    else cap = 'The rally carves the wall bounce by bounce; the paddle never misses';
+    ctx.caption(cap);
+
+    // camera: slow orbital swing plus pointer nudge, eased dolly on clear
+    camDist += (camDistTarget - camDist) * (1 - Math.exp(-dt * 1.6));
+    const a = Math.sin(t * 0.1) * 0.34 + ctx.pointer.x * 0.28;
+    const h = 0.6 + Math.sin(t * 0.07) * 0.5 + ctx.pointer.y * 1.1;
+    ctx.camera.position.set(Math.sin(a) * camDist, h, Math.cos(a) * camDist);
+    ctx.camera.lookAt(0, 0.3, 0);
+  }
+
+  return { update };
+}
+
+/* ================= shared runtime ================= */
+
+const canvas = document.getElementById('c');
+const btnPlay = document.getElementById('btnPlay');
+const speedEl = document.getElementById('speed');
+const btnPng = document.getElementById('btnPng');
+
+/* The piece is running in something card-sized (?compact=1). The head script has
+   already taken the panels out of the layout; what is left for the scene is its own
+   in-frame labelling, below. */
+const COMPACT = document.documentElement.classList.contains('is-compact');
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+} catch (e) {
+  document.getElementById('err').style.display = 'grid';
+  document.getElementById('hud').hidden = true;
+  throw e;
+}
+
+/* Quality tier: 1 on desktop, lower on small screens or few cores.
+   Scenes scale particle counts by ctx.quality. */
+const small = Math.min(window.innerWidth, window.innerHeight) < 700;
+const weak = (navigator.hardwareConcurrency || 8) <= 4;
+const quality = small ? 0.5 : (weak ? 0.7 : 1);
+
+/* Point sprites are sized in device pixels against a fixed reference, tuned in a
+   window about 700px tall. In a 260px card at one device pixel per CSS pixel each
+   sprite keeps that pixel count and so covers nearly three times the share of the
+   frame it was drawn for: the piece turns into a smear of its own glow. Rendering
+   the card at about a window's worth of device pixels puts them back in proportion.
+   The buffer stays smaller than the one a project page already runs the same piece
+   at full size, and the particle counts are still on the small-screen tier. */
+function pixelRatio() {
+  if (COMPACT) return Math.min(2.6, Math.max(1, 640 / Math.max(1, window.innerHeight)));
+  return Math.min(window.devicePixelRatio || 1, quality < 1 ? 1.5 : 2);
+}
+renderer.setPixelRatio(pixelRatio());
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+camera.position.set(0, 0, 12);
+
+const ctx = {
+  scene: new THREE.Scene(),
+  camera,
+  renderer,
+  quality,
+  /* A handful of scenes size their points off the canvas height, so the points hold
+     their proportion of any frame, which in a card is a single pixel of dust. Those
+     scenes multiply by this; the rest never read it. 1 unless compact. */
+  pxScale: COMPACT ? 1.6 : 1,
+  pointer: { x: 0, y: 0 },  /* smoothed, -1..1, y up */
+};
+
+/* The scene drives the camera itself, calling camera.lookAt(target) every
+   frame. Recording that target is what lets the viewer orbit the piece: the
+   pivot below is whatever the scene is looking at right now, so the orbit
+   layer further down can swing the camera around it without the scene and
+   the viewer fighting over the camera. */
+const sceneLook = new THREE.Vector3(0, 0, 0);
+const rawLookAt = camera.lookAt.bind(camera);
+camera.lookAt = function (x, y, z) {
+  if (x && x.isVector3) sceneLook.copy(x); else sceneLook.set(x, y, z);
+  return rawLookAt(sceneLook);
+};
+
+/* Live phase caption: scenes call ctx.caption('...') each frame; the text
+   only touches the DOM when it changes, with a quick cross-fade. */
+const lblPhase = document.getElementById('lblPhase');
+let capText = null, capTimer = 0;
+ctx.caption = (s) => {
+  if (s === capText || !lblPhase) return;
+  capText = s;
+  lblPhase.style.opacity = '0';
+  clearTimeout(capTimer);
+  capTimer = setTimeout(() => {
+    lblPhase.textContent = capText;
+    lblPhase.style.opacity = '1';
+  }, 180);
+};
+
+/* Small floating text tag rendered to a canvas texture, for labelling
+   objects inside the 3D scene. Returns a sprite; scale is world height. */
+ctx.makeTag = (text, color, h = 0.42) => {
+  const pad = 18, fpx = 46;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = '600 ' + fpx + 'px ui-monospace, Menlo, Consolas, monospace';
+  const tw = Math.ceil(meas.measureText(text).width);
+  const cw = tw + pad * 2, ch = fpx + pad * 2;
+  const cnv = document.createElement('canvas');
+  cnv.width = cw; cnv.height = ch;
+  const g = cnv.getContext('2d');
+  g.font = meas.font;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.shadowColor = color; g.shadowBlur = 14;
+  g.fillStyle = color;
+  g.fillText(text, cw / 2, ch / 2 + 2);
+  g.shadowBlur = 0;
+  g.fillText(text, cw / 2, ch / 2 + 2);
+  const tex = new THREE.CanvasTexture(cnv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthWrite: false, depthTest: false,
+  }));
+  spr.scale.set(h * cw / ch, h, 1);
+  spr.renderOrder = 20;
+  /* A card has no room to read a tag: it arrives as a grey smudge across the very
+     thing it names. The sprite is still built and still carried by the scene, it is
+     simply not drawn, so no scene has to know about compact mode. */
+  spr.visible = !COMPACT;
+  return spr;
+};
+
+let piece;
+try {
+  piece = createScene(THREE, ctx);
+} catch (e) {
+  document.getElementById('err').style.display = 'grid';
+  document.getElementById('hud').hidden = true;
+  console.error(e);
+  throw e;
+}
+
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  /* A card can be re-laid-out under the piece; the ratio is derived from the frame,
+     so it is re-derived with it. Outside compact the ratio never depended on size. */
+  if (COMPACT) renderer.setPixelRatio(pixelRatio());
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  if (piece.resize) piece.resize(w, h);
+}
+/* Resizing clears the drawing buffer, and a paused piece has no loop running to
+   redraw it, so ask the view loop for a single frame. */
+window.addEventListener('resize', () => { resize(); kickView(); });
+resize();
+
+/* Pointer parallax target, lerped each frame for weight. Frozen while the
+   viewer is dragging, so a grab is a clean orbit and not a double motion. */
+const target = { x: 0, y: 0 };
+window.addEventListener('pointermove', (e) => {
+  if (drag.id !== -1) return;
+  target.x = (e.clientX / window.innerWidth) * 2 - 1;
+  target.y = -((e.clientY / window.innerHeight) * 2 - 1);
+}, { passive: true });
+
+/* ================= direct manipulation =================
+   Grab the piece and it turns freely around whatever the scene is looking at,
+   with a little weight on release. Wheel or pinch zooms, double-click or the
+   Reset button returns the framing. The orbit is an offset applied after the
+   scene has placed its camera for the frame, never a replacement for it, so the
+   animation keeps playing from wherever the viewer parked the view.
+
+   The rotation is a quaternion, not a yaw/pitch pair, and that is the whole
+   design. A yaw/pitch orbit against a fixed up vector has two poles: straight
+   over the top the view snaps a half turn, which is why such an orbit has to be
+   clamped short of them and can never come all the way round. A quaternion has
+   no poles and no gimbal lock, so every axis turns the full 360 and keeps going.
+
+   It is held in the camera's own frame (qL below), not the world's. That is what
+   lets it survive the scene flying its camera around underneath: the viewer's
+   turn means "from where this piece is being watched, spin it this way", and it
+   stays true whatever the scene does with the framing next frame. */
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ZOOM_MIN = 0.4, ZOOM_MAX = 2.6;
+const EPS = 1e-4;
+const SPIN_EPS = 1e-5;               // radians per frame below which momentum is spent
+
+/* The viewer's rotation, in the camera's local frame: x is the axis a vertical
+   drag turns about, y a horizontal one, z the roll axis down the line of sight.
+   qL is what is applied this frame, qGoal where it is easing to. Momentum on
+   release is an axis and a per-frame angle, also local, decayed like the old
+   yaw/pitch velocities were. */
+const view = {
+  qL: new THREE.Quaternion(),
+  qGoal: new THREE.Quaternion(),
+  zoom: 1, zoomGoal: 1,
+  spinAxis: new THREE.Vector3(0, 1, 0),
+  spinAngle: 0,
+  touched: false                           // the viewer has taken the wheel
+};
+const QI = new THREE.Quaternion();         // identity, for comparisons and resets
+const dq = new THREE.Quaternion();         // scratch: the delta a gesture just asked for
+const dqAxis = new THREE.Vector3();
+const drag = { id: -1, x: 0, y: 0 };
+const touches = new Map();                 // live touch points, for pinch and twist
+let pinchFrom = 0, pinchZoom = 1, twistFrom = 0;
+/* What the view looked like when the gesture now in flight began. Embedded, the
+   canvas is touch-action: pan-y, so a vertical swipe is the host page's to keep:
+   the browser hands over a pointerdown and a move, then cancels. That gesture was
+   never an orbit, and this is what it gets put back to. */
+const gesture = {
+  active: false,
+  qL: new THREE.Quaternion(),
+  qGoal: new THREE.Quaternion(),
+  zoom: 1, zoomGoal: 1,
+  touched: false
+};
+
+/* Turn the view by `ang` about a local axis. Post-multiplying is what keeps the
+   gesture in the camera's frame: the axis is read from where the viewer is sitting
+   now, not from where the scene first framed the piece, so a turn means the same
+   thing to the hand however far round it has already been brought. */
+function turn(x, y, z, ang) {
+  if (!ang) return;
+  dq.setFromAxisAngle(dqAxis.set(x, y, z), ang);
+  view.qGoal.multiply(dq).normalize();
+}
+
+/* A drag step: turn by rx about local x, ry about local y, rz about local z, and
+   remember the whole of it as the momentum to carry on with when the pointer
+   lifts. The three collapse to one axis and one angle, so a release keeps
+   travelling along the exact arc the hand was drawing, roll included, rather than
+   along a pair of axes that have to be re-composed every frame. */
+const spinQ = new THREE.Quaternion();
+function spinFrom(rx, ry, rz) {
+  if (!rx && !ry && !rz) return;
+  spinQ.identity();
+  if (ry) { dq.setFromAxisAngle(dqAxis.set(0, 1, 0), ry); spinQ.multiply(dq); }
+  if (rx) { dq.setFromAxisAngle(dqAxis.set(1, 0, 0), rx); spinQ.multiply(dq); }
+  if (rz) { dq.setFromAxisAngle(dqAxis.set(0, 0, 1), rz); spinQ.multiply(dq); }
+  spinQ.normalize();
+  view.qGoal.multiply(spinQ).normalize();
+  /* Read the composed turn back as an axis and an angle. w is cos(angle/2) and the
+     vector part is the axis scaled by sin(angle/2), so the axis needs normalising
+     out; a turn too small to have a stable axis is simply no momentum. */
+  const s = Math.hypot(spinQ.x, spinQ.y, spinQ.z);
+  if (s < 1e-8) { view.spinAngle = 0; return; }
+  view.spinAxis.set(spinQ.x / s, spinQ.y / s, spinQ.z / s);
+  view.spinAngle = 2 * Math.atan2(s, spinQ.w);
+}
+
+const hintEl = document.getElementById('hint');
+const btnReset = document.getElementById('btnReset');
+
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+/* The viewer has taken the wheel. The hint and the Reset button are deliberately
+   not set from here: they follow the view's own state, synced every frame, so a
+   gesture the browser takes back for a page scroll leaves no trace on either. */
+function engage() { view.touched = true; }
+
+function beginGesture() {
+  if (gesture.active) return;
+  gesture.active = true;
+  gesture.qL.copy(view.qL); gesture.qGoal.copy(view.qGoal);
+  gesture.zoom = view.zoom; gesture.zoomGoal = view.zoomGoal;
+  gesture.touched = view.touched;
+}
+
+function undoGesture() {
+  if (!gesture.active) return;
+  view.qL.copy(gesture.qL); view.qGoal.copy(gesture.qGoal);
+  view.zoom = gesture.zoom; view.zoomGoal = gesture.zoomGoal;
+  view.spinAngle = 0;
+  view.touched = gesture.touched;
+}
+
+/* Is a quaternion the identity turn, to within the same hair the eased scalars are
+   settled against? w is the cosine of half the angle, and -q is the same rotation
+   as q, so it is the distance of |w| from 1 that answers it. */
+function isIdentity(q) {
+  return Math.abs(Math.abs(q.w) - 1) < EPS;
+}
+
+/* Is there anything to reset? Only if the view sits off the framing the scene gave
+   it, or is still carrying a release back into one. A finger that merely crossed the
+   canvas on its way down the page moved nothing, so it is offered nothing. */
+function viewMoved() {
+  return !isIdentity(view.qL) || !isIdentity(view.qGoal) ||
+    view.zoom !== 1 || view.zoomGoal !== 1 || view.spinAngle !== 0;
+}
+
+function syncViewUi() {
+  if (hintEl && hintEl.classList.contains('is-gone') !== view.touched) {
+    hintEl.classList.toggle('is-gone', view.touched);
+  }
+  if (!btnReset) return;
+  const show = viewMoved();
+  if (btnReset.hidden === !show) return;   // already saying the right thing
+  /* Hiding the control the keyboard is standing on would drop focus to nowhere:
+     hand it back to the piece first. */
+  if (!show && document.activeElement === btnReset) canvas.focus({ preventScroll: true });
+  btnReset.hidden = !show;
+}
+
+function resetView() {
+  view.qGoal.copy(QI); view.zoomGoal = 1;
+  view.spinAngle = 0;
+  if (reduceMotion) { view.qL.copy(QI); view.zoom = 1; }
+  kickView();
+}
+
+/* Wheel belongs to the host page until the viewer has actually grabbed the
+   piece, so scrolling past an embedded visualization never gets hijacked. */
+function ownsWheel() {
+  return view.touched || window.self === window.top || !!document.fullscreenElement;
+}
+
+/* Touch: a vertical swipe still scrolls the host page while embedded; taken
+   full screen or opened on its own, the canvas takes every axis. */
+function syncTouchAction() {
+  const own = window.self === window.top || !!document.fullscreenElement;
+  canvas.style.touchAction = own ? 'none' : 'pan-y';
+}
+syncTouchAction();
+
+function pinchSpan() {
+  const p = Array.from(touches.values());
+  return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+}
+
+/* The angle of the line between two fingers. Turning that line rolls the piece,
+   which is the one axis a single finger cannot reach on its own. */
+function twistAngle() {
+  const p = Array.from(touches.values());
+  return Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x);
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;   // the left button orbits; leave the rest alone
+  beginGesture();
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size >= 2) {
+      drag.id = -1;
+      canvas.classList.remove('is-grabbing');
+      /* seed the pinch and the twist on exactly two fingers; a third neither
+         orbits nor re-seeds */
+      if (touches.size === 2) {
+        pinchFrom = pinchSpan();
+        pinchZoom = view.zoomGoal;
+        twistFrom = twistAngle();
+        engage();
+      }
+      return;
+    }
+  }
+  if (drag.id !== -1) return;
+  drag.id = e.pointerId;
+  drag.x = e.clientX;
+  drag.y = e.clientY;
+  view.spinAngle = 0;
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ }
+  canvas.classList.add('is-grabbing');
+  canvas.focus({ preventScroll: true });
+  /* Engaging happens on the first actual movement, not here: a stray click on an
+     embedded piece must not quietly take the scroll wheel away from the host page. */
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2 && pinchFrom > 0) {
+      view.zoomGoal = clamp(pinchZoom * (pinchFrom / Math.max(1, pinchSpan())), ZOOM_MIN, ZOOM_MAX);
+      /* Twisting the two fingers rolls the piece. Re-seeded every move, so the
+         step is always the small angle just travelled and never has to be
+         unwrapped across the half turn where atan2 changes sign. */
+      const tw = twistAngle();
+      let roll = tw - twistFrom;
+      if (roll > Math.PI) roll -= Math.PI * 2;
+      else if (roll < -Math.PI) roll += Math.PI * 2;
+      twistFrom = tw;
+      turn(0, 0, 1, roll);
+      view.qL.copy(view.qGoal);   // a two-finger turn tracks the fingers, unsmoothed
+      kickView();
+      return;
+    }
+  }
+  if (e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x;
+  const dy = e.clientY - drag.y;
+  drag.x = e.clientX;
+  drag.y = e.clientY;
+  /* Held shift, a horizontal drag rolls instead of turning: the third axis from a
+     single pointer, for anyone without two fingers to twist with. */
+  if (e.shiftKey) {
+    spinFrom(0, 0, -(dx / Math.max(1, window.innerWidth)) * Math.PI * 2);
+  } else {
+    /* Direct manipulation: the piece follows the pointer. Drag right and it turns
+       right, which is the camera going the other way around it, hence the signs.
+       Nothing is clamped: keep dragging and it keeps coming round, past the top,
+       upside down, and back, because a quaternion has no pole to snag on. */
+    spinFrom(
+      -(dy / Math.max(1, window.innerHeight)) * Math.PI * 1.4,
+      -(dx / Math.max(1, window.innerWidth)) * Math.PI * 2,
+      0
+    );
+  }
+  engage();
+  kickView();
+});
+
+function endDrag(e) {
+  touches.delete(e.pointerId);
+  if (touches.size === 2) {
+    pinchFrom = pinchSpan(); pinchZoom = view.zoomGoal; twistFrom = twistAngle();
+  } else if (touches.size < 2) pinchFrom = 0;
+  if (e.pointerId === drag.id) {
+    drag.id = -1;
+    canvas.classList.remove('is-grabbing');
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* already gone */ }
+  }
+  if (drag.id === -1 && touches.size === 0) gesture.active = false;
+  kickView();
+}
+canvas.addEventListener('pointerup', endDrag);
+/* The browser has taken the gesture back: the finger that started on the piece
+   turned out to be the host page scrolling past it, so it was never an orbit. Give
+   the view back exactly as the gesture found it, hint and Reset button included. */
+canvas.addEventListener('pointercancel', (e) => { undoGesture(); endDrag(e); });
+
+canvas.addEventListener('wheel', (e) => {
+  if (!ownsWheel()) return;   // let the host page scroll
+  e.preventDefault();
+  const d = e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? 400 : 1));
+  view.zoomGoal = clamp(view.zoomGoal * Math.exp(d * 0.0012), ZOOM_MIN, ZOOM_MAX);
+  engage();
+  kickView();
+}, { passive: false });
+
+canvas.addEventListener('dblclick', (e) => { e.preventDefault(); resetView(); });
+if (btnReset) btnReset.addEventListener('click', resetView);
+
+/* The same orbit from the keyboard, for anyone not using a pointer. */
+canvas.setAttribute('aria-label', (canvas.getAttribute('aria-label') || '') +
+  ' Interactive: drag or use the arrow keys to turn the view freely in any direction,' +
+  ' shift and drag or Q and E to roll it, plus and minus to zoom, R to reset it.');
+
+let userPaused = false;
+let hidden = false;
+let speed = 1;
+let t = 0;
+let last = performance.now();
+
+function setPlayUi() {
+  btnPlay.textContent = userPaused ? 'Play' : 'Pause';
+  btnPlay.setAttribute('aria-pressed', String(userPaused));
+}
+btnPlay.addEventListener('click', () => {
+  userPaused = !userPaused;
+  setPlayUi();
+  if (!userPaused) {
+    if (vraf) { cancelAnimationFrame(vraf); vraf = 0; }
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    last = performance.now();
+    loop(last);
+  }
+});
+canvas.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); btnPlay.click(); return; }
+  const step = 0.14;
+  /* Every axis the pointer can reach, the keyboard reaches too, and just as far:
+     hold an arrow and the piece comes all the way round. Q and E are the roll the
+     pointer gets from shift or a two-finger twist. */
+  if (e.code === 'ArrowLeft') turn(0, 1, 0, step);
+  else if (e.code === 'ArrowRight') turn(0, 1, 0, -step);
+  else if (e.code === 'ArrowUp') turn(1, 0, 0, step);
+  else if (e.code === 'ArrowDown') turn(1, 0, 0, -step);
+  else if (e.key === 'q' || e.key === 'Q') turn(0, 0, 1, step);
+  else if (e.key === 'e' || e.key === 'E') turn(0, 0, 1, -step);
+  else if (e.key === '+' || e.key === '=') view.zoomGoal = clamp(view.zoomGoal * 0.88, ZOOM_MIN, ZOOM_MAX);
+  else if (e.key === '-' || e.key === '_') view.zoomGoal = clamp(view.zoomGoal / 0.88, ZOOM_MIN, ZOOM_MAX);
+  else if (e.key === 'r' || e.key === 'R') { resetView(); engage(); e.preventDefault(); return; }
+  else return;
+  e.preventDefault();
+  engage();
+  kickView();
+});
+speedEl.addEventListener('input', () => { speed = parseFloat(speedEl.value) || 1; });
+
+btnPng.addEventListener('click', () => {
+  renderer.render(ctx.scene, camera);
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'breakout-game-3d.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  });
+});
+
+const btnFs = document.getElementById('btnFs');
+if (!document.fullscreenEnabled) {
+  btnFs.hidden = true; /* e.g. embedded without allow="fullscreen" */
+} else {
+  btnFs.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', () => {
+    const on = !!document.fullscreenElement;
+    btnFs.textContent = on ? 'Exit fullscreen' : 'Fullscreen';
+    btnFs.setAttribute('aria-pressed', String(on));
+    syncTouchAction();
+  });
+}
+
+document.addEventListener('visibilitychange', () => {
+  hidden = document.hidden;
+  if (!hidden && !userPaused) {
+    /* the hidden tab left a frame queued; drop it rather than run two loops */
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    last = performance.now();
+    loop(last);
+  }
+});
+
+/* The scene's own camera placement for this frame, before the viewer's orbit
+   is layered on. Kept so the orbit is re-derived from the scene's framing every
+   frame instead of compounding on its own output. */
+const baseCam = new THREE.Vector3();
+const off = new THREE.Vector3();
+/* Whatever the scene rotated the camera by beyond simply aiming it at the pivot
+   (the terrain piece banks into its turns). Re-applied after every orbit so the
+   viewer moving the view never flattens the scene's own tilt. */
+const sceneTwist = new THREE.Quaternion();
+const aimQ = new THREE.Quaternion();
+/* The scene's pure aim at the pivot from its own camera spot this frame, twist
+   removed. It is the frame the viewer's rotation is composed onto. */
+const baseAim = new THREE.Quaternion();
+let baseSet = false;
+
+function stepView(dt) {
+  if (reduceMotion) view.spinAngle = 0;
+  else if (drag.id === -1 && view.spinAngle !== 0) {
+    turn(view.spinAxis.x, view.spinAxis.y, view.spinAxis.z, view.spinAngle);
+    view.spinAngle *= Math.pow(0.9, dt * 60);
+    if (Math.abs(view.spinAngle) < SPIN_EPS) view.spinAngle = 0;
+  }
+  const k = reduceMotion ? 1 : Math.min(1, dt * 9);
+  /* slerp, not a lerp per axis: the eased view travels the short way round the one
+     arc between here and the goal, which is the same path however far round the
+     piece has been turned. */
+  if (k >= 1) view.qL.copy(view.qGoal);
+  else view.qL.slerp(view.qGoal, k);
+  view.zoom += (view.zoomGoal - view.zoom) * k;
+  /* Settle exactly on the identity view rather than asymptotically near it, so a
+     reset gives the framing back to the scene instead of leaving it a hair off. */
+  if (isIdentity(view.qGoal) && isIdentity(view.qL)) view.qL.copy(QI);
+  if (Math.abs(view.zoom - 1) < EPS) view.zoom = 1;
+  syncViewUi();
+}
+
+/* fresh: the scene has just placed the camera this frame. Otherwise the piece
+   is paused and the camera is restored from the last placement it made. */
+function applyView(fresh) {
+  if (fresh) {
+    baseCam.copy(camera.position);
+    baseSet = true;
+    /* Measure the scene's own twist: aim at the pivot, compare with where the
+       scene actually left the camera, then put the scene's orientation back. */
+    aimQ.copy(camera.quaternion);
+    rawLookAt(sceneLook);
+    baseAim.copy(camera.quaternion);
+    sceneTwist.copy(baseAim).invert().multiply(aimQ);
+    camera.quaternion.copy(aimQ);
+  } else if (baseSet) {
+    camera.position.copy(baseCam);
+  }
+  if (!view.touched || !baseSet) return;
+  /* Nothing to add: give the scene's own framing straight back, so an untouched
+     view and a reset view are the same view, down to the pixel. When the piece is
+     paused the scene is not re-aiming the camera itself, so do it here. */
+  if (view.zoom === 1 && isIdentity(view.qL)) {
+    if (!fresh) { rawLookAt(sceneLook); camera.quaternion.multiply(sceneTwist); }
+    return;
+  }
+  off.copy(baseCam).sub(sceneLook);
+  const r = off.length();
+  if (r < 1e-5) return;
+  /* Turn the whole rig, camera and aim together, rigidly about the pivot. Aiming
+     the camera at the pivot leaves its local +z pointing back along the offset, so
+     the offset is just that axis at length r: rotate the aim by the viewer's turn
+     and the new spot on the sphere falls out of the same quaternion that gives the
+     new orientation. No up vector is consulted anywhere, which is exactly why
+     there is no pole to flip over and nothing to clamp. */
+  camera.quaternion.copy(baseAim).multiply(view.qL);
+  off.set(0, 0, Math.max(0.05, r * view.zoom)).applyQuaternion(camera.quaternion);
+  camera.position.copy(sceneLook).add(off);
+  camera.quaternion.multiply(sceneTwist);
+}
+
+function viewSettling() {
+  return drag.id !== -1 || view.spinAngle !== 0 ||
+    Math.abs(view.qL.dot(view.qGoal)) < 1 - EPS ||
+    Math.abs(view.zoomGoal - view.zoom) > EPS;
+}
+
+/* Dragging a paused piece still moves the view: a light loop that eases the
+   orbit and redraws, without advancing the scene. */
+let vraf = 0, vlast = 0;
+function viewFrame(now) {
+  vraf = 0;
+  const dt = Math.min((now - vlast) / 1000, 0.1);
+  vlast = now;
+  stepView(dt);
+  applyView(false);
+  renderer.render(ctx.scene, camera);
+  if (viewSettling()) kickView();
+}
+function kickView() {
+  if (!userPaused || hidden || vraf) return;
+  vlast = performance.now();
+  vraf = requestAnimationFrame(viewFrame);
+}
+
+let raf = 0;
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.1);
+  last = now;
+  t += dt * speed;
+  ctx.pointer.x += (target.x - ctx.pointer.x) * 0.06;
+  ctx.pointer.y += (target.y - ctx.pointer.y) * 0.06;
+  /* Give the scene back its own camera before it steps. Some pieces ease the camera
+     from wherever it currently is rather than placing it outright, and they must not
+     read the viewer's orbit back as their own starting point: the two would feed each
+     other and the framing would run away within a second. */
+  if (baseSet) camera.position.copy(baseCam);
+  piece.update(t, dt * speed);
+  stepView(dt);
+  applyView(true);
+  renderer.render(ctx.scene, camera);
+}
+function loop(now) {
+  if (userPaused || hidden) return;
+  frame(now);
+  raf = requestAnimationFrame(loop);
+}
+
+/* Always autoplay; the Pause button is the opt-out. */
+loop(performance.now());
+</script>
+</body>
+</html>

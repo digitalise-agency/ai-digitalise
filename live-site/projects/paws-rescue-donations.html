@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paws Rescue Donations · Digitalise Agency</title>
+  <meta name="description" content="Paws Rescue Donations: a Django donation-management app for a pet rescue with per-pet tracking, filtering, CSV export, and a dashboard, behind an admin login. 11 tests.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/paws-rescue-donations.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Paws Rescue Donations · Digitalise Agency">
+  <meta property="og:description" content="Paws Rescue Donations: a Django donation-management app for a pet rescue with per-pet tracking, filtering, CSV export, and a dashboard, behind an admin login. 11 tests.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/paws-rescue-donations.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/paws-rescue-donations.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Paws Rescue Donations · Digitalise Agency">
+  <meta name="twitter:description" content="Paws Rescue Donations: a Django donation-management app for a pet rescue with per-pet tracking, filtering, CSV export, and a dashboard, behind an admin login. 11 tests.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/paws-rescue-donations.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-purple" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">paws-rescue-donations</p>
+      <h1 id="proj-title" class="proj-title">Paws Rescue Donations</h1>
+      <p class="proj-lede">An animal rescue takes in donations, and somebody has to record who gave what, and for which pet. Most small rescues use a shared spreadsheet where anyone with the link can change anything. This private website replaces it: staff sign in, log each donation against a pet, filter the records, see running totals and the top five pets, and export whatever they have filtered.</p>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/paws-rescue-donations.html" title="Interactive 3D visualization: Paws Rescue Donations" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Lantern Paws: every donation rises as a lantern and blooms into a paw print above the pet it was given for, which is the one thing the app exists to record. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/paws-rescue-donations.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/paws-rescue-donations.webp" alt="The real Paws Rescue donation dashboard, running locally." loading="lazy" decoding="async" width="1400" height="875">
+        <figcaption>Live local run, shown in its genuine empty state (no seed data).</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>11</b><span>tests</span></div>
+          <div class="proj-stat"><b>20</b><span>rows per page</span></div>
+          <div class="proj-stat"><b>CSV</b><span>filtered export</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/paws-rescue-donations" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-purple">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A Django web app for tracking donations at a pet rescue, built for the Khidmat community-service program at Habib University. Staff log in, record donations against individual pets, filter and export the records, and see running totals on a dashboard.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Email and password login with a custom user model (no usernames, no public signup).</li>
+          <li>Donation CRUD with donor contact info, pet name, amount, currency, payment method, reference number, and notes.</li>
+          <li>Filtering by name, date range, payment method, currency, and amount range, with sorting and pagination at 20 rows per page.</li>
+          <li>Dashboard analytics: an all-time total, a filtered total, and the top 5 pets within the current filters, with CSV export of the filtered set.</li>
+          <li>Admin user management from the web UI, with a management command to bootstrap the first admin from environment variables.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Results</h2>
+        <div class="proj-callout"><p>Eleven tests cover auth redirects, admin creation and self-deletion protection, donation CRUD, filtering, amount validation, and the CSV export.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Django 4.2</li>
+          <li>Python 3.9+</li>
+          <li>PostgreSQL / SQLite</li>
+          <li>Whitenoise</li>
+          <li>Gunicorn</li>
+          <li>Bootstrap 5</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="codeforces-mashup-generator.html">Prev: Codeforces Mashup Generator</a>
+      <a class="proj-foot__link" href="n8n-automations.html">Next: N8N Automations</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

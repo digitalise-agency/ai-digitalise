@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Space Race Analysis · Digitalise Agency</title>
+  <meta name="description" content="Space Race Analysis: an interactive Flask dashboard and static analysis script covering 4,324 historical space launches by 56 organisations, from Cold War rivalry charts to a live-filterable choropleth.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/space-race-analysis.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Space Race Analysis · Digitalise Agency">
+  <meta property="og:description" content="Space Race Analysis: an interactive Flask dashboard and static analysis script covering 4,324 historical space launches by 56 organisations, from Cold War rivalry charts to a live-filterable choropleth.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/space-race-analysis.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/space-race-analysis.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Space Race Analysis · Digitalise Agency">
+  <meta name="twitter:description" content="Space Race Analysis: an interactive Flask dashboard and static analysis script covering 4,324 historical space launches by 56 organisations, from Cold War rivalry charts to a live-filterable choropleth.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/space-race-analysis.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-coral" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">space-race-analysis</p>
+      <h1 id="proj-title" class="proj-title">Space Race Analysis</h1>
+      <p class="proj-lede">A study of every space launch on record from 1957 to 2020: 4,324 of them, flown by 56 organisations. It answers the questions people actually ask about spaceflight: who launches the most, what a launch costs, and how the USA and the USSR compared during the Cold War. It ships 17 charts plus a web page where you filter by country, organisation, or years and watch them redraw.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Solo</strong>
+            <p>Solo work by our founder, Salman Adnan.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/space-race-analysis.html" title="Interactive 3D visualization: Space Race Analysis" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Launch Arcs: sixty years of rocket launches leaving the globe, era by era, the halo of orbits thickening as they pile up. A stylized picture of the record the project studies. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/space-race-analysis.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/space-race-analysis.webp" alt="Chart of NASA vs Soviet RVSN launches per year, from the real 4,324-launch dataset." loading="lazy" decoding="async" width="836" height="537">
+        <figcaption>Real dataset, matplotlib output.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>4,324</b><span>launches analyzed</span></div>
+          <div class="proj-stat"><b>17</b><span>static charts generated</span></div>
+          <div class="proj-stat"><b>1957-2020</b><span>years covered</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/space-race-analysis" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-coral">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A data analysis script and interactive Flask dashboard covering every space mission launch on record from the start of the Space Race in 1957 through 2020: 4,324 launches by 56 organisations, cleaned and turned into 17 static charts plus a live-filterable dashboard covering launch counts, cost, geography, and the Cold War rivalry between the USA and the USSR.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Cleans the scraped CSV: drops duplicate rows and two junk index columns, then parses free-text launch locations down to ISO country codes with a graceful fallback for defunct sites like former USSR launch pads.</li>
+          <li>17 static charts: bar charts for launches per organisation/year/month, a price histogram, line charts for average price and launch cadence over time, a USA vs USSR pie chart, and two interactive Plotly charts (a world choropleth and a country-to-organisation sunburst).</li>
+          <li>Every chart writes to <code>output/</code> as a file (PNG or HTML), so the analysis is reproducible headless; an optional <code>SHOW_PLOTS=1</code> toggle pops each one up interactively too.</li>
+          <li>A spend analysis across the 25 organisations that report both launch counts and a non-zero price, since most of the dataset never discloses cost.</li>
+          <li>A Flask dashboard on the same cleaned data: filter by organisation, country, and launch-year range and watch five charts, including a real hover/zoom/click choropleth and sunburst, update live with no page reload.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Verification</h2>
+        <div class="proj-callout"><p>A verified run of <code>space_race_analysis.py</code> writes 17 chart files (15 PNGs, 2 HTMLs) into <code>output/</code>, which ships in the repo as a sample of a completed run. The dashboard loads all 4,324 launches on start, and its "USA vs USSR (1957-1991)" shortcut computes a real number on the fly: 1,876 launches split 111 NASA to 1,765 RVSN USSR, not a hardcoded figure.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python</li>
+          <li>pandas</li>
+          <li>pycountry</li>
+          <li>matplotlib</li>
+          <li>Plotly</li>
+          <li>Flask</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="n8n-automations.html">Prev: N8N Automations</a>
+      <a class="proj-foot__link" href="police-shootings-analysis.html">Next: Police Shootings Analysis</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

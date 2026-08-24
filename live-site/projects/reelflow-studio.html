@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReelFlow Studio · Digitalise Agency</title>
+  <meta name="description" content="ReelFlow Studio: a single-file operator console over n8n workflows for video approval, captioning, and publishing, with retry logic so a flaky run never drops an approval. Client work.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/reelflow-studio.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="ReelFlow Studio · Digitalise Agency">
+  <meta property="og:description" content="ReelFlow Studio: a single-file operator console over n8n workflows for video approval, captioning, and publishing, with retry logic so a flaky run never drops an approval. Client work.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/reelflow-studio.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/reelflow-studio.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ReelFlow Studio · Digitalise Agency">
+  <meta name="twitter:description" content="ReelFlow Studio: a single-file operator console over n8n workflows for video approval, captioning, and publishing, with retry logic so a flaky run never drops an approval. Client work.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/reelflow-studio.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-yellow" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">reelflow-studio</p>
+      <h1 id="proj-title" class="proj-title">ReelFlow Studio</h1>
+      <p class="proj-lede">A client's video publishing is fully automated, with no screen a person could use, so approving a video meant reaching into the machinery. This is that screen: one button per decision. Every button retries up to six times and counts a job done only when the automation confirms it, because those steps sometimes stall. The demo here runs that loop on a made-up queue, not the client's live system.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Client work; frontend contract only</strong>
+            <p>Built by our founder, Salman Adnan, for one of this agency's clients. Its source is private since it's a real client's operations tool. The linked demo replays the same approve, caption, publish, and schedule loop against a fabricated video queue, not the real client's workflows.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/reelflow-studio.html" title="Interactive 3D visualization: ReelFlow Studio" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Filmstrip Flow: video clips ride a filmstrip, collect their captions, and ship once approved. The review screen this project adds, drawn as a conveyor. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/reelflow-studio.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/reelflow-studio.webp" alt="The real ReelFlow Studio UI shell, running locally." loading="lazy" decoding="async" width="1400" height="875">
+        <figcaption>Idle state before the video queue is loaded from n8n.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>33</b><span>distinct n8n endpoints</span></div>
+          <div class="proj-stat"><b>6</b><span>retry attempts per call</span></div>
+          <div class="proj-stat"><b>4</b><span>operator tabs</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="/demo/reelflow-studio/" rel="noopener">Try the live demo</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-yellow">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A single-file operator console for a set of n8n automation workflows: video approval and publishing, LinkedIn content generation, and a scripting agent. The browser talks directly to n8n webhooks, with retry logic so a flaky workflow run never silently drops an approval.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Four tabs, each with its own start button: AI Videos, Hi-Tec Automations, Mr. Salman LinkedIn, and a Carousel sub-tab.</li>
+          <li>index.html is everything: markup, CSS, and three IIFE script blocks, with state in module variables plus sessionStorage.</li>
+          <li>A Netlify edge function proxies anyone-with-the-link Google Drive files so video and iframe embeds are same-origin, whitelisting MIME types and returning 409 when a file is not shared.</li>
+          <li>Every call auto-retries: 6 attempts, a 120 s timeout per attempt (240 s for slow jobs), a 15 s gap; a call is completed only when the workflow responds with the literal string Completed.</li>
+          <li>Two Python Pinecone loader scripts seed retrieval indexes, embedding with gemini-embedding-001 at 3072 dimensions.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Results</h2>
+        <div class="proj-callout"><p>The four tabs call 33 distinct n8n endpoints from one base URL. End-to-end runs are not verified here, since they need a live n8n instance; the loaders were verified to start and fail cleanly.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Static HTML/CSS/vanilla JS</li>
+          <li>n8n webhooks</li>
+          <li>Netlify edge function</li>
+          <li>Python (Pinecone loaders)</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="webgl-terrain-explorer.html">Prev: WebGL Terrain Explorer</a>
+      <a class="proj-foot__link" href="university-enrollment-system.html">Next: University Enrollment System</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

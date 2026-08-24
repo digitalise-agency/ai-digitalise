@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Inference Engine · Digitalise Agency</title>
+  <meta name="description" content="A from-scratch LLM inference engine: paged KV cache with copy-on-write, continuous batching, prefix caching, and speculative decoding behind an OpenAI-compatible API. About 2.8x batched throughput on CPU.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/inference-engine.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="LLM Inference Engine · Digitalise Agency">
+  <meta property="og:description" content="A from-scratch LLM inference engine: paged KV cache with copy-on-write, continuous batching, prefix caching, and speculative decoding behind an OpenAI-compatible API. About 2.8x batched throughput on CPU.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/inference-engine.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/inference-engine.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LLM Inference Engine · Digitalise Agency">
+  <meta name="twitter:description" content="A from-scratch LLM inference engine: paged KV cache with copy-on-write, continuous batching, prefix caching, and speculative decoding behind an OpenAI-compatible API. About 2.8x batched throughput on CPU.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/inference-engine.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-yellow" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">inference-engine</p>
+      <h1 id="proj-title" class="proj-title">LLM Inference Engine</h1>
+      <p class="proj-lede">Some software has to run an AI model and produce its reply token by token, a token being a word or part of one. This is that software, written from scratch. The hard part is serving a crowd at once from a single machine without it sitting idle: memory housekeeping and clever turn-taking. On CPU, serving eight at once lifted it from about 45 tokens a second to about 114.</p>
+        <div class="proj-note">
+          <div>
+            <strong>CPU numbers, read as relative</strong>
+            <p>Runs GPT-2 family models on CPU. Hugging Face is used only to download weights; the forward pass, attention, cache, and scheduler are all implemented here. The benchmarks are single-machine CPU numbers and are honest about what they are.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/inference-engine.html" title="Interactive 3D visualization: LLM Inference Engine" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Paged Attention: the memory trick this engine is built on, animated. Each thread is one person's conversation and the lattice is the model's memory of it, cut into fixed-size pages so many conversations can share one machine; the ghosts racing ahead are guesses at the next words, kept only if they turn out right. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/inference-engine.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/inference-engine.webp" alt="Two-panel chart of inference-engine's real serving-sweep benchmark: throughput scaling and time-to-first-token cost of batching." loading="lazy" decoding="async" width="1200" height="733">
+        <figcaption>Measured on an 8-core CPU: peak throughput reaches 113.5 tok/s at 8 concurrent requests, about 2.8x the 40.0 tok/s Hugging Face baseline.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>~3e-5</b><span>max logit diff vs transformers</span></div>
+          <div class="proj-stat"><b>~2.8x</b><span>batched vs sequential throughput</span></div>
+          <div class="proj-stat"><b>0.54</b><span>speculative acceptance rate</span></div>
+          <div class="proj-stat"><b>55</b><span>tests passing</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/inference-engine" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-yellow">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Problem, solution, result</h2>
+        <p><strong>Problem:</strong> LLM inference is latency-bound in production. Serving multiple requests efficiently requires careful memory management, scheduling, and algorithmic tricks. <strong>Solution:</strong> Built a from-scratch inference engine with paged KV cache, continuous batching, prefix caching, and speculative decoding. <strong>Result:</strong> ~2.8x throughput improvement on commodity hardware through smart resource allocation, not raw compute.</p>
+      </section>
+      <section class="proj-section">
+        <h2>The Problem</h2>
+        <p>Production LLM serving is constrained by latency and memory. Naive request handling (one request at a time) leaves compute idle. Serving engines solve this through continuous batching, but require careful memory management: cache allocation, eviction, sharing, and rollback under failure. Serving engines are where ML meets systems programming: memory allocators, schedulers, cache coherence, admission control.</p>
+      </section>
+      <section class="proj-section">
+        <h2>The Solution</h2>
+        <p>Built a from-scratch LLM serving engine in Python and PyTorch that implements the core mechanisms needed for efficient inference:</p>
+        <ul class="proj-list">
+          <li><strong>Paged KV cache:</strong> Fixed-size 16-token blocks with refcounting, per-sequence block tables, and copy-on-write for shared blocks.</li>
+          <li><strong>Prefix caching:</strong> Identical prompts reuse cached blocks with content hashing and LRU eviction.</li>
+          <li><strong>Continuous batching:</strong> Requests join/leave at token boundaries; preemption lets new requests proceed when memory is full.</li>
+          <li><strong>Speculative decoding:</strong> Smaller model drafts tokens, larger model verifies all at once with rejection sampling.</li>
+          <li><strong>Verified correctness:</strong> GPT-2 implementation verified against transformers library to 3e-5 max logit diff.</li>
+          <li><strong>OpenAI-compatible API:</strong> FastAPI server with /v1/completions, streaming, /models, /healthz, /metrics.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Results: Measured Throughput</h2>
+        <p>Measured on an Intel i7-1185G7 (8 threads), PyTorch CPU float32, greedy decoding, 32 new tokens per request.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Throughput vs concurrency</h2>
+        <div class="proj-table-wrap"><table class="proj-table">
+          <thead><tr><th>Concurrency</th><th>Throughput (tok/s)</th><th>TTFT mean (s)</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>44.7</td><td>0.07</td></tr>
+            <tr><td>4</td><td>83.8</td><td>0.27</td></tr>
+            <tr><td>8</td><td>113.5</td><td>0.54</td></tr>
+            <tr><td>16</td><td>108.5</td><td>1.27</td></tr>
+          </tbody></table></div>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <div style="display: flex; justify-content: space-between; width: 100%; gap: 2rem; flex-wrap: wrap;">
+      <div>
+        <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+      </div>
+      <nav class="proj-foot__nav" aria-label="More projects">
+        <a class="proj-foot__link" href="trade-intelligence-copilot.html">Prev: Trade Intelligence Copilot</a>
+        <a class="proj-foot__link" href="sqlmill.html">Next: SQL Database Engine</a>
+      </nav>
+      <div style="font-size: 0.875rem; color: #666; align-self: center;">Last updated 2026-07-07</div>
+    </div>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0C1524">
+  <title>Flask TODO List in 3D · Digitalise Agency</title>
+  <meta name="description" content="Done and Gone: an interactive 3D study of tasks checked off and dissolving into dust.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #0C1524;
+      overflow: hidden;
+      font: 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    #stage { position: fixed; inset: 0; }
+    canvas {
+      display: block; width: 100%; height: 100%; outline: none;
+      cursor: grab; touch-action: pan-y;
+    }
+    canvas.is-grabbing { cursor: grabbing; }
+    canvas:focus-visible { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); }
+    #hint {
+      position: absolute; left: 12px; bottom: 12px;
+      padding: 6px 11px; border-radius: 999px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none; white-space: nowrap;
+      opacity: 0.75; transition: opacity 0.5s ease;
+    }
+    #hint b { font-weight: 600; color: rgba(255, 255, 255, 0.95); }
+    #hint.is-gone { opacity: 0; }
+    /* Narrow frames have no room for the tail, and a finger cannot scroll or
+       double-click anyway: the drag is the part that matters on touch. */
+    @media (max-width: 700px), (pointer: coarse) {
+      #hintMore { display: none; }
+    }
+    /* The hint and the HUD share the bottom edge, one on each side, and below
+       this width they overlap: first the hint's tail crosses into the HUD, then,
+       once the tail is gone and the HUD has dropped its speed slider, the bare
+       "Drag to turn it any way" still lands on top of the Pause button. Give the
+       hint its own line above the HUD instead of shortening it, so the tail
+       survives everywhere it fits. */
+    @media (max-width: 1120px) {
+      #hint { bottom: 56px; }
+    }
+    #hud {
+      position: absolute; right: 12px; bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px; border-radius: 999px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      opacity: 0.55; transition: opacity 0.25s ease;
+    }
+    #hud:hover, #hud:focus-within { opacity: 1; }
+    #hud button {
+      appearance: none; border: 1px solid rgba(255, 255, 255, 0.25);
+      background: transparent; color: inherit; font: inherit;
+      padding: 3px 10px; border-radius: 999px; cursor: pointer;
+    }
+    #hud button:hover { border-color: rgba(255, 255, 255, 0.6); }
+    #hud button:focus-visible, #hud input:focus-visible {
+      outline: 2px solid #fff; outline-offset: 2px;
+    }
+    #hud label { display: flex; align-items: center; gap: 6px; }
+    #hud input[type="range"] { width: 72px; accent-color: #5FCB8E; }
+    #err {
+      position: absolute; inset: 0; display: none;
+      place-items: center; text-align: center; padding: 24px;
+    }
+    #lbl {
+      position: absolute; left: 12px; top: 12px; max-width: 44ch;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    #lbl h1 {
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    #lblSub { margin-top: 3px; opacity: 0.72; }
+    #lblPhase {
+      margin-top: 8px; min-height: 1.4em; color: #5FCB8E;
+      opacity: 1; transition: opacity 0.18s ease;
+    }
+    #legend {
+      position: absolute; right: 12px; top: 12px;
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 9px 12px; border-radius: 10px;
+      background: rgba(8, 8, 14, 0.55);
+      backdrop-filter: blur(6px);
+      pointer-events: none; font-size: 11px;
+    }
+    #legend span { display: flex; align-items: center; gap: 7px; }
+    #legend i {
+      width: 9px; height: 9px; border-radius: 2px; flex: none;
+      background: var(--c); box-shadow: 0 0 6px var(--c);
+    }
+    @media (max-width: 640px) {
+      #lblSub { display: none; }
+      #lbl { max-width: 30ch; }
+      #legend { font-size: 10px; padding: 7px 9px; gap: 4px; }
+    }
+    @media (max-width: 560px) {
+      #hud label { display: none; }
+    }
+    @media (max-width: 480px) {
+      /* keep even the longest title on one line, clear of the legend */
+      #lbl h1 { font-size: 10px; letter-spacing: 0.1em; }
+      #lbl { max-width: 26ch; padding: 8px 11px; }
+    }
+    /* Below this the title cannot have 26ch AND clear the legend, so it takes
+       what is left and wraps. 212px is the widest legend here (191px) plus the
+       gap between them. */
+    @media (max-width: 440px) {
+      #lbl { max-width: calc(100% - 224px); }
+    }
+    /* And below this there is no room for the legend at all: what is left for
+       the title is narrower than one word. The legend goes, the title gets its
+       width back, and the live caption inside it carries the commentary. */
+    @media (max-width: 400px) {
+      #legend { display: none; }
+      #lbl { max-width: calc(100% - 24px); }
+      /* The HUD is one flex row of buttons about 272px wide. Narrower than that
+         and it runs off its own left edge, across the hint. Let it wrap, and
+         give the hint the room for the second row it may now grow. */
+      #hud { flex-wrap: wrap; justify-content: flex-end; }
+      #hint { bottom: 96px; }
+    }
+    /* Compact mode, opted into with ?compact=1 on the URL. The frame is then a
+       card, roughly 380x260, and panels sized for a window cover the scene they
+       exist to explain. At that size the scene is the whole point, so it gets the
+       whole frame: no title card, no legend, no control HUD, no drag hint. The
+       host page carries the title and the affordance. The piece itself is
+       untouched: it still runs, still orbits, still zooms. */
+    html.is-compact #lbl,
+    html.is-compact #legend,
+    html.is-compact #hud,
+    html.is-compact #hint { display: none; }
+    /* The one panel compact mode keeps: if WebGL is missing there is nothing else
+       to look at, so the note stays, sized for the card. */
+    html.is-compact #err { padding: 14px; font-size: 11px; line-height: 1.5; }
+  </style>
+  <script>
+    /* Read here, ahead of the first paint, so a card never flashes the chrome it
+       is about to hide. Any value but 0 turns it on. */
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.has('compact') && p.get('compact') !== '0') {
+        document.documentElement.classList.add('is-compact');
+      }
+    })();
+  </script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c" tabindex="0" aria-label="Animated stack of floating task cards where a check pulse sweeps a card, flips it glowing, and dissolves it into rising particle dust."></canvas>
+  <div id="hud" role="group" aria-label="Visualization controls">
+    <button id="btnPlay" type="button" aria-pressed="false">Pause</button>
+    <label for="speed">speed
+      <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1"
+             aria-label="Animation speed">
+    </label>
+    <button id="btnPng" type="button">Save PNG</button>
+    <button id="btnReset" type="button" hidden>Reset view</button>
+    <button id="btnFs" type="button" aria-pressed="false">Fullscreen</button>
+  </div>
+  <div id="lbl">
+    <h1>Done and Gone</h1>
+    <p id="lblSub">A shared task list where finishing feels good: check, flip, dissolve, next.</p>
+    <p id="lblPhase" aria-hidden="true"></p>
+  </div>
+  <div id="legend" role="list" aria-label="Legend">
+    <span role="listitem"><i style="--c:#33415E"></i>Task card</span>
+    <span role="listitem"><i style="--c:#5FCB8E"></i>Completed check</span>
+    <span role="listitem"><i style="--c:#E8B24E"></i>Priority edge</span>
+    <span role="listitem"><i style="--c:#E8EDF4"></i>Dissolve dust</span>
+  </div>
+  <p id="hint" aria-hidden="true"><b>Drag</b> to turn it any way<span id="hintMore"> &middot; shift-drag to roll &middot; scroll to zoom &middot; double-click to reset</span></p>
+  <div id="err"><p>This visualization needs WebGL, which is unavailable here.<br>
+     A screenshot of it lives on the project page.</p></div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ================= scene: flask-todo-list ================= */
+// DONE AND GONE: a floating queue of task cards in denim dark space; on a
+// relaxed rhythm the top card earns its green check ring, flips with an eased
+// rotation, glows, and dissolves edge-first into rising pearl dust while the
+// queue eases up a slot and a fresh card slides in from below.
+//
+// Palette: bg deep denim #0C1524, card indigo #33415E, check green #5FCB8E,
+//          dust pearl #E8EDF4, priority amber #E8B24E.
+//   Calm productivity blues; green is reserved for the moment of completion.
+//
+// Signature: the edge-first dissolve into rising dust.
+
+function createScene(THREE, ctx) {
+  const Q = ctx.quality;
+  const PR = ctx.renderer.getPixelRatio();
+
+  // ---- tunables ----
+  const CARD_COUNT   = 9;      // cards in the queue
+  const CARD_W       = 3.2;    // card width, world units
+  const CARD_H       = 0.95;   // card height, world units
+  const SLOT_TOP_Y   = 4.35;   // y of the top slot
+  const SLOT_STEP    = 1.18;   // vertical slot spacing
+  const DUST_COUNT   = Math.floor(800 * Q); // dissolve dust particles
+  const DUST_LIFE    = 1.6;    // seconds a dust mote lives
+  const IDLE_TIME    = 1.15;   // breath before the next check
+  const RING_TIME    = 0.8;    // green ring drawing around the check circle
+  const CHECK_TIME   = 0.35;   // check mark fade in
+  const FLIP_TIME    = 0.7;    // card flip duration
+  const GLOW_TIME    = 0.3;    // satisfied glow before dissolving
+  const DISSOLVE_TIME = 1.5;   // erosion front crossing the card
+  const SHIFT_TIME   = 0.9;    // queue easing up one slot
+  const PRIORITY_ODDS = 0.2;   // chance a new card is priority
+
+  const COL_BG = 0x0C1524;
+  ctx.scene.background = new THREE.Color(COL_BG);
+  ctx.scene.fog = new THREE.FogExp2(COL_BG, 0.02);
+
+  function smooth01(x) {
+    x = Math.min(1, Math.max(0, x));
+    return x * x * (3 - 2 * x);
+  }
+  function easeInOut(x) {
+    x = Math.min(1, Math.max(0, x));
+    return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  }
+  function easeOutBack(x) {
+    x = Math.min(1, Math.max(0, x));
+    const c1 = 1.0;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+  }
+
+  const uPr = { value: PR };
+
+  const board = new THREE.Group();
+  ctx.scene.add(board);
+
+  // ---- card face textures: three abstract line layouts ----
+  function roundedPath(g, x, y, w, h, r) {
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.lineTo(x + w - r, y); g.arcTo(x + w, y, x + w, y + r, r);
+    g.lineTo(x + w, y + h - r); g.arcTo(x + w, y + h, x + w - r, y + h, r);
+    g.lineTo(x + r, y + h); g.arcTo(x, y + h, x, y + h - r, r);
+    g.lineTo(x, y + r); g.arcTo(x, y, x + r, y, r);
+    g.closePath();
+  }
+  function makeCardTexture(variant) {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 160;
+    const g = c.getContext('2d');
+    g.clearRect(0, 0, 512, 160);
+    roundedPath(g, 6, 6, 500, 148, 18);
+    g.fillStyle = '#33415E';
+    g.fill();
+    const grad = g.createLinearGradient(0, 6, 0, 154);
+    grad.addColorStop(0, 'rgba(255,255,255,0.07)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.10)');
+    g.fillStyle = grad;
+    g.fill();
+    g.strokeStyle = 'rgba(150,165,200,0.35)';
+    g.lineWidth = 2.5;
+    g.stroke();
+    // check circle outline
+    g.beginPath();
+    g.arc(56, 80, 26, 0, Math.PI * 2);
+    g.strokeStyle = 'rgba(210,220,240,0.5)';
+    g.lineWidth = 3.5;
+    g.stroke();
+    // abstract task text lines, widths vary by variant
+    const layouts = [
+      [[110, 46, 300, 14], [110, 78, 220, 11], [110, 104, 260, 11]],
+      [[110, 52, 250, 14], [110, 86, 320, 11]],
+      [[110, 46, 340, 14], [110, 78, 180, 11], [110, 104, 230, 11]]
+    ];
+    const rows = layouts[variant % layouts.length];
+    for (let i = 0; i < rows.length; i++) {
+      roundedPath(g, rows[i][0], rows[i][1], rows[i][2], rows[i][3], rows[i][3] / 2);
+      g.fillStyle = i === 0 ? 'rgba(170,185,215,0.6)' : 'rgba(140,155,185,0.42)';
+      g.fill();
+    }
+    return new THREE.CanvasTexture(c);
+  }
+  const cardTextures = [makeCardTexture(0), makeCardTexture(1), makeCardTexture(2)];
+
+  // check circle center in aspect-corrected shader space
+  const ASPECT = CARD_W / CARD_H;
+  const CIRC_X = (56 / 512) * ASPECT;
+  const CIRC_R = 26 / 160;
+
+  const CARD_VERT = `
+    varying vec2 vUv;
+    void main(){
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+  const CARD_FRAG = `
+    uniform sampler2D tMap;
+    uniform float uRing;
+    uniform float uCheck;
+    uniform float uGlow;
+    uniform float uDissolve;
+    uniform float uPriority;
+    uniform float uSeed;
+    uniform vec2 uC;
+    uniform float uR;
+    uniform float uAspect;
+    varying vec2 vUv;
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float vnoise(vec2 p){
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      float a = hash(i);
+      float b = hash(i + vec2(1.0, 0.0));
+      float c = hash(i + vec2(0.0, 1.0));
+      float d = hash(i + vec2(1.0, 1.0));
+      return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+    }
+    float segd(vec2 p, vec2 a, vec2 b){
+      vec2 pa = p - a, ba = b - a;
+      float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+      return length(pa - ba * h);
+    }
+    void main(){
+      vec4 tex = texture2D(tMap, vUv);
+      vec3 col = tex.rgb;
+      vec2 p = vec2(vUv.x * uAspect, vUv.y);
+      // priority amber edge on the left
+      float pr = uPriority * smoothstep(0.045, 0.018, vUv.x);
+      col = mix(col, vec3(0.910, 0.698, 0.306), pr * 0.9 * tex.a);
+      // green ring drawing itself around the check circle
+      float ringD = abs(length(p - uC) - uR);
+      float ang = atan(p.y - uC.y, p.x - uC.x);
+      float angN = fract((ang + 3.14159265) / 6.2831853 + 0.25);
+      float ring = smoothstep(0.022, 0.008, ringD) * step(angN, uRing) * step(0.001, uRing);
+      // check mark inside the circle
+      vec2 ca = uC + vec2(-0.55, -0.05) * uR;
+      vec2 cb = uC + vec2(-0.12, -0.48) * uR;
+      vec2 cc = uC + vec2(0.62, 0.45) * uR;
+      float ck = min(segd(p, ca, cb), segd(p, cb, cc));
+      float check = smoothstep(0.030, 0.012, ck) * uCheck;
+      vec3 green = vec3(0.373, 0.796, 0.557) * (1.0 + uPriority * 0.55);
+      col += green * (ring * 1.3 + check * 1.5);
+      // satisfied glow
+      col *= 1.0 + uGlow * 0.85;
+      // edge-first dissolve sweeping left to right with a noisy front
+      float n = vnoise(vUv * vec2(14.0, 4.0) + uSeed * 7.0);
+      float front = uDissolve * 1.3 - 0.15 + (n - 0.5) * 0.18;
+      float keep = smoothstep(front, front + 0.035, vUv.x);
+      float rim = (1.0 - smoothstep(front + 0.02, front + 0.16, vUv.x)) * keep * step(0.001, uDissolve);
+      col += vec3(0.910, 0.929, 0.957) * rim * 1.4;
+      gl_FragColor = vec4(col, tex.a * keep);
+    }
+  `;
+
+  // ---- cards ----
+  const cards = [];
+  for (let i = 0; i < CARD_COUNT; i++) {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        tMap: { value: cardTextures[i % 3] },
+        uRing: { value: 0 },
+        uCheck: { value: 0 },
+        uGlow: { value: 0 },
+        uDissolve: { value: 0 },
+        uPriority: { value: Math.random() < PRIORITY_ODDS ? 1 : 0 },
+        uSeed: { value: Math.random() },
+        uC: { value: new THREE.Vector2(CIRC_X, 0.5) },
+        uR: { value: CIRC_R },
+        uAspect: { value: ASPECT }
+      },
+      vertexShader: CARD_VERT,
+      fragmentShader: CARD_FRAG,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), mat);
+    const group = new THREE.Group();
+    group.add(mesh);
+    board.add(group);
+    cards.push({
+      group: group,
+      mesh: mesh,
+      mat: mat,
+      slot: i,
+      fromSlot: i,
+      toSlot: i,
+      bob: Math.random() * Math.PI * 2,
+      entering: false
+    });
+  }
+
+  function slotY(s) { return SLOT_TOP_Y - s * SLOT_STEP; }
+  function slotX(s) { return Math.sin(s * 0.35) * 0.15; }
+  function slotZ(s) { return -s * 0.12; }
+
+  // ---- dissolve dust ----
+  const dustUv = new Float32Array(DUST_COUNT * 2);
+  const dustSeed = new Float32Array(DUST_COUNT);
+  const dustPosZero = new Float32Array(DUST_COUNT * 3);
+  for (let i = 0; i < DUST_COUNT; i++) {
+    dustUv[i * 2] = Math.random();
+    dustUv[i * 2 + 1] = Math.random();
+    dustSeed[i] = Math.random();
+  }
+  const dustGeo = new THREE.BufferGeometry();
+  dustGeo.setAttribute('position', new THREE.Float32BufferAttribute(dustPosZero, 3));
+  dustGeo.setAttribute('aUv', new THREE.Float32BufferAttribute(dustUv, 2));
+  dustGeo.setAttribute('aSeed', new THREE.Float32BufferAttribute(dustSeed, 1));
+  const dustUniforms = {
+    uPos: { value: new THREE.Vector3(0, 0, 0) },
+    uT: { value: -10 },
+    uDur: { value: DISSOLVE_TIME },
+    uLife: { value: DUST_LIFE },
+    uW: { value: CARD_W },
+    uH: { value: CARD_H },
+    uPr: uPr
+  };
+  const dustMat = new THREE.ShaderMaterial({
+    uniforms: dustUniforms,
+    vertexShader: `
+      attribute vec2 aUv;
+      attribute float aSeed;
+      uniform vec3 uPos;
+      uniform float uT;
+      uniform float uDur;
+      uniform float uLife;
+      uniform float uW;
+      uniform float uH;
+      uniform float uPr;
+      varying vec3 vColor;
+      varying float vAlpha;
+      void main(){
+        float birth = aUv.x * uDur;
+        float lt = uT - birth;
+        float on = step(0.0, lt) * step(lt, uLife);
+        float k = clamp(lt / uLife, 0.0, 1.0);
+        vec3 base = uPos + vec3((aUv.x - 0.5) * uW, (aUv.y - 0.5) * uH, 0.02);
+        vec3 p = base + vec3(
+          sin(lt * 3.0 + aSeed * 6.2831) * 0.12 * k,
+          max(lt, 0.0) * (0.7 + 0.7 * aSeed),
+          sin(lt * 2.2 + aSeed * 12.0) * 0.1 * k
+        );
+        vColor = vec3(0.910, 0.929, 0.957);
+        vAlpha = on * smoothstep(0.0, 0.12, k) * (1.0 - smoothstep(0.45, 1.0, k)) * 0.9;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_PointSize = (0.35 + aSeed * 0.45) * (1.0 - 0.6 * k) * uPr * (150.0 / -mv.z);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vColor;
+      varying float vAlpha;
+      void main(){
+        float d = length(gl_PointCoord - 0.5);
+        float a = smoothstep(0.5, 0.08, d);
+        gl_FragColor = vec4(vColor, a * a * vAlpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  board.add(new THREE.Points(dustGeo, dustMat));
+
+  // ---- ambient drifting motes for depth ----
+  const MOTES = Math.floor(150 * Q);
+  const motePos = new Float32Array(MOTES * 3);
+  const moteSeed = new Float32Array(MOTES);
+  for (let i = 0; i < MOTES; i++) {
+    motePos[i * 3] = (Math.random() - 0.5) * 18;
+    motePos[i * 3 + 1] = (Math.random() - 0.5) * 13;
+    motePos[i * 3 + 2] = -3 - Math.random() * 6;
+    moteSeed[i] = Math.random();
+  }
+  const moteGeo = new THREE.BufferGeometry();
+  moteGeo.setAttribute('position', new THREE.Float32BufferAttribute(motePos, 3));
+  moteGeo.setAttribute('aSeed', new THREE.Float32BufferAttribute(moteSeed, 1));
+  const uTime = { value: 0 };
+  const moteMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: uTime, uPr: uPr },
+    vertexShader: `
+      attribute float aSeed;
+      uniform float uTime;
+      uniform float uPr;
+      varying vec3 vColor;
+      varying float vAlpha;
+      void main(){
+        vec3 p = position;
+        p.y += sin(uTime * 0.1 + aSeed * 6.2831) * 0.6;
+        p.x += sin(uTime * 0.07 + aSeed * 12.6) * 0.5;
+        vColor = vec3(0.55, 0.62, 0.75);
+        vAlpha = 0.10 + 0.07 * sin(uTime * 0.6 + aSeed * 25.0);
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_PointSize = (0.4 + aSeed * 0.5) * uPr * (120.0 / -mv.z);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vColor;
+      varying float vAlpha;
+      void main(){
+        float d = length(gl_PointCoord - 0.5);
+        float a = smoothstep(0.5, 0.08, d);
+        gl_FragColor = vec4(vColor, a * a * vAlpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  ctx.scene.add(new THREE.Points(moteGeo, moteMat));
+
+  // ---- floating tag beside the stack ----
+  const queueTag = ctx.makeTag('task queue', '#93A2C4', 0.3);
+  queueTag.position.set(-2.6, 1.4, 0);
+  queueTag.material.opacity = 0.6;
+  board.add(queueTag);
+
+  // ---- state machine ----
+  const ST_IDLE = 0, ST_RING = 1, ST_CHECK = 2, ST_FLIP = 3, ST_GLOW = 4, ST_DISSOLVE = 5, ST_SHIFT = 6;
+  let state = ST_IDLE;
+  let stateT = 0;
+  let dustT = -10;
+
+  return {
+    update(t, dt) {
+      dt = Math.min(Math.max(dt || 0.016, 0.0001), 0.05);
+      uTime.value = t;
+      stateT += dt;
+      dustT += dt;
+      dustUniforms.uT.value = dustT;
+
+      const top = cards[0];
+
+      switch (state) {
+        case ST_IDLE:
+          if (stateT >= IDLE_TIME) { state = ST_RING; stateT = 0; }
+          break;
+        case ST_RING:
+          top.mat.uniforms.uRing.value = easeInOut(stateT / RING_TIME);
+          if (stateT >= RING_TIME) { state = ST_CHECK; stateT = 0; }
+          break;
+        case ST_CHECK:
+          top.mat.uniforms.uCheck.value = smooth01(stateT / CHECK_TIME);
+          if (stateT >= CHECK_TIME) { state = ST_FLIP; stateT = 0; }
+          break;
+        case ST_FLIP: {
+          const k = easeInOut(stateT / FLIP_TIME);
+          top.mesh.rotation.y = Math.PI * k;
+          top.mesh.position.z = 0.5 * Math.sin(Math.PI * k);
+          top.mat.uniforms.uGlow.value = 0.7 * smooth01(stateT / FLIP_TIME);
+          if (stateT >= FLIP_TIME) { state = ST_GLOW; stateT = 0; }
+          break;
+        }
+        case ST_GLOW:
+          if (stateT >= GLOW_TIME) {
+            state = ST_DISSOLVE;
+            stateT = 0;
+            dustT = 0;
+            // freeze the dust origin at the card's current board-space position
+            dustUniforms.uPos.value.copy(top.group.position);
+            dustUniforms.uPos.value.y += top.mesh.position.y;
+          }
+          break;
+        case ST_DISSOLVE:
+          top.mat.uniforms.uDissolve.value = Math.min(1, stateT / DISSOLVE_TIME);
+          top.mat.uniforms.uGlow.value = 0.7 * (1 - smooth01(stateT / DISSOLVE_TIME));
+          if (stateT >= DISSOLVE_TIME) {
+            state = ST_SHIFT;
+            stateT = 0;
+            // recycle: the dissolved card becomes the fresh card entering below
+            const done = cards.shift();
+            cards.push(done);
+            for (let i = 0; i < CARD_COUNT; i++) {
+              cards[i].fromSlot = i + 1;
+              cards[i].toSlot = i;
+              cards[i].entering = false;
+            }
+            done.fromSlot = CARD_COUNT + 0.8;
+            done.toSlot = CARD_COUNT - 1;
+            done.entering = true;
+            // reset while it sits below the visible frame
+            done.mesh.rotation.y = 0;
+            done.mesh.position.z = 0;
+            done.mat.uniforms.uRing.value = 0;
+            done.mat.uniforms.uCheck.value = 0;
+            done.mat.uniforms.uGlow.value = 0;
+            done.mat.uniforms.uDissolve.value = 0;
+            done.mat.uniforms.uSeed.value = Math.random();
+            done.mat.uniforms.uPriority.value = Math.random() < PRIORITY_ODDS ? 1 : 0;
+            done.mat.uniforms.tMap.value = cardTextures[Math.floor(Math.random() * 3)];
+          }
+          break;
+        case ST_SHIFT: {
+          for (let i = 0; i < CARD_COUNT; i++) {
+            const c = cards[i];
+            const stagger = c.entering ? 0.1 : i * 0.03;
+            const k = Math.min(1, Math.max(0, (stateT - stagger) / (SHIFT_TIME - 0.15)));
+            const e = c.entering ? easeOutBack(k) : easeInOut(k);
+            c.slot = c.fromSlot + (c.toSlot - c.fromSlot) * e;
+          }
+          if (stateT >= SHIFT_TIME) {
+            for (let i = 0; i < CARD_COUNT; i++) cards[i].slot = cards[i].toSlot;
+            state = ST_IDLE;
+            stateT = 0;
+          }
+          break;
+        }
+      }
+
+      // live caption follows the completion state machine
+      let cap;
+      if (state === ST_IDLE) cap = 'Tasks wait in the queue';
+      else if (state === ST_RING || state === ST_CHECK) cap = 'The top task earns its check ring';
+      else if (state === ST_FLIP || state === ST_GLOW) cap = 'Checked: the card flips and glows';
+      else if (state === ST_DISSOLVE) cap = 'Done and gone, edge-first into dust';
+      else cap = 'The queue eases up and a fresh task arrives';
+      ctx.caption(cap);
+
+      // place cards with a gentle idle bob
+      for (let i = 0; i < CARD_COUNT; i++) {
+        const c = cards[i];
+        c.group.position.set(
+          slotX(c.slot),
+          slotY(c.slot) + Math.sin(t * 0.8 + c.bob) * 0.045,
+          slotZ(c.slot)
+        );
+      }
+
+      // pointer parallax on the whole board
+      board.rotation.y += (ctx.pointer.x * 0.12 - board.rotation.y) * Math.min(1, dt * 3);
+      board.rotation.x += (-ctx.pointer.y * 0.08 - board.rotation.x) * Math.min(1, dt * 3);
+
+      ctx.camera.position.set(0, -0.2, 12);
+      ctx.camera.lookAt(0, -0.2, 0);
+    }
+  };
+}
+
+/* ================= shared runtime ================= */
+
+const canvas = document.getElementById('c');
+const btnPlay = document.getElementById('btnPlay');
+const speedEl = document.getElementById('speed');
+const btnPng = document.getElementById('btnPng');
+
+/* The piece is running in something card-sized (?compact=1). The head script has
+   already taken the panels out of the layout; what is left for the scene is its own
+   in-frame labelling, below. */
+const COMPACT = document.documentElement.classList.contains('is-compact');
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+} catch (e) {
+  document.getElementById('err').style.display = 'grid';
+  document.getElementById('hud').hidden = true;
+  throw e;
+}
+
+/* Quality tier: 1 on desktop, lower on small screens or few cores.
+   Scenes scale particle counts by ctx.quality. */
+const small = Math.min(window.innerWidth, window.innerHeight) < 700;
+const weak = (navigator.hardwareConcurrency || 8) <= 4;
+const quality = small ? 0.5 : (weak ? 0.7 : 1);
+
+/* Point sprites are sized in device pixels against a fixed reference, tuned in a
+   window about 700px tall. In a 260px card at one device pixel per CSS pixel each
+   sprite keeps that pixel count and so covers nearly three times the share of the
+   frame it was drawn for: the piece turns into a smear of its own glow. Rendering
+   the card at about a window's worth of device pixels puts them back in proportion.
+   The buffer stays smaller than the one a project page already runs the same piece
+   at full size, and the particle counts are still on the small-screen tier. */
+function pixelRatio() {
+  if (COMPACT) return Math.min(2.6, Math.max(1, 640 / Math.max(1, window.innerHeight)));
+  return Math.min(window.devicePixelRatio || 1, quality < 1 ? 1.5 : 2);
+}
+renderer.setPixelRatio(pixelRatio());
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+camera.position.set(0, 0, 12);
+
+const ctx = {
+  scene: new THREE.Scene(),
+  camera,
+  renderer,
+  quality,
+  /* A handful of scenes size their points off the canvas height, so the points hold
+     their proportion of any frame, which in a card is a single pixel of dust. Those
+     scenes multiply by this; the rest never read it. 1 unless compact. */
+  pxScale: COMPACT ? 1.6 : 1,
+  pointer: { x: 0, y: 0 },  /* smoothed, -1..1, y up */
+};
+
+/* The scene drives the camera itself, calling camera.lookAt(target) every
+   frame. Recording that target is what lets the viewer orbit the piece: the
+   pivot below is whatever the scene is looking at right now, so the orbit
+   layer further down can swing the camera around it without the scene and
+   the viewer fighting over the camera. */
+const sceneLook = new THREE.Vector3(0, 0, 0);
+const rawLookAt = camera.lookAt.bind(camera);
+camera.lookAt = function (x, y, z) {
+  if (x && x.isVector3) sceneLook.copy(x); else sceneLook.set(x, y, z);
+  return rawLookAt(sceneLook);
+};
+
+/* Live phase caption: scenes call ctx.caption('...') each frame; the text
+   only touches the DOM when it changes, with a quick cross-fade. */
+const lblPhase = document.getElementById('lblPhase');
+let capText = null, capTimer = 0;
+ctx.caption = (s) => {
+  if (s === capText || !lblPhase) return;
+  capText = s;
+  lblPhase.style.opacity = '0';
+  clearTimeout(capTimer);
+  capTimer = setTimeout(() => {
+    lblPhase.textContent = capText;
+    lblPhase.style.opacity = '1';
+  }, 180);
+};
+
+/* Small floating text tag rendered to a canvas texture, for labelling
+   objects inside the 3D scene. Returns a sprite; scale is world height. */
+ctx.makeTag = (text, color, h = 0.42) => {
+  const pad = 18, fpx = 46;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = '600 ' + fpx + 'px ui-monospace, Menlo, Consolas, monospace';
+  const tw = Math.ceil(meas.measureText(text).width);
+  const cw = tw + pad * 2, ch = fpx + pad * 2;
+  const cnv = document.createElement('canvas');
+  cnv.width = cw; cnv.height = ch;
+  const g = cnv.getContext('2d');
+  g.font = meas.font;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.shadowColor = color; g.shadowBlur = 14;
+  g.fillStyle = color;
+  g.fillText(text, cw / 2, ch / 2 + 2);
+  g.shadowBlur = 0;
+  g.fillText(text, cw / 2, ch / 2 + 2);
+  const tex = new THREE.CanvasTexture(cnv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthWrite: false, depthTest: false,
+  }));
+  spr.scale.set(h * cw / ch, h, 1);
+  spr.renderOrder = 20;
+  /* A card has no room to read a tag: it arrives as a grey smudge across the very
+     thing it names. The sprite is still built and still carried by the scene, it is
+     simply not drawn, so no scene has to know about compact mode. */
+  spr.visible = !COMPACT;
+  return spr;
+};
+
+let piece;
+try {
+  piece = createScene(THREE, ctx);
+} catch (e) {
+  document.getElementById('err').style.display = 'grid';
+  document.getElementById('hud').hidden = true;
+  console.error(e);
+  throw e;
+}
+
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  /* A card can be re-laid-out under the piece; the ratio is derived from the frame,
+     so it is re-derived with it. Outside compact the ratio never depended on size. */
+  if (COMPACT) renderer.setPixelRatio(pixelRatio());
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  if (piece.resize) piece.resize(w, h);
+}
+/* Resizing clears the drawing buffer, and a paused piece has no loop running to
+   redraw it, so ask the view loop for a single frame. */
+window.addEventListener('resize', () => { resize(); kickView(); });
+resize();
+
+/* Pointer parallax target, lerped each frame for weight. Frozen while the
+   viewer is dragging, so a grab is a clean orbit and not a double motion. */
+const target = { x: 0, y: 0 };
+window.addEventListener('pointermove', (e) => {
+  if (drag.id !== -1) return;
+  target.x = (e.clientX / window.innerWidth) * 2 - 1;
+  target.y = -((e.clientY / window.innerHeight) * 2 - 1);
+}, { passive: true });
+
+/* ================= direct manipulation =================
+   Grab the piece and it turns freely around whatever the scene is looking at,
+   with a little weight on release. Wheel or pinch zooms, double-click or the
+   Reset button returns the framing. The orbit is an offset applied after the
+   scene has placed its camera for the frame, never a replacement for it, so the
+   animation keeps playing from wherever the viewer parked the view.
+
+   The rotation is a quaternion, not a yaw/pitch pair, and that is the whole
+   design. A yaw/pitch orbit against a fixed up vector has two poles: straight
+   over the top the view snaps a half turn, which is why such an orbit has to be
+   clamped short of them and can never come all the way round. A quaternion has
+   no poles and no gimbal lock, so every axis turns the full 360 and keeps going.
+
+   It is held in the camera's own frame (qL below), not the world's. That is what
+   lets it survive the scene flying its camera around underneath: the viewer's
+   turn means "from where this piece is being watched, spin it this way", and it
+   stays true whatever the scene does with the framing next frame. */
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ZOOM_MIN = 0.4, ZOOM_MAX = 2.6;
+const EPS = 1e-4;
+const SPIN_EPS = 1e-5;               // radians per frame below which momentum is spent
+
+/* The viewer's rotation, in the camera's local frame: x is the axis a vertical
+   drag turns about, y a horizontal one, z the roll axis down the line of sight.
+   qL is what is applied this frame, qGoal where it is easing to. Momentum on
+   release is an axis and a per-frame angle, also local, decayed like the old
+   yaw/pitch velocities were. */
+const view = {
+  qL: new THREE.Quaternion(),
+  qGoal: new THREE.Quaternion(),
+  zoom: 1, zoomGoal: 1,
+  spinAxis: new THREE.Vector3(0, 1, 0),
+  spinAngle: 0,
+  touched: false                           // the viewer has taken the wheel
+};
+const QI = new THREE.Quaternion();         // identity, for comparisons and resets
+const dq = new THREE.Quaternion();         // scratch: the delta a gesture just asked for
+const dqAxis = new THREE.Vector3();
+const drag = { id: -1, x: 0, y: 0 };
+const touches = new Map();                 // live touch points, for pinch and twist
+let pinchFrom = 0, pinchZoom = 1, twistFrom = 0;
+/* What the view looked like when the gesture now in flight began. Embedded, the
+   canvas is touch-action: pan-y, so a vertical swipe is the host page's to keep:
+   the browser hands over a pointerdown and a move, then cancels. That gesture was
+   never an orbit, and this is what it gets put back to. */
+const gesture = {
+  active: false,
+  qL: new THREE.Quaternion(),
+  qGoal: new THREE.Quaternion(),
+  zoom: 1, zoomGoal: 1,
+  touched: false
+};
+
+/* Turn the view by `ang` about a local axis. Post-multiplying is what keeps the
+   gesture in the camera's frame: the axis is read from where the viewer is sitting
+   now, not from where the scene first framed the piece, so a turn means the same
+   thing to the hand however far round it has already been brought. */
+function turn(x, y, z, ang) {
+  if (!ang) return;
+  dq.setFromAxisAngle(dqAxis.set(x, y, z), ang);
+  view.qGoal.multiply(dq).normalize();
+}
+
+/* A drag step: turn by rx about local x, ry about local y, rz about local z, and
+   remember the whole of it as the momentum to carry on with when the pointer
+   lifts. The three collapse to one axis and one angle, so a release keeps
+   travelling along the exact arc the hand was drawing, roll included, rather than
+   along a pair of axes that have to be re-composed every frame. */
+const spinQ = new THREE.Quaternion();
+function spinFrom(rx, ry, rz) {
+  if (!rx && !ry && !rz) return;
+  spinQ.identity();
+  if (ry) { dq.setFromAxisAngle(dqAxis.set(0, 1, 0), ry); spinQ.multiply(dq); }
+  if (rx) { dq.setFromAxisAngle(dqAxis.set(1, 0, 0), rx); spinQ.multiply(dq); }
+  if (rz) { dq.setFromAxisAngle(dqAxis.set(0, 0, 1), rz); spinQ.multiply(dq); }
+  spinQ.normalize();
+  view.qGoal.multiply(spinQ).normalize();
+  /* Read the composed turn back as an axis and an angle. w is cos(angle/2) and the
+     vector part is the axis scaled by sin(angle/2), so the axis needs normalising
+     out; a turn too small to have a stable axis is simply no momentum. */
+  const s = Math.hypot(spinQ.x, spinQ.y, spinQ.z);
+  if (s < 1e-8) { view.spinAngle = 0; return; }
+  view.spinAxis.set(spinQ.x / s, spinQ.y / s, spinQ.z / s);
+  view.spinAngle = 2 * Math.atan2(s, spinQ.w);
+}
+
+const hintEl = document.getElementById('hint');
+const btnReset = document.getElementById('btnReset');
+
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+/* The viewer has taken the wheel. The hint and the Reset button are deliberately
+   not set from here: they follow the view's own state, synced every frame, so a
+   gesture the browser takes back for a page scroll leaves no trace on either. */
+function engage() { view.touched = true; }
+
+function beginGesture() {
+  if (gesture.active) return;
+  gesture.active = true;
+  gesture.qL.copy(view.qL); gesture.qGoal.copy(view.qGoal);
+  gesture.zoom = view.zoom; gesture.zoomGoal = view.zoomGoal;
+  gesture.touched = view.touched;
+}
+
+function undoGesture() {
+  if (!gesture.active) return;
+  view.qL.copy(gesture.qL); view.qGoal.copy(gesture.qGoal);
+  view.zoom = gesture.zoom; view.zoomGoal = gesture.zoomGoal;
+  view.spinAngle = 0;
+  view.touched = gesture.touched;
+}
+
+/* Is a quaternion the identity turn, to within the same hair the eased scalars are
+   settled against? w is the cosine of half the angle, and -q is the same rotation
+   as q, so it is the distance of |w| from 1 that answers it. */
+function isIdentity(q) {
+  return Math.abs(Math.abs(q.w) - 1) < EPS;
+}
+
+/* Is there anything to reset? Only if the view sits off the framing the scene gave
+   it, or is still carrying a release back into one. A finger that merely crossed the
+   canvas on its way down the page moved nothing, so it is offered nothing. */
+function viewMoved() {
+  return !isIdentity(view.qL) || !isIdentity(view.qGoal) ||
+    view.zoom !== 1 || view.zoomGoal !== 1 || view.spinAngle !== 0;
+}
+
+function syncViewUi() {
+  if (hintEl && hintEl.classList.contains('is-gone') !== view.touched) {
+    hintEl.classList.toggle('is-gone', view.touched);
+  }
+  if (!btnReset) return;
+  const show = viewMoved();
+  if (btnReset.hidden === !show) return;   // already saying the right thing
+  /* Hiding the control the keyboard is standing on would drop focus to nowhere:
+     hand it back to the piece first. */
+  if (!show && document.activeElement === btnReset) canvas.focus({ preventScroll: true });
+  btnReset.hidden = !show;
+}
+
+function resetView() {
+  view.qGoal.copy(QI); view.zoomGoal = 1;
+  view.spinAngle = 0;
+  if (reduceMotion) { view.qL.copy(QI); view.zoom = 1; }
+  kickView();
+}
+
+/* Wheel belongs to the host page until the viewer has actually grabbed the
+   piece, so scrolling past an embedded visualization never gets hijacked. */
+function ownsWheel() {
+  return view.touched || window.self === window.top || !!document.fullscreenElement;
+}
+
+/* Touch: a vertical swipe still scrolls the host page while embedded; taken
+   full screen or opened on its own, the canvas takes every axis. */
+function syncTouchAction() {
+  const own = window.self === window.top || !!document.fullscreenElement;
+  canvas.style.touchAction = own ? 'none' : 'pan-y';
+}
+syncTouchAction();
+
+function pinchSpan() {
+  const p = Array.from(touches.values());
+  return Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+}
+
+/* The angle of the line between two fingers. Turning that line rolls the piece,
+   which is the one axis a single finger cannot reach on its own. */
+function twistAngle() {
+  const p = Array.from(touches.values());
+  return Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x);
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;   // the left button orbits; leave the rest alone
+  beginGesture();
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size >= 2) {
+      drag.id = -1;
+      canvas.classList.remove('is-grabbing');
+      /* seed the pinch and the twist on exactly two fingers; a third neither
+         orbits nor re-seeds */
+      if (touches.size === 2) {
+        pinchFrom = pinchSpan();
+        pinchZoom = view.zoomGoal;
+        twistFrom = twistAngle();
+        engage();
+      }
+      return;
+    }
+  }
+  if (drag.id !== -1) return;
+  drag.id = e.pointerId;
+  drag.x = e.clientX;
+  drag.y = e.clientY;
+  view.spinAngle = 0;
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* capture is a nicety */ }
+  canvas.classList.add('is-grabbing');
+  canvas.focus({ preventScroll: true });
+  /* Engaging happens on the first actual movement, not here: a stray click on an
+     embedded piece must not quietly take the scroll wheel away from the host page. */
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2 && pinchFrom > 0) {
+      view.zoomGoal = clamp(pinchZoom * (pinchFrom / Math.max(1, pinchSpan())), ZOOM_MIN, ZOOM_MAX);
+      /* Twisting the two fingers rolls the piece. Re-seeded every move, so the
+         step is always the small angle just travelled and never has to be
+         unwrapped across the half turn where atan2 changes sign. */
+      const tw = twistAngle();
+      let roll = tw - twistFrom;
+      if (roll > Math.PI) roll -= Math.PI * 2;
+      else if (roll < -Math.PI) roll += Math.PI * 2;
+      twistFrom = tw;
+      turn(0, 0, 1, roll);
+      view.qL.copy(view.qGoal);   // a two-finger turn tracks the fingers, unsmoothed
+      kickView();
+      return;
+    }
+  }
+  if (e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x;
+  const dy = e.clientY - drag.y;
+  drag.x = e.clientX;
+  drag.y = e.clientY;
+  /* Held shift, a horizontal drag rolls instead of turning: the third axis from a
+     single pointer, for anyone without two fingers to twist with. */
+  if (e.shiftKey) {
+    spinFrom(0, 0, -(dx / Math.max(1, window.innerWidth)) * Math.PI * 2);
+  } else {
+    /* Direct manipulation: the piece follows the pointer. Drag right and it turns
+       right, which is the camera going the other way around it, hence the signs.
+       Nothing is clamped: keep dragging and it keeps coming round, past the top,
+       upside down, and back, because a quaternion has no pole to snag on. */
+    spinFrom(
+      -(dy / Math.max(1, window.innerHeight)) * Math.PI * 1.4,
+      -(dx / Math.max(1, window.innerWidth)) * Math.PI * 2,
+      0
+    );
+  }
+  engage();
+  kickView();
+});
+
+function endDrag(e) {
+  touches.delete(e.pointerId);
+  if (touches.size === 2) {
+    pinchFrom = pinchSpan(); pinchZoom = view.zoomGoal; twistFrom = twistAngle();
+  } else if (touches.size < 2) pinchFrom = 0;
+  if (e.pointerId === drag.id) {
+    drag.id = -1;
+    canvas.classList.remove('is-grabbing');
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* already gone */ }
+  }
+  if (drag.id === -1 && touches.size === 0) gesture.active = false;
+  kickView();
+}
+canvas.addEventListener('pointerup', endDrag);
+/* The browser has taken the gesture back: the finger that started on the piece
+   turned out to be the host page scrolling past it, so it was never an orbit. Give
+   the view back exactly as the gesture found it, hint and Reset button included. */
+canvas.addEventListener('pointercancel', (e) => { undoGesture(); endDrag(e); });
+
+canvas.addEventListener('wheel', (e) => {
+  if (!ownsWheel()) return;   // let the host page scroll
+  e.preventDefault();
+  const d = e.deltaY * (e.deltaMode === 1 ? 16 : (e.deltaMode === 2 ? 400 : 1));
+  view.zoomGoal = clamp(view.zoomGoal * Math.exp(d * 0.0012), ZOOM_MIN, ZOOM_MAX);
+  engage();
+  kickView();
+}, { passive: false });
+
+canvas.addEventListener('dblclick', (e) => { e.preventDefault(); resetView(); });
+if (btnReset) btnReset.addEventListener('click', resetView);
+
+/* The same orbit from the keyboard, for anyone not using a pointer. */
+canvas.setAttribute('aria-label', (canvas.getAttribute('aria-label') || '') +
+  ' Interactive: drag or use the arrow keys to turn the view freely in any direction,' +
+  ' shift and drag or Q and E to roll it, plus and minus to zoom, R to reset it.');
+
+let userPaused = false;
+let hidden = false;
+let speed = 1;
+let t = 0;
+let last = performance.now();
+
+function setPlayUi() {
+  btnPlay.textContent = userPaused ? 'Play' : 'Pause';
+  btnPlay.setAttribute('aria-pressed', String(userPaused));
+}
+btnPlay.addEventListener('click', () => {
+  userPaused = !userPaused;
+  setPlayUi();
+  if (!userPaused) {
+    if (vraf) { cancelAnimationFrame(vraf); vraf = 0; }
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    last = performance.now();
+    loop(last);
+  }
+});
+canvas.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); btnPlay.click(); return; }
+  const step = 0.14;
+  /* Every axis the pointer can reach, the keyboard reaches too, and just as far:
+     hold an arrow and the piece comes all the way round. Q and E are the roll the
+     pointer gets from shift or a two-finger twist. */
+  if (e.code === 'ArrowLeft') turn(0, 1, 0, step);
+  else if (e.code === 'ArrowRight') turn(0, 1, 0, -step);
+  else if (e.code === 'ArrowUp') turn(1, 0, 0, step);
+  else if (e.code === 'ArrowDown') turn(1, 0, 0, -step);
+  else if (e.key === 'q' || e.key === 'Q') turn(0, 0, 1, step);
+  else if (e.key === 'e' || e.key === 'E') turn(0, 0, 1, -step);
+  else if (e.key === '+' || e.key === '=') view.zoomGoal = clamp(view.zoomGoal * 0.88, ZOOM_MIN, ZOOM_MAX);
+  else if (e.key === '-' || e.key === '_') view.zoomGoal = clamp(view.zoomGoal / 0.88, ZOOM_MIN, ZOOM_MAX);
+  else if (e.key === 'r' || e.key === 'R') { resetView(); engage(); e.preventDefault(); return; }
+  else return;
+  e.preventDefault();
+  engage();
+  kickView();
+});
+speedEl.addEventListener('input', () => { speed = parseFloat(speedEl.value) || 1; });
+
+btnPng.addEventListener('click', () => {
+  renderer.render(ctx.scene, camera);
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'flask-todo-list-3d.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  });
+});
+
+const btnFs = document.getElementById('btnFs');
+if (!document.fullscreenEnabled) {
+  btnFs.hidden = true; /* e.g. embedded without allow="fullscreen" */
+} else {
+  btnFs.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', () => {
+    const on = !!document.fullscreenElement;
+    btnFs.textContent = on ? 'Exit fullscreen' : 'Fullscreen';
+    btnFs.setAttribute('aria-pressed', String(on));
+    syncTouchAction();
+  });
+}
+
+document.addEventListener('visibilitychange', () => {
+  hidden = document.hidden;
+  if (!hidden && !userPaused) {
+    /* the hidden tab left a frame queued; drop it rather than run two loops */
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    last = performance.now();
+    loop(last);
+  }
+});
+
+/* The scene's own camera placement for this frame, before the viewer's orbit
+   is layered on. Kept so the orbit is re-derived from the scene's framing every
+   frame instead of compounding on its own output. */
+const baseCam = new THREE.Vector3();
+const off = new THREE.Vector3();
+/* Whatever the scene rotated the camera by beyond simply aiming it at the pivot
+   (the terrain piece banks into its turns). Re-applied after every orbit so the
+   viewer moving the view never flattens the scene's own tilt. */
+const sceneTwist = new THREE.Quaternion();
+const aimQ = new THREE.Quaternion();
+/* The scene's pure aim at the pivot from its own camera spot this frame, twist
+   removed. It is the frame the viewer's rotation is composed onto. */
+const baseAim = new THREE.Quaternion();
+let baseSet = false;
+
+function stepView(dt) {
+  if (reduceMotion) view.spinAngle = 0;
+  else if (drag.id === -1 && view.spinAngle !== 0) {
+    turn(view.spinAxis.x, view.spinAxis.y, view.spinAxis.z, view.spinAngle);
+    view.spinAngle *= Math.pow(0.9, dt * 60);
+    if (Math.abs(view.spinAngle) < SPIN_EPS) view.spinAngle = 0;
+  }
+  const k = reduceMotion ? 1 : Math.min(1, dt * 9);
+  /* slerp, not a lerp per axis: the eased view travels the short way round the one
+     arc between here and the goal, which is the same path however far round the
+     piece has been turned. */
+  if (k >= 1) view.qL.copy(view.qGoal);
+  else view.qL.slerp(view.qGoal, k);
+  view.zoom += (view.zoomGoal - view.zoom) * k;
+  /* Settle exactly on the identity view rather than asymptotically near it, so a
+     reset gives the framing back to the scene instead of leaving it a hair off. */
+  if (isIdentity(view.qGoal) && isIdentity(view.qL)) view.qL.copy(QI);
+  if (Math.abs(view.zoom - 1) < EPS) view.zoom = 1;
+  syncViewUi();
+}
+
+/* fresh: the scene has just placed the camera this frame. Otherwise the piece
+   is paused and the camera is restored from the last placement it made. */
+function applyView(fresh) {
+  if (fresh) {
+    baseCam.copy(camera.position);
+    baseSet = true;
+    /* Measure the scene's own twist: aim at the pivot, compare with where the
+       scene actually left the camera, then put the scene's orientation back. */
+    aimQ.copy(camera.quaternion);
+    rawLookAt(sceneLook);
+    baseAim.copy(camera.quaternion);
+    sceneTwist.copy(baseAim).invert().multiply(aimQ);
+    camera.quaternion.copy(aimQ);
+  } else if (baseSet) {
+    camera.position.copy(baseCam);
+  }
+  if (!view.touched || !baseSet) return;
+  /* Nothing to add: give the scene's own framing straight back, so an untouched
+     view and a reset view are the same view, down to the pixel. When the piece is
+     paused the scene is not re-aiming the camera itself, so do it here. */
+  if (view.zoom === 1 && isIdentity(view.qL)) {
+    if (!fresh) { rawLookAt(sceneLook); camera.quaternion.multiply(sceneTwist); }
+    return;
+  }
+  off.copy(baseCam).sub(sceneLook);
+  const r = off.length();
+  if (r < 1e-5) return;
+  /* Turn the whole rig, camera and aim together, rigidly about the pivot. Aiming
+     the camera at the pivot leaves its local +z pointing back along the offset, so
+     the offset is just that axis at length r: rotate the aim by the viewer's turn
+     and the new spot on the sphere falls out of the same quaternion that gives the
+     new orientation. No up vector is consulted anywhere, which is exactly why
+     there is no pole to flip over and nothing to clamp. */
+  camera.quaternion.copy(baseAim).multiply(view.qL);
+  off.set(0, 0, Math.max(0.05, r * view.zoom)).applyQuaternion(camera.quaternion);
+  camera.position.copy(sceneLook).add(off);
+  camera.quaternion.multiply(sceneTwist);
+}
+
+function viewSettling() {
+  return drag.id !== -1 || view.spinAngle !== 0 ||
+    Math.abs(view.qL.dot(view.qGoal)) < 1 - EPS ||
+    Math.abs(view.zoomGoal - view.zoom) > EPS;
+}
+
+/* Dragging a paused piece still moves the view: a light loop that eases the
+   orbit and redraws, without advancing the scene. */
+let vraf = 0, vlast = 0;
+function viewFrame(now) {
+  vraf = 0;
+  const dt = Math.min((now - vlast) / 1000, 0.1);
+  vlast = now;
+  stepView(dt);
+  applyView(false);
+  renderer.render(ctx.scene, camera);
+  if (viewSettling()) kickView();
+}
+function kickView() {
+  if (!userPaused || hidden || vraf) return;
+  vlast = performance.now();
+  vraf = requestAnimationFrame(viewFrame);
+}
+
+let raf = 0;
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.1);
+  last = now;
+  t += dt * speed;
+  ctx.pointer.x += (target.x - ctx.pointer.x) * 0.06;
+  ctx.pointer.y += (target.y - ctx.pointer.y) * 0.06;
+  /* Give the scene back its own camera before it steps. Some pieces ease the camera
+     from wherever it currently is rather than placing it outright, and they must not
+     read the viewer's orbit back as their own starting point: the two would feed each
+     other and the framing would run away within a second. */
+  if (baseSet) camera.position.copy(baseCam);
+  piece.update(t, dt * speed);
+  stepView(dt);
+  applyView(true);
+  renderer.render(ctx.scene, camera);
+}
+function loop(now) {
+  if (userPaused || hidden) return;
+  frame(now);
+  raf = requestAnimationFrame(loop);
+}
+
+/* Always autoplay; the Pause button is the opt-out. */
+loop(performance.now());
+</script>
+</body>
+</html>

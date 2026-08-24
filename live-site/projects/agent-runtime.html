@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Runtime · Digitalise Agency</title>
+  <meta name="description" content="agent-runtime: an event-sourced runtime for LLM agents with deterministic byte-identical replay, crash-safe resume, an approval gate, failure injection, and a 24-scenario regression suite. 93 offline tests.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/agent-runtime.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Agent Runtime · Digitalise Agency">
+  <meta property="og:description" content="agent-runtime: an event-sourced runtime for LLM agents with deterministic byte-identical replay, crash-safe resume, an approval gate, failure injection, and a 24-scenario regression suite. 93 offline tests.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/agent-runtime.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/agent-runtime.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agent Runtime · Digitalise Agency">
+  <meta name="twitter:description" content="agent-runtime: an event-sourced runtime for LLM agents with deterministic byte-identical replay, crash-safe resume, an approval gate, failure injection, and a 24-scenario regression suite. 93 offline tests.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/agent-runtime.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-yellow" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">agent-runtime</p>
+      <h1 id="proj-title" class="proj-title">Agent Runtime</h1>
+      <p class="proj-lede">Hand an AI assistant real tools, like email or a calendar, and you need a record of what it did. This builds that record: every step is written to a log, so a whole run can be replayed exactly; risky actions pause for human approval; and a crash resumes without repeating work. 93 tests hold it together, all run against a scripted stand-in model, never a live AI service.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Verified offline</strong>
+            <p>The Anthropic and OpenAI adapters are implemented against their current APIs and covered by offline contract tests, but no live API calls were made because no keys were available. Everything else, including the full test suite, the CLI, and the web UI, runs and was verified offline.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/agent-runtime.html" title="Interactive 3D visualization: Agent Runtime" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Event Helix: an artwork of the log at the heart of the system. Every step the assistant takes is written down as it happens, the bright strand, and that written record is later played back to reproduce the same run exactly, the ghost strand beside it. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/agent-runtime.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/agent-runtime.webp" alt="Terminal output from a real pytest run and a live scenario replay of agent-runtime, showing byte-identical results." loading="lazy" decoding="async" width="1200" height="800">
+        <figcaption>93 tests passed; a real scenario run, approved, then replayed twice byte-identical.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>93</b><span>tests, all offline</span></div>
+          <div class="proj-stat"><b>byte-identical</b><span>deterministic replay</span></div>
+          <div class="proj-stat"><b>1</b><span>side effect on crash-resume</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/agent-runtime" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-yellow">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>An event-sourced runtime for tool-using LLM agents, with the operations layer that agent demos usually skip: deterministic replay, crash-safe resume, an approval gate for side effects, config-driven failure injection, and a YAML scenario suite that regression-tests agent behavior between model versions.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>An agent loop over a ModelAdapter interface with a deterministic mock adapter plus Anthropic and OpenAI adapters.</li>
+          <li>A typed tool registry with JSON-schema parameters, a side-effect flag, timeouts, and retries with backoff; shipped tools include sandboxed filesystem access, allowlisted HTTP GET, a CSV updater, an email drafter that writes .eml files and never sends, and a SQLite calendar.</li>
+          <li>Event sourcing: an append-only SQLite log per run, with one projection as the single interpreter of what a log means.</li>
+          <li>Deterministic replay that re-drives the loop purely from recorded turns with no network, compared byte for byte, with --until for stepwise state.</li>
+          <li>Checkpoint and resume without duplicate side effects, using idempotency keys derived from the log.</li>
+          <li>An approval queue that pauses side-effecting calls, driven from the CLI or a FastAPI UI with diff-style previews, plus failure injection proving the loop degrades cleanly.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Results</h2>
+        <ul class="proj-list">
+          <li>93 tests, all offline, covering replay, resume, approvals, faults, and the scenario suite.</li>
+          <li>24 YAML scenarios across 3 example agents; the regression runner prints pass/fail with a first-divergence diff per scenario and an HTML report.</li>
+          <li>Replay is byte-identical across happy paths, denials, faults, and failed runs.</li>
+          <li>A resume test crashes a run at the worst instant and asserts a side-effect counter stays at 1.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python 3.10+</li>
+          <li>SQLite event log</li>
+          <li>FastAPI</li>
+          <li>YAML scenarios</li>
+          <li>pytest</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="raft-kv.html">Prev: Raft Consensus KV Store</a>
+      <a class="proj-foot__link" href="vector-db.html">Next: Vector Database Engine</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vector Database Engine · Digitalise Agency</title>
+  <meta name="description" content="vector-db: a vector database engine with HNSW built from the paper, WAL crash recovery, and filtered kNN. Recall@10 matches FAISS at matched parameters across a 17,000-vector benchmark. 25 tests.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/vector-db.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Vector Database Engine · Digitalise Agency">
+  <meta property="og:description" content="vector-db: a vector database engine with HNSW built from the paper, WAL crash recovery, and filtered kNN. Recall@10 matches FAISS at matched parameters across a 17,000-vector benchmark. 25 tests.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/vector-db.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/vector-db.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vector Database Engine · Digitalise Agency">
+  <meta name="twitter:description" content="vector-db: a vector database engine with HNSW built from the paper, WAL crash recovery, and filtered kNN. Recall@10 matches FAISS at matched parameters across a 17,000-vector benchmark. 25 tests.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/vector-db.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-purple" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">vector-db</p>
+      <h1 id="proj-title" class="proj-title">Vector Database Engine</h1>
+      <p class="proj-lede">A search engine that finds things by meaning rather than exact words, the way a librarian can hand you the right book from a vague description. It was built from the original research paper rather than a ready-made library, then tested on 17,000 pieces of text: its matches were at least as accurate as FAISS, the library professionals use, though FAISS answers each search 10 to 13 times faster.</p>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/vector-db.html" title="Interactive 3D visualization: Vector Database Engine" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>HNSW Descent: how a search by meaning finds its match. It starts on a sparse top layer where a few long hops cover huge ground, then drops a level onto a denser map and hops again, closing in on the nearest matches instead of checking every item. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/vector-db.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/vector-db.webp" alt="Recall vs queries-per-second tradeoff curve from a real HNSW benchmark sweep of vector-db, compared to brute-force search." loading="lazy" decoding="async" width="1200" height="733">
+        <figcaption>17K vectors, 768-dim: recall climbs toward 1.0 as ef_search increases, trading off throughput.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>0.9997</b><span>recall@10 at efSearch 320</span></div>
+          <div class="proj-stat"><b>matches FAISS</b><span>recall at matched params</span></div>
+          <div class="proj-stat"><b>17,000</b><span>vectors indexed (768-dim)</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/vector-db" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-purple">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A vector database engine written from scratch in Python, built around an HNSW index implemented directly from the paper rather than wrapping a library. Approximate nearest-neighbor search with configurable recall, exact brute-force ground truth, metadata-filtered kNN, crash-safe WAL persistence, and a small HTTP server.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>An HNSW index from scratch: a multi-layer graph, probabilistic level assignment, greedy per-layer search, the Algorithm-4 neighbor-selection heuristic with keep_pruned_connections, and configurable M, efConstruction, and efSearch across L2, cosine, and inner-product metrics.</li>
+          <li>A flat brute-force index for exact recall ground truth.</li>
+          <li>Soft delete with tombstones and a compact() rebuild.</li>
+          <li>Crash-safe persistence: a binary snapshot plus an fsync'd write-ahead log, verified by a test that kills a real subprocess mid-batch.</li>
+          <li>Metadata and filtered kNN with both pre-filter (exact) and post-filter (approximate) strategies, both tested.</li>
+          <li>A FastAPI server with a Python client.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Benchmark</h2>
+        <p>18,000 real 20-Newsgroups embeddings (text-embedding-005, 768-dim), 17,000 indexed and 1,000 held out. M = 16, efConstruction = 200, k = 10, efSearch swept.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Recall vs FAISS</h2>
+        <div class="proj-table-wrap"><table class="proj-table">
+          <thead><tr><th>efSearch</th><th>ours recall@10</th><th>ours p50 ms</th><th>FAISS recall@10</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>0.9473</td><td>1.67</td><td>0.9038</td></tr>
+            <tr><td>40</td><td>0.9938</td><td>3.73</td><td>0.9886</td></tr>
+            <tr><td>80</td><td>0.9980</td><td>5.38</td><td>0.9970</td></tr>
+            <tr><td>160</td><td>0.9994</td><td>10.73</td><td>0.9987</td></tr>
+            <tr><td>320</td><td>0.9997</td><td>17.97</td><td>0.9991</td></tr>
+          </tbody></table></div>
+      </section>
+      <section class="proj-section">
+        <h2>What the numbers say</h2>
+        <p>At every matched efSearch our recall is at least as high as FAISS, which confirms the graph and search are implemented correctly. FAISS is roughly 10 to 13x faster per query and builds the index in seconds rather than about 20 minutes, because it is optimized C with SIMD and this is CPython with per-node numpy calls. That gap is expected and is the whole reason libraries like FAISS exist.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python 3.12</li>
+          <li>numpy</li>
+          <li>FastAPI</li>
+          <li>HNSW from the paper</li>
+          <li>faiss-cpu (benchmark only)</li>
+          <li>pytest</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="agent-runtime.html">Prev: Agent Runtime</a>
+      <a class="proj-foot__link" href="urdu-slm.html">Next: Urdu Language Model, from scratch</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Breakout · Digitalise Agency</title>
+  <meta name="description" content="A Python turtle Breakout clone with a procedurally generated block wall, three lives, a speed ramp every four paddle returns, particle bursts on block breaks, and a persisted high score.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/breakout-game.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Breakout · Digitalise Agency">
+  <meta property="og:description" content="A Python turtle Breakout clone with a procedurally generated block wall, three lives, a speed ramp every four paddle returns, particle bursts on block breaks, and a persisted high score.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/breakout-game.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/breakout-game.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Breakout · Digitalise Agency">
+  <meta name="twitter:description" content="A Python turtle Breakout clone with a procedurally generated block wall, three lives, a speed ramp every four paddle returns, particle bursts on block breaks, and a persisted high score.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/breakout-game.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-coral" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">breakout-game</p>
+      <h1 id="proj-title" class="proj-title">Breakout</h1>
+      <p class="proj-lede">Breakout is the arcade game where you slide a paddle, bounce a ball, and knock out a wall of blocks. This one is built from scratch in Python, no game engine, so everything is hand-made: spotting when the ball touches a block, losing one of three lives, speeding up as you rally, saving the high score. That touch test is a crude distance check; the drawing library offers nothing better.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Solo</strong>
+            <p>Solo work by our founder, Salman Adnan.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/breakout-game.html" title="Interactive 3D visualization: Breakout" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>The Perfect Run: an idealised game of Breakout playing itself, the paddle never missing and the wall of bricks never lasting. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/breakout-game.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/breakout-game.webp" alt="The real turtle-graphics Breakout clone, running." loading="lazy" decoding="async" width="828" height="666">
+        <figcaption>Live screenshot of the actual game.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>3</b><span>lives before game over</span></div>
+          <div class="proj-stat"><b>52</b><span>blocks generated in a verified smoke test</span></div>
+          <div class="proj-stat"><b>200</b><span>frames run in headless-safe verification</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/breakout-game" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-coral">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A classic Breakout clone built with Python's turtle module: a paddle, a bouncing ball, a wall of blocks colored by row, a lives system, a start and end screen, an increasing difficulty ramp, and a persistent high score.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>A block wall generated procedurally: random widths, packed row by row until there's no more vertical room, each row colored from a fixed palette.</li>
+          <li>Breaking a block flashes it white for a few frames and fires a small outward burst of particle turtles before both disappear.</li>
+          <li>Three lives; missing the ball costs one and re-centers it, keeping current difficulty, until all lives are gone.</li>
+          <li>The ball speeds up slightly every 4 paddle returns, capped at a maximum speed.</li>
+          <li>A start screen gates the game until the player is ready, and a game-over or win screen offers a restart that rebuilds the wall and resets ball and lives.</li>
+          <li>High score persists across runs in `highestScore.txt`, read on startup and saved whenever a game ends.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Verification</h2>
+        <div class="proj-callout"><p>Since `main.py` never returns until the window is closed, verification ran the same modules through a headless-safe frame loop capped at 200 iterations, operating on private copies of the modules so the real `highestScore.txt` was untouched. It drove the ball onto the paddle 10 times to trigger the difficulty ramp, then forced a miss and a restart. Result: 52 blocks created, 200 frames run without exception, 10 paddle hits recorded, a life loss and a difficulty increase both observed, and the restart path rebuilding 46 blocks with lives and ball speed reset correctly.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python 3 (stdlib only)</li>
+          <li>turtle</li>
+          <li>time</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="typing-master-gui.html">Prev: Typing Master</a>
+      <a class="proj-foot__link" href="disappearing-text-app.html">Next: Disappearing Text</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

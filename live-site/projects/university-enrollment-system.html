@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>University Enrollment System · Digitalise Agency</title>
+  <meta name="description" content="University Enrollment System: a PyQt6 desktop course-registration app over SQLite with emailed login codes, clash and capacity checks, attendance, and Excel export. A team project.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/university-enrollment-system.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="University Enrollment System · Digitalise Agency">
+  <meta property="og:description" content="University Enrollment System: a PyQt6 desktop course-registration app over SQLite with emailed login codes, clash and capacity checks, attendance, and Excel export. A team project.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/university-enrollment-system.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/university-enrollment-system.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="University Enrollment System · Digitalise Agency">
+  <meta name="twitter:description" content="University Enrollment System: a PyQt6 desktop course-registration app over SQLite with emailed login codes, clash and capacity checks, attendance, and Excel export. A team project.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/university-enrollment-system.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-purple" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">university-enrollment-system</p>
+      <h1 id="proj-title" class="proj-title">University Enrollment System <span class="badge badge--purple">Team</span></h1>
+      <p class="proj-lede">The software a university student uses to sign up for classes: log in, enter a six-digit code emailed to you, then add, drop, or swap courses, with clashes and full sections blocked and the timetable exported to Excel. Two students built it as a coursework project: the accounts are invented, and passwords sit in the database as plain readable text, fine for a classroom demo, not for real credentials.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Team project</strong>
+            <p>A two-person team: our founder, Salman Adnan, and Shayan Wasif. Salman's areas were the email verification (login MFA) flow, the attendance module with email confirmations, Docker packaging, and integration and bug fixing across the screens. This is a coursework demo database; the accounts are fake and passwords are stored in plaintext, so the scheme is not for real credentials.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/university-enrollment-system.html" title="Interactive 3D visualization: University Enrollment System" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>Seat Lattice: an amphitheater of empty seats filling as enrollments arrive, section by section, until the full ones stop taking anybody. That is the rule the system enforces. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/university-enrollment-system.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/university-enrollment-system.webp" alt="The real PyQt6 schedule screen, populated with a demo student's actual enrolled courses." loading="lazy" decoding="async" width="890" height="820">
+        <figcaption>Live-rendered Qt widget, real data from the seeded database.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>6-digit</b><span>emailed login code</span></div>
+          <div class="proj-stat"><b>SQLite</b><span>+ SQLAlchemy</span></div>
+          <div class="proj-stat"><b>Excel</b><span>schedule export</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/university-enrollment-system" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-purple">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A desktop course-registration app built with PyQt6 and SQLAlchemy over SQLite. A student logs in, confirms an emailed code, then enrolls in sections, adds, drops, and swaps courses with clash and capacity checks, and exports a weekly schedule to Excel.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Login with email and password, followed by a 6-digit verification code sent over SMTP.</li>
+          <li>Enrollment in sections with capacity tracking (a section closes when full) and add, drop, and swap with schedule-clash detection.</li>
+          <li>A weekly and per-day schedule view, exportable to Excel via pandas and openpyxl.</li>
+          <li>An attendance screen that emails the student a confirmation for each change.</li>
+          <li>An activity log recording every add, drop, swap, and attendance change with timestamps.</li>
+          <li>Each screen is a QMainWindow paired with a Qt Designer .ui file loaded at runtime, over one data-access layer.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Results</h2>
+        <div class="proj-callout"><p>Verified by clicking through the app; email sending is optional and prints the code to the terminal when no credentials are set. A Dockerfile and per-OS run scripts are included.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>PyQt6</li>
+          <li>SQLAlchemy</li>
+          <li>SQLite</li>
+          <li>Qt Designer</li>
+          <li>pandas / openpyxl</li>
+          <li>Docker</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="reelflow-studio.html">Prev: ReelFlow Studio</a>
+      <a class="proj-foot__link" href="hitec-shopify-automation.html">Next: Hi-Tec Shopify Automation</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>

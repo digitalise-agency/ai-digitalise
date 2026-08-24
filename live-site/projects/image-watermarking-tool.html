@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Watermarking Tool · Digitalise Agency</title>
+  <meta name="description" content="A tkinter and Pillow desktop tool that batch-stamps a logo onto photos with a live before/after preview, adjustable opacity and size, and a 3x3 position grid, without touching the original files.">
+  <meta name="author" content="Digitalise Agency">
+  <meta name="theme-color" content="#FFFDF5">
+
+  <!--
+    SITE_URL: the site's absolute base URL is https://salmanadnan.com
+    It is the only absolute host the site uses, and it appears in robots.txt,
+    sitemap.xml, and the head of every HTML file. If the domain ever moves,
+    change it in all three places together.
+  -->
+  <link rel="canonical" href="https://salmanadnan.com/projects/image-watermarking-tool.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Digitalise Agency">
+  <meta property="og:title" content="Image Watermarking Tool · Digitalise Agency">
+  <meta property="og:description" content="A tkinter and Pillow desktop tool that batch-stamps a logo onto photos with a live before/after preview, adjustable opacity and size, and a 3x3 position grid, without touching the original files.">
+  <meta property="og:url" content="https://salmanadnan.com/projects/image-watermarking-tool.html">
+  <meta property="og:image" content="https://ai.digitalise.agency/assets/og/image-watermarking-tool.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Image Watermarking Tool · Digitalise Agency">
+  <meta name="twitter:description" content="A tkinter and Pillow desktop tool that batch-stamps a logo onto photos with a live before/after preview, adjustable opacity and size, and a 3x3 position grid, without touching the original files.">
+  <meta name="twitter:image" content="https://ai.digitalise.agency/assets/og/image-watermarking-tool.png">
+
+  <!-- partial:head-icons -->
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/favicon.png" sizes="any">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <!-- /partial:head-icons -->
+  <link rel="stylesheet" href="../styles.css?v=20260711">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Digitalise Agency",
+    "url": "https://ai.digitalise.agency/",
+    "logo": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "image": "https://ai.digitalise.agency/assets/agency-logo.svg",
+    "email": "mailto:salman@digitalise.agency",
+    "sameAs": [
+      "https://github.com/salmanadnan2257",
+      "https://www.linkedin.com/company/digitalise-agency/"
+    ],
+    "founder": { "@type": "Person", "name": "Salman Adnan" },
+    "address": { "@type": "PostalAddress", "addressCountry": "PK" },
+    "knowsAbout": [
+      "LLM inference", "Database engines", "Distributed consensus",
+      "Vector search", "Retrieval-augmented generation", "Agent runtimes",
+      "Django", "PyTorch"
+    ]
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- partial:nav-project -->
+<header class="nav" id="top">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="../index.html" aria-label="Digitalise Agency, home">
+      <span class="nav__mark" aria-hidden="true">DA</span>
+      <span class="nav__name">Digitalise Agency</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="../index.html#work">Work</a>
+      <a href="../index.html#process">Process</a>
+      <a href="../index.html#about">About</a>
+      <a href="#book-a-call" class="nav__cta">Book a call</a>
+    </nav>
+  </div>
+</header>
+<!-- /partial:nav-project -->
+
+<main id="main">
+
+  <section class="proj-hero acc-yellow" aria-labelledby="proj-title">
+    <div class="wrap">
+      <a class="proj-crumb" href="../index.html"><span aria-hidden="true">&larr;</span> Digitalise Agency</a>
+      <p class="proj-kicker">image-watermarking-tool</p>
+      <h1 id="proj-title" class="proj-title">Image Watermarking Tool</h1>
+      <p class="proj-lede">A desktop program that stamps a logo onto a whole batch of photos at once. Doing that by hand in an image editor is slow enough that most people skip it. Here you load the logo, size and fade it with sliders, drop it into one of nine spots on a three-by-three grid, and preview it against the original. One click stamps every photo, leaving the originals untouched.</p>
+        <div class="proj-note">
+          <div>
+            <strong>Solo</strong>
+            <p>Solo work by our founder, Salman Adnan.</p>
+          </div>
+        </div>
+      <figure class="proj-media proj-viz">
+        <div class="proj-viz__frame">
+          <iframe src="../viz/image-watermarking-tool.html" title="Interactive 3D visualization: Image Watermarking Tool" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <figcaption>The Stamp Ripple: a seal presses down and its mark spreads into every photo beneath it, which is the whole tool: one logo, one click, a whole batch stamped. Live and interactive: drag it to orbit, scroll or pinch to zoom. <a href="../viz/image-watermarking-tool.html" target="_blank" rel="noopener">Open full screen</a></figcaption>
+      </figure>
+
+      <figure class="proj-media">
+        <img src="../assets/screenshots/image-watermarking-tool.webp" alt="The real Image Watermarking Tool, showing its main window." loading="lazy" decoding="async" width="1008" height="686">
+        <figcaption>Live screenshot of the actual Tkinter app.</figcaption>
+      </figure>
+
+      <div class="proj-stats">
+          <div class="proj-stat"><b>9</b><span>position presets (3x3 grid + offsets)</span></div>
+          <div class="proj-stat"><b>300px</b><span>preview thumbnail box, constant render cost</span></div>
+          <div class="proj-stat"><b>600px</b><span>max watermark size cap</span></div>
+      </div>
+
+      <div class="proj-actions">
+        <a class="btn btn--primary" href="https://github.com/salmanadnan2257/image-watermarking-tool" rel="noopener" target="_blank">View code on GitHub</a>
+        <a class="btn btn--ghost" href="../index.html#work">All projects</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="proj-body acc-yellow">
+    <div class="wrap">
+      <div class="proj-layout">
+      <section class="proj-section">
+        <h2>Overview</h2>
+        <p>A desktop GUI for stamping a logo or watermark image onto a batch of photos, built with tkinter and Pillow. Load a watermark once, size and fade it with sliders, and see the exact composited result in a live before/after preview before saving anything.</p>
+      </section>
+      <section class="proj-section">
+        <h2>Key features</h2>
+        <ul class="proj-list">
+          <li>Live before/after preview: the right side of the window shows the original photo next to a live composited result, updating instantly as any slider changes.</li>
+          <li>Opacity slider (0-100%), applied as a real alpha blend against the photo underneath.</li>
+          <li>Watermark resizing with a slider, capped at 600px, applied as a bounding box that preserves aspect ratio.</li>
+          <li>Position control: a 3x3 grid of presets plus fine X/Y offset sliders for nudging off the preset.</li>
+          <li>Batch mode: select multiple photos and stamp all of them with the same settings in one click.</li>
+          <li>Output format choice (JPEG or PNG) and an optional custom save folder, defaulting to a `watermarked/` subfolder.</li>
+        </ul>
+      </section>
+      <section class="proj-section">
+        <h2>Verification</h2>
+        <div class="proj-callout"><p>Tested on Python 3.12.3 and Pillow 10.1.0. A synthetic-pixel test confirmed the alpha-blend fix: reading the same watermarked pixel under the old code gave a flat overwrite `(255, 0, 0, 127)`, while the fixed `paste_watermark_at()` produced a genuine blend `(127, 0, 128, 191)`. The GUI was confirmed to construct and update cleanly under a real X display, and a full in-process run (synthetic 600x400 photo, synthetic RGBA watermark, bypassing the native file dialogs) rendered a live preview and saved a real output file end to end. Not verified: the interactive file-picker flow itself (blocked on native dialogs) and behavior on Windows.</p></div>
+      </section>
+      <section class="proj-section">
+        <h2>Tech stack</h2>
+        <ul class="tech-tags">
+          <li>Python 3.12 (tkinter)</li>
+          <li>Pillow 10.1.0</li>
+          <li>pathlib</li>
+        </ul>
+      </section>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- partial:book-a-call -->
+<section class="book" id="book-a-call" aria-labelledby="book-title">
+  <div class="wrap book__inner">
+    <p class="eyebrow eyebrow--light">Book a call</p>
+    <h2 id="book-title" class="book__title">Let's talk about what you're building.</h2>
+    <p class="book__lead">Pick a slot below.</p>
+    <div class="book__embed">
+      <iframe src="https://cal.com/davonex/30min?embed=true&amp;layout=month_view" title="Book a call with Digitalise Agency" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+<!-- /partial:book-a-call -->
+
+<footer class="proj-foot">
+  <div class="wrap proj-foot__row">
+    <a class="proj-foot__link" href="../index.html">&larr; Back to all work</a>
+    <nav class="footer__nav" aria-label="Site policies">
+      <a href="../terms.html">Terms</a>
+      <a href="../privacy.html">Privacy</a>
+    </nav>
+    <nav class="proj-foot__nav" aria-label="More projects">
+      <a class="proj-foot__link" href="tic-tac-toe-gui.html">Prev: Tic Tac Toe</a>
+      <a class="proj-foot__link" href="typing-master-gui.html">Next: Typing Master</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../script.js" defer></script>
+</body>
+</html>
