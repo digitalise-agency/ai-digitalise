@@ -1,22 +1,29 @@
 {
   "schema": 2,
-  "project": "ai-digitalise",
-  "last_commit": "da508a715879a92a390e616d6f755b27ba1140cc",
-  "last_generated": "2026-08-11",
-  "head_subject": "Move new design into new-design-reference and disable auto-deploy",
-  "tracked_files": 6,
-  "coverage": "exhaustive",
+  "last_commit": "9ba378d",
+  "last_generated": "2026-09-04",
+  "coverage": "exhaustive over the audited population of 182 (git ls-files reports 188; 6 are this skill's own output in docs/explainer/ and are excluded by coverage-audit.sh by design). 96 tier-1 with full anatomy, 86 tier-2 declared.",
+  "notes": "INCREMENTAL UPDATE 2026-09-04. 4 commits since da508a7. 176 new files added by 9ba378d (Import the live site), plus README.md by 312500d. The live site (live-site/) is a static marketing site at ai.digitalise.agency: index.html, styles.css, script.js, privacy.html, terms.html, robots.txt, sitemap.xml, 35 project pages, 35 viz pages, 4 config/meta files, 86 binary assets (PNG OG images, WebP screenshots, fonts, SVG logos). Previously the repo only had the design reference and a disabled deploy workflow (6 files).",
+  "reconciles": true,
   "ledger": {
-    "tier1_explained_in_full": 6,
-    "tier2_declared_and_summarized": 0,
+    "tier1_explained_in_full": 96,
+    "tier2_declared_and_summarized": 86,
     "tier3_excluded_dirs": [],
     "reconciles": true,
-    "tier2_reasons": {},
-    "total_lines": 1591
+    "audited_population": 182,
+    "outside_audit_scope": {
+      "docs/explainer": 6
+    },
+    "note": "96 + 86 = 182, matching git ls-files excluding docs/explainer. Verified by coverage-audit.sh: 0 files never named."
   },
   "docs": {
-    "deep-dive": { "file": "deep-dive.pdf", "pages": 83, "parts": 6 },
-    "brief": { "file": "brief.pdf", "pages": 10 }
-  },
-  "notes": "First documentation of this repository; it was absent from assets/projects.json until 2026-08-11 and so had never been documented. Every one of the 6 tracked files is tier 1 and is quoted from first line to last: there is no generated, vendored, minified or binary content here (checked with a generator-banner grep, which returned nothing), and no tier 3 either, because `git status --porcelain --ignored` is empty and there is not even a .gitignore. Section numbering: front matter 1-6, per-file walkthroughs 7.1 index.html, 7.2 site.css, 7.3 main.js, 7.4 netlify.toml, 7.5 ASSETS.md, 7.6 deploy.yml.disabled (each in its own parts/ file), then 8-16 and Appendix A. VERIFICATION: every quoted listing was checked mechanically against the source at its stated firstnumber, and the union of quoted ranges covers lines 1..N of all six files with no gaps and no overlaps; that check caught four real transcription errors before the build. THREE UNPRINTABLE CHARACTERS: U+2500, U+2550 and U+2764 appear in the source and cannot be typeset by this font, so both documents declare substitutions (hyphen, equals sign, heart symbol) and state the mapping openly in Deep Dive section 1.4. EM-DASH GREP: the only hit in either .tex is the Markdown table separator |---|---| quoted verbatim from ASSETS.md line 8, which sits inside a verbatim lstlisting and therefore renders as three hyphens, not an em-dash; the quotation was kept faithful rather than altered. CENTRAL FACT for any future run: this repository is NOT the live ai.digitalise.agency. Commit da508a7 parked the design under new-design-reference/ and disabled the workflow; fetching the live address on 2026-08-11 returned 200 with a different page whose canonical URL is https://salmanadnan.com/. Both of those were verified live and are recorded as findings. If a later run finds the workflow re-enabled, check the rsync source path first: it still says ./ and would now publish a folder rather than a page, with --delete set."
+    "deep-dive": {
+      "file": "deep-dive.pdf",
+      "pages": 84
+    },
+    "brief": {
+      "file": "brief.pdf",
+      "pages": 7
+    }
+  }
 }

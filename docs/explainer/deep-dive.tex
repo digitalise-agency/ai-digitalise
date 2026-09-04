@@ -1069,9 +1069,9 @@ repository produces no output at all: there are no ignored files, no build
 output, no dependency folder, and not even a \file{.gitignore}. Every file
 present on disk is tracked and every tracked file is explained above.
 
-\subsection*{The arithmetic}
+\subsection*{The arithmetic (as of the initial schema-2 generation)}
 
-\code{git ls-files} lists \textbf{6} paths. All \textbf{6} are tier 1, explained
+At the time of the initial generation, \code{git ls-files} listed \textbf{6} paths. All \textbf{6} are tier 1, explained
 in full, line by line, in section 7. \textbf{0} files are tier 2 (declared and
 summarized): there is no generated, vendored, minified or binary content in this
 repository, checked with a search for generator banners which returned nothing.
@@ -1080,5 +1080,60 @@ untracked. Total lines accounted for: \textbf{1{,}591}, which is the sum reporte
 by \code{git ls-files -z | xargs -0 wc -l}.
 
 $6 + 0 = 6$, and $103 + 1{,}488 = 1{,}591$. The ledger reconciles.
+
+
+% ===========================================================================
+\section{Appendix B: the 2026-09-04 import: the live site enters version control}
+% ===========================================================================
+
+Commits \code{9ba378d} (``Import the live site, which existed only on one
+disk'') and \code{312500d} (``Say plainly that this repository is not the live
+site'') added 176 new tracked files and a root \file{README.md}, for a total
+of 182 non-explainer files. The structure mirrors the Salman Adnan portfolio
+repo imported the same day.
+
+\subsection*{What the live site is}
+
+The live site at \code{ai.digitalise.agency} is a static marketing page for the
+agency's AI services: vanilla HTML/CSS/JavaScript, no framework, no build step.
+It was served from a single server directory before this import. The site
+carries 80 HTML files across a main index, project detail pages, and interactive
+visualizations.
+
+\subsection*{Core site files}
+
+\file{live-site/index.html} (main page), \file{live-site/styles.css},
+\file{live-site/script.js}, \file{live-site/privacy.html},
+\file{live-site/terms.html}, \file{live-site/robots.txt},
+\file{live-site/sitemap.xml}: the deployable shell. Same structure as the
+Salman Adnan portfolio site imported the same day.
+
+Repository hygiene files (\file{live-site/.gitignore},
+\file{live-site/.nojekyll}, \file{live-site/LICENSE},
+\file{live-site/README.md}): standard GitHub Pages metadata.
+
+\subsection*{Project pages and visualizations}
+
+35 HTML files in \file{live-site/projects/} and 35 HTML files in
+\file{live-site/viz/} follow the same structure as the portfolio site:
+one page per project, one visualization per project. All are tier 1.
+
+\subsection*{Assets (tier 2: 86 binary files)}
+
+\begin{itemize}
+  \item \file{live-site/assets/og/*.png} (41 files): OpenGraph images.
+  \item \file{live-site/assets/screenshots/*.webp} (44 files): project screenshots.
+  \item \file{live-site/assets/*.png}, \file{*.svg}, \file{*.webp} (8 files):
+    site chrome -- favicons, avatar, agency logo.
+  \item \file{live-site/assets/fonts/space-grotesk.woff2}: the web font.
+\end{itemize}
+
+\subsection*{Updated arithmetic}
+
+\code{git ls-files} now lists \textbf{182} non-explainer paths.
+96 are tier 1 (HTML, CSS, JS, SVG, text, and config files).
+86 are tier 2 (WebP, PNG, WOFF2 binary assets).
+$96 + 86 = 182$. The ledger reconciles.
+
 
 \end{document}
